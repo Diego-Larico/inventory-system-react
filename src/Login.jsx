@@ -6,7 +6,7 @@ import { supabase } from './supabaseClient';
 import Tilt from 'react-parallax-tilt';
 
 
-function Login() {
+function Login({ onLoginSuccess }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -27,7 +27,7 @@ function Login() {
       setError(error.message);
     } else {
       setSuccess('Login successful!');
-      // Aquí puedes redirigir al dashboard o guardar el usuario
+      if (onLoginSuccess) onLoginSuccess();
     }
   };
 

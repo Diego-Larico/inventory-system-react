@@ -1,0 +1,48 @@
+/* calendar-violet.css: Personalización para react-calendar con tonos violeta/lila */
+.react-calendar {
+  font-family: inherit;
+}
+.react-calendar__navigation button {
+  color: #8f5cff;
+  background: none;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+.react-calendar__navigation button:enabled:hover,
+.react-calendar__navigation button:enabled:focus {
+  background: #f3f0ff;
+  color: #6e7ff3;
+}
+.react-calendar__month-view__weekdays {
+  color: #8f5cff;
+  font-weight: 500;
+}
+.react-calendar__tile--active {
+  background: linear-gradient(90deg, #8f5cff 0%, #6e7ff3 100%) !important;
+  color: #fff !important;
+  border-radius: 8px;
+}
+.react-calendar__tile--now {
+  background: #f3f0ff !important;
+  color: #8f5cff !important;
+  border-radius: 8px;
+}
+.react-calendar__tile:enabled:hover,
+.react-calendar__tile:enabled:focus {
+  background: #ece9fe !important;
+  color: #8f5cff !important;
+  border-radius: 8px;
+}
+.react-calendar__tile {
+  border-radius: 8px;
+  transition: background 0.2s, color 0.2s;
+}
+.react-calendar__month-view__days__day--weekend {
+  color: #b6aaff;
+}
+.react-calendar__navigation__label {
+  color: #8f5cff;
+  font-weight: 700;
+}

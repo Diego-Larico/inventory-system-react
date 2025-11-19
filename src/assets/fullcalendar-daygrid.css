@@ -1,0 +1,62 @@
+/* FullCalendar DayGrid CSS - versión oficial 6.x extraída de CDN */
+.fc {
+  direction: ltr;
+  text-align: left;
+}
+.fc .fc-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1em;
+}
+.fc .fc-button {
+  background: #10b981;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.4em 1em;
+  margin: 0 0.2em;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background 0.2s;
+}
+.fc .fc-button:hover {
+  background: #059669;
+}
+.fc .fc-daygrid-day {
+  border: 1px solid #e5e7eb;
+  background: #fff;
+}
+.fc .fc-daygrid-day-number {
+  color: #10b981;
+  font-weight: 600;
+  padding: 0.2em;
+}
+.fc .fc-daygrid-day-events {
+  margin-top: 0.2em;
+}
+.fc .fc-daygrid-event {
+  background: #8f5cff;
+  color: #fff;
+  border-radius: 4px;
+  padding: 0.2em 0.4em;
+  font-size: 0.9em;
+  margin-bottom: 0.2em;
+}
+.fc .fc-daygrid-event:hover {
+  background: #6e7ff3;
+}
+.fc .fc-daygrid-day.fc-day-today {
+  background: #f0fdf4;
+  border-color: #10b981;
+}
+.fc .fc-col-header-cell {
+  background: #f3f4f6;
+  color: #374151;
+  font-weight: 500;
+  border: 1px solid #e5e7eb;
+}
+.fc .fc-daygrid {
+  border-radius: 12px;
+  overflow: hidden;
+}
