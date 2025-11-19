@@ -1,9 +1,9 @@
-import React from 'react';
 
+import React from 'react';
 import ProgressCircleWidget from './ProgressCircleWidget';
 import WeatherWidget from './WeatherWidget';
 
-function Sidebar() {
+function Sidebar({ onNavigate, activeView }) {
   return (
     <aside className="bg-white h-screen w-64 flex flex-col border-r border-[#8f5cff] shadow-sm p-6">
       <div className="flex items-center mb-10">
@@ -12,8 +12,18 @@ function Sidebar() {
       </div>
       <nav className="flex-1">
         <ul className="space-y-4">
-          <li className="font-semibold text-[#8f5cff] flex items-center gap-2"><span>Dashboard</span></li>
-          <li className="text-gray-500 hover:text-[#8f5cff] cursor-pointer">Materiales</li>
+          <li
+            className={`font-semibold flex items-center gap-2 cursor-pointer ${activeView === 'dashboard' ? 'text-[#8f5cff]' : 'text-gray-500 hover:text-[#8f5cff]'}`}
+            onClick={() => onNavigate('dashboard')}
+          >
+            <span>Dashboard</span>
+          </li>
+          <li
+            className={`flex items-center gap-2 cursor-pointer ${activeView === 'materiales' ? 'text-[#8f5cff] font-semibold' : 'text-gray-500 hover:text-[#8f5cff]'}`}
+            onClick={() => onNavigate('materiales')}
+          >
+            Materiales
+          </li>
           <li className="text-gray-500 hover:text-[#8f5cff] cursor-pointer">Productos</li>
           <li className="text-gray-500 hover:text-[#8f5cff] cursor-pointer">Pedidos</li>
           <li className="text-gray-500 hover:text-[#8f5cff] cursor-pointer">Usuarios</li>
