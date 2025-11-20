@@ -23,10 +23,13 @@ function MaterialesView({ onNavigate }) {
     '-1 Cremallera usada en pedido #1022 (16/11/2025)',
   ];
 
-  // Toast de bajo stock
+  // Toast de bajo stock (evita duplicados y asegura cierre)
   useEffect(() => {
+    const toastId = 'bajo-stock-alert';
+    toast.dismiss(toastId); // Cierra cualquier alerta previa con este id
     if (materiales.some(m => m.estado === 'Bajo stock')) {
       toast.warn('¡Atención! Hay materiales con bajo stock.', {
+        toastId,
         position: 'top-right',
         autoClose: 4000,
         hideProgressBar: false,
