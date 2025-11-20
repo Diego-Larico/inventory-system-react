@@ -7,21 +7,26 @@ import '../assets/fullcalendar-violet.css';
 
 function FullCalendarWidget() {
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-2 flex flex-col items-center w-full max-w-xl mx-auto" style={{ minHeight: 0 }}>
-      <span className="font-semibold text-gray-700 text-lg mb-2 block">Calendario</span>
-      <FullCalendar
-        plugins={[dayGridPlugin]}
-        initialView="dayGridMonth"
-        height={520}
-        contentHeight={520}
-        headerToolbar={{
-          left: 'prev,next today',
-          center: 'title',
-          right: ''
-        }}
-        locale={esLocale}
-        events={[]}
-      />
+    <div
+      className="bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center mx-auto"
+      style={{ width: '100%', maxWidth: 700, minWidth: 500, minHeight: 560, boxSizing: 'border-box' }}
+    >
+      <h3 className="text-lg font-semibold mb-4 text-[#8f5cff]">Calendario</h3>
+      <div style={{ width: '100%', minWidth: 480, maxWidth: 680, height: 500, minHeight: 500, maxHeight: 500, boxSizing: 'border-box', marginBottom: 0 }}>
+        <FullCalendar
+          plugins={[dayGridPlugin]}
+          initialView="dayGridMonth"
+          height={500}
+          contentHeight={500}
+          locale={esLocale}
+          headerToolbar={{
+            left: 'prev,next today',
+            center: 'title',
+            right: ''
+          }}
+          events={[]}
+        />
+      </div>
     </div>
   );
 }

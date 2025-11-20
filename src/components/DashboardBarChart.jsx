@@ -13,7 +13,7 @@ const data = [
 
 function DashboardBarChart() {
   return (
-    <div className="bg-white rounded-2xl p-4 shadow-lg flex flex-col items-center w-full max-w-2xl mx-auto h-full min-h-[320px]">
+    <div className="bg-white rounded-2xl p-4 shadow-lg flex flex-col items-center w-full h-full min-h-[320px]">
       <h3 className="text-lg font-semibold mb-2 text-[#8f5cff]">Evolución semanal</h3>
       <div className="flex-1 w-full">
         <ResponsiveContainer width="100%" height="100%" minHeight={180}>

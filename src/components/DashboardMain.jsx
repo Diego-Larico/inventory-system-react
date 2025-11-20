@@ -13,8 +13,6 @@ import TodoListWidget from './TodoListWidget';
 function DashboardMain() {
   return (
     <main className="flex-1 bg-gray-50 min-h-screen p-8 overflow-y-auto">
-      <h1 className="text-3xl font-bold text-gray-800 mb-2">Dashboard</h1>
-      <p className="text-gray-500 mb-8">Bienvenido al sistema de inventario para taller de costura. Visualiza y gestiona materiales, productos y pedidos.</p>
       <DashboardCards />
       <section className="flex flex-col md:flex-row gap-6 mb-8 w-full">
         <div className="flex-1 flex flex-col gap-6">

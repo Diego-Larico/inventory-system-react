@@ -5,7 +5,7 @@ import WeatherWidget from './WeatherWidget';
 
 function Sidebar({ onNavigate, activeView }) {
   return (
-    <aside className="bg-white h-screen w-64 flex flex-col border-r border-[#8f5cff] shadow-sm p-6">
+  <aside className="bg-white h-screen w-64 flex flex-col border-r border-gray-200 shadow-sm p-6">
       <div className="flex items-center mb-10">
         <img src="/vite.svg" alt="Logo" className="w-10 h-10 mr-2" />
         <span className="font-bold text-lg text-[#8f5cff]">Inventario</span>

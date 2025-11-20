@@ -42,7 +42,10 @@ function TodoListWidget() {
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6 mb-4 flex flex-col items-center w-full max-w-xl mx-auto">
+    <div
+      className="bg-white rounded-2xl shadow-lg p-6 mb-4 flex flex-col items-center mx-auto"
+      style={{ width: '100%', maxWidth: 700, minWidth: 500, boxSizing: 'border-box' }}
+    >
       <h3 className="text-lg font-semibold mb-4 text-[#8f5cff]">Lista de tareas</h3>
       <form onSubmit={handleAddTask} className="flex w-full mb-4 gap-2">
         <input
