@@ -12,12 +12,12 @@ function Sidebar({ onNavigate, activeView }) {
       </div>
       <nav className="flex-1">
         <ul className="space-y-4">
-          <li
-            className={`font-semibold flex items-center gap-2 cursor-pointer ${activeView === 'dashboard' ? 'text-[#8f5cff]' : 'text-gray-500 hover:text-[#8f5cff]'}`}
-            onClick={() => onNavigate('dashboard')}
-          >
-            <span>Dashboard</span>
-          </li>
+            <li
+              className={`font-semibold flex items-center gap-2 cursor-pointer ${activeView === 'dashboard' ? 'text-[#8f5cff]' : 'text-gray-500 hover:text-[#8f5cff]'}`}
+              onClick={() => onNavigate('dashboard')}
+            >
+              <span>Inicio</span>
+            </li>
           <li
             className={`flex items-center gap-2 cursor-pointer ${activeView === 'materiales' ? 'text-[#8f5cff] font-semibold' : 'text-gray-500 hover:text-[#8f5cff]'}`}
             onClick={() => onNavigate('materiales')}
@@ -30,8 +30,13 @@ function Sidebar({ onNavigate, activeView }) {
             >
               Productos
             </li>
-          <li className="text-gray-500 hover:text-[#8f5cff] cursor-pointer">Pedidos</li>
-          <li className="text-gray-500 hover:text-[#8f5cff] cursor-pointer">Usuarios</li>
+          <li
+            className={`flex items-center gap-2 cursor-pointer ${activeView === 'pedidos' ? 'text-[#8f5cff] font-semibold' : 'text-gray-500 hover:text-[#8f5cff]'}`}
+            onClick={() => onNavigate('pedidos')}
+          >
+            Pedidos
+          </li>
+          <li className="text-gray-500 hover:text-[#8f5cff] cursor-pointer">Reportes</li>
         </ul>
         <div className="mt-10">
           <ul className="space-y-2 text-sm text-gray-400">

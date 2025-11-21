@@ -8,6 +8,7 @@ import DashboardRightPanel from './components/DashboardRightPanel';
 import Login from './Login';
 import MaterialesView from './MaterialesView';
 import ProductosView from './ProductosView';
+import PedidosView from './PedidosView';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -31,6 +32,7 @@ function App() {
                 <Route path="/" element={<DashboardMain />} />
                 <Route path="/materiales" element={<MaterialesView onNavigate={handleSidebarNav} />} />
                 <Route path="/productos" element={<ProductosView onNavigate={handleSidebarNav} />} />
+                <Route path="/pedidos" element={<PedidosView onNavigate={handleSidebarNav} />} />
                 {/* Puedes agregar más rutas aquí */}
                 <Route path="*" element={<Navigate to="/" />} />
               </Routes>
