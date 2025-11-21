@@ -12,7 +12,7 @@ import TodoListWidget from './TodoListWidget';
 
 function DashboardMain() {
   return (
-    <main className="flex-1 bg-gray-50 min-h-screen p-8 overflow-y-auto">
+    <main className="flex-1 bg-gray-50 min-h-screen p-8 overflow-y-auto animate-fade-in">
       <DashboardCards />
       <section className="flex flex-col md:flex-row gap-6 mb-8 w-full">
         <div className="flex-1 flex flex-col gap-6">

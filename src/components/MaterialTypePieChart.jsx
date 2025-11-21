@@ -13,7 +13,7 @@ function MaterialTypePieChart({ materiales }) {
 
   return (
     <div className="bg-white rounded-2xl p-6 shadow-lg flex flex-col items-center w-full max-w-md mx-auto">
-      <h3 className="text-lg font-semibold mb-2 text-[#8f5cff]">Distribución por tipo de material</h3>
+      <h3 className="text-lg font-semibold mb-2 text-[#8f5cff]">Distribución por categoría</h3>
       <div className="w-full h-64">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>

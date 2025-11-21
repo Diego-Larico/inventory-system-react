@@ -78,7 +78,7 @@ function MaterialesView({ onNavigate }) {
   }, []);
 
   return (
-    <div className="flex fixed inset-0 bg-gray-100 animate-fade-in">
+    <div className="flex fixed inset-0 bg-gray-100">
       <Sidebar onNavigate={onNavigate} activeView={'materiales'} />
       <ToastContainer />
       <div className="flex-1 flex flex-col min-h-0">
