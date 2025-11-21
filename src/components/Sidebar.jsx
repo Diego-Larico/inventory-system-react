@@ -36,7 +36,12 @@ function Sidebar({ onNavigate, activeView }) {
           >
             Pedidos
           </li>
-          <li className="text-gray-500 hover:text-[#8f5cff] cursor-pointer">Reportes</li>
+          <li
+            className={`flex items-center gap-2 cursor-pointer ${activeView === 'reportes' ? 'text-[#8f5cff] font-semibold' : 'text-gray-500 hover:text-[#8f5cff]'}`}
+            onClick={() => onNavigate('reportes')}
+          >
+            Reportes
+          </li>
         </ul>
         <div className="mt-10">
           <ul className="space-y-2 text-sm text-gray-400">
