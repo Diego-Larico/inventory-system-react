@@ -42,6 +42,54 @@
   animation: gradient 8s ease infinite;
 }
 
+/* React Calendar Custom Styles */
+.react-calendar {
+  border: none !important;
+  font-family: inherit;
+  width: 100%;
+}
+
+.react-calendar__tile {
+  padding: 12px 6px;
+  border-radius: 8px;
+  transition: all 0.3s;
+}
+
+.react-calendar__tile:hover {
+  background: #f3f4f6 !important;
+}
+
+.react-calendar__tile--active {
+  background: linear-gradient(135deg, #8f5cff, #6e7ff3) !important;
+  color: white !important;
+  font-weight: bold;
+}
+
+.react-calendar__tile--now {
+  background: #e9d5ff !important;
+  color: #8f5cff !important;
+  font-weight: bold;
+}
+
+.react-calendar__navigation button {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #8f5cff;
+  border-radius: 8px;
+  transition: all 0.3s;
+}
+
+.react-calendar__navigation button:hover {
+  background: #f3f4f6;
+}
+
+.react-calendar__month-view__weekdays {
+  color: #6b7280;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
 /* Custom Scrollbar */
 .custom-scrollbar::-webkit-scrollbar {
   width: 8px;
