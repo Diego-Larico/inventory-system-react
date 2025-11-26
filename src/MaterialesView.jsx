@@ -3,8 +3,6 @@ import Sidebar from './components/Sidebar';
 import { FaPlus, FaEdit, FaSearch, FaExclamationTriangle } from 'react-icons/fa';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import Select from 'react-select';
 import MaterialTypePieChart from './components/MaterialTypePieChart';
 import DashboardBarChart from './components/DashboardBarChart';
@@ -12,8 +10,13 @@ import * as XLSX from 'xlsx';
 import { VerticalTimeline, VerticalTimelineElement } from 'react-vertical-timeline-component';
 import 'react-vertical-timeline-component/style.min.css';
 import AchievementBadgeWidget from './components/AchievementBadgeWidget';
+import NuevoMaterialModal from './components/NuevoMaterialModal';
+import EditarMaterialModal from './components/EditarMaterialModal';
 
 function MaterialesView({ onNavigate }) {
+  const [showNuevoMaterialModal, setShowNuevoMaterialModal] = useState(false);
+  const [showEditarMaterialModal, setShowEditarMaterialModal] = useState(false);
+  const [materialSeleccionado, setMaterialSeleccionado] = useState(null);
   // Ejemplo de datos
   const materiales = [
     { nombre: 'Hilo blanco', tipo: 'Hilo', cantidad: 30, estado: 'Disponible' },
@@ -58,33 +61,21 @@ function MaterialesView({ onNavigate }) {
     { tipo: 'salida', descripcion: '-1 Cremallera usada en pedido #1022', fecha: '16/11/2025' },
   ];
 
-  // Toast de bajo stock (evita duplicados y asegura cierre)
-  useEffect(() => {
-    const toastId = 'bajo-stock-alert';
-    toast.dismiss(toastId); // Cierra cualquier alerta previa con este id
-    if (materiales.some(m => m.estado === 'Bajo stock')) {
-      toast.warn('¡Atención! Hay materiales con bajo stock.', {
-        toastId,
-        position: 'top-right',
-        autoClose: 4000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: 'colored',
-      });
-    }
-  }, []);
+  const handleNuevoMaterial = (data) => {
+    console.log('Nuevo material creado:', data);
+    // Aquí puedes agregar la lógica para guardar el material
+  };
 
   return (
     <div className="flex fixed inset-0 bg-gray-100">
       <Sidebar onNavigate={onNavigate} activeView={'materiales'} />
-      <ToastContainer />
       <div className="flex-1 flex flex-col min-h-0">
         <header className="px-8 py-6 bg-white border-b border-gray-200 flex items-center justify-between">
           <h1 className="text-2xl font-bold text-[#8f5cff]">Materiales</h1>
-          <button className="bg-[#8f5cff] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[#6e7ff3] transition flex items-center gap-2">
+          <button 
+            onClick={() => setShowNuevoMaterialModal(true)}
+            className="bg-[#8f5cff] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[#6e7ff3] transition flex items-center gap-2"
+          >
             <FaPlus /> Nuevo Material
           </button>
         </header>
@@ -198,7 +189,13 @@ function MaterialesView({ onNavigate }) {
                         </td>
                         <td>
                           <div className="flex justify-center">
-                            <button className="bg-gradient-to-br from-[#8f5cff] to-[#6e7ff3] text-white px-3 py-1 rounded-lg font-semibold flex items-center gap-2 shadow hover:scale-105 transition-transform duration-200">
+                            <button 
+                              onClick={() => {
+                                setMaterialSeleccionado(m);
+                                setShowEditarMaterialModal(true);
+                              }}
+                              className="bg-gradient-to-br from-[#f59e42] to-[#ff7a42] text-white px-3 py-1 rounded-lg font-semibold flex items-center gap-2 shadow hover:scale-105 transition-transform duration-200"
+                            >
                               <FaEdit /> Editar
                             </button>
                           </div>
@@ -244,6 +241,26 @@ function MaterialesView({ onNavigate }) {
           </div>
         </main>
       </div>
+
+      <NuevoMaterialModal
+        isOpen={showNuevoMaterialModal}
+        onClose={() => setShowNuevoMaterialModal(false)}
+        onSubmit={handleNuevoMaterial}
+      />
+
+      <EditarMaterialModal
+        isOpen={showEditarMaterialModal}
+        onClose={() => {
+          setShowEditarMaterialModal(false);
+          setMaterialSeleccionado(null);
+        }}
+        onSubmit={(data) => {
+          console.log('Material editado:', data);
+          setShowEditarMaterialModal(false);
+          setMaterialSeleccionado(null);
+        }}
+        material={materialSeleccionado}
+      />
     </div>
   );
 }

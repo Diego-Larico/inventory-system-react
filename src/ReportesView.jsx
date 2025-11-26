@@ -3,8 +3,6 @@ import { FaDownload, FaFilter, FaChartLine, FaChartBar, FaChartPie, FaCalendarAl
 import { motion, AnimatePresence } from 'framer-motion';
 import { BarChart, Bar, LineChart, Line, AreaChart, Area, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ComposedChart } from 'recharts';
 import Select from 'react-select';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import { format, subDays, subMonths } from 'date-fns';
 import { es } from 'date-fns/locale';
 import * as XLSX from 'xlsx';
@@ -216,8 +214,6 @@ function ReportesView({ onNavigate }) {
 
   return (
     <div className="flex-1 bg-gray-50 min-h-screen overflow-y-auto">
-      <ToastContainer position="top-right" autoClose={3000} />
-      
       {/* Topbar similar a otras vistas */}
       <header className="bg-white border-b border-gray-200 px-8 py-6 sticky top-0 z-10 shadow-sm">
         <div className="flex items-center justify-between mb-4">

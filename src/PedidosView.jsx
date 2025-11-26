@@ -3,14 +3,14 @@ import Sidebar from './components/Sidebar';
 import { FaPlus, FaSearch, FaShippingFast, FaClock, FaCheckCircle, FaTimesCircle, FaEye, FaEdit, FaTrash, FaFilter, FaDownload, FaBoxOpen, FaUser, FaPhone, FaMapMarkerAlt, FaCalendarAlt } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 import Select from 'react-select';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 import Modal from 'react-modal';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import NuevoPedidoModal from './components/NuevoPedidoModal';
+import EditarPedidoModal from './components/EditarPedidoModal';
 
 function PedidosView({ onNavigate }) {
   const [busqueda, setBusqueda] = useState('');
@@ -21,6 +21,8 @@ function PedidosView({ onNavigate }) {
   const [showModal, setShowModal] = useState(false);
   const [selectedPedido, setSelectedPedido] = useState(null);
   const [vistaActual, setVistaActual] = useState('lista'); // 'lista', 'kanban', 'calendario'
+  const [showNuevoPedidoModal, setShowNuevoPedidoModal] = useState(false);
+  const [showEditarPedidoModal, setShowEditarPedidoModal] = useState(false);
 
   // Datos de ejemplo
   const pedidos = [
@@ -194,10 +196,8 @@ function PedidosView({ onNavigate }) {
   }
 
   function handleExportar() {
-    toast.success('Exportando pedidos a Excel...', {
-      position: 'top-right',
-      autoClose: 2000
-    });
+    console.log('Exportando pedidos a Excel...');
+    // Aquí iría la lógica de exportación
   }
 
   function getEstadoColor(estado) {
@@ -234,7 +234,6 @@ function PedidosView({ onNavigate }) {
   return (
     <div className="flex fixed inset-0 bg-gray-100">
       <Sidebar onNavigate={onNavigate} activeView={'pedidos'} />
-      <ToastContainer />
       <div className="flex-1 flex flex-col min-h-0">
         <header className="px-8 py-6 bg-white border-b border-gray-200 flex items-center justify-between">
           <div>
@@ -248,7 +247,10 @@ function PedidosView({ onNavigate }) {
             >
               <FaDownload /> Exportar
             </button>
-            <button className="bg-[#8f5cff] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[#6e7ff3] transition flex items-center gap-2">
+            <button 
+              onClick={() => setShowNuevoPedidoModal(true)}
+              className="bg-[#8f5cff] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[#6e7ff3] transition flex items-center gap-2"
+            >
               <FaPlus /> Nuevo Pedido
             </button>
           </div>
@@ -719,13 +721,41 @@ function PedidosView({ onNavigate }) {
               >
                 Cerrar
               </button>
-              <button className="flex-1 bg-[#8f5cff] text-white px-4 py-3 rounded-lg font-semibold hover:bg-[#6e7ff3] transition">
+              <button 
+                onClick={() => {
+                  setShowModal(false);
+                  setShowEditarPedidoModal(true);
+                }}
+                className="flex-1 bg-gradient-to-r from-[#f59e42] to-[#ff7a42] text-white px-4 py-3 rounded-lg font-semibold hover:shadow-lg transition"
+              >
                 Editar Pedido
               </button>
             </div>
           </div>
         )}
       </Modal>
+
+      <NuevoPedidoModal
+        isOpen={showNuevoPedidoModal}
+        onClose={() => setShowNuevoPedidoModal(false)}
+        onSubmit={(data) => {
+          console.log('Nuevo pedido creado:', data);
+          setShowNuevoPedidoModal(false);
+        }}
+      />
+
+      <EditarPedidoModal
+        isOpen={showEditarPedidoModal}
+        onClose={() => {
+          setShowEditarPedidoModal(false);
+        }}
+        onSubmit={(data) => {
+          console.log('Pedido editado:', data);
+          setShowEditarPedidoModal(false);
+          setSelectedPedido(null);
+        }}
+        pedido={selectedPedido}
+      />
     </div>
   );
 }

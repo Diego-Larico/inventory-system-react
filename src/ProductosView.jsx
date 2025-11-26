@@ -10,13 +10,13 @@ import Dropzone from 'react-dropzone';
 import Sidebar from './components/Sidebar';
 import { FaPlus, FaSearch, FaBoxOpen, FaEdit } from 'react-icons/fa';
 import Select from 'react-select';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import MaterialTypePieChart from './components/MaterialTypePieChart';
 import DashboardBarChart from './components/DashboardBarChart';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
+import NuevoProductoModal from './components/NuevoProductoModal';
+import EditarProductoModal from './components/EditarProductoModal';
 
 function ProductosView({ onNavigate }) {
   const [busqueda, setBusqueda] = useState('');
@@ -24,11 +24,14 @@ function ProductosView({ onNavigate }) {
   const [estadoFiltro, setEstadoFiltro] = useState(null);
   const [savedFilters, setSavedFilters] = useState([]);
   const [showQuickView, setShowQuickView] = useState(false);
+  const [showEditarProductoModal, setShowEditarProductoModal] = useState(false);
+  const [productoSeleccionado, setProductoSeleccionado] = useState(null);
   const [quickViewProduct, setQuickViewProduct] = useState(null);
   const [featuredIndex, setFeaturedIndex] = useState(0);
   const [images, setImages] = useState({});
   const [comments, setComments] = useState({});
   const [newComment, setNewComment] = useState('');
+  const [showNuevoProductoModal, setShowNuevoProductoModal] = useState(false);
 
   const productos = [
     { nombre: 'Polo básico blanco', codigo: 'P-001', categoria: 'Polo', stock: 35, estado: 'Activo', destacado: true },
@@ -132,17 +135,24 @@ function ProductosView({ onNavigate }) {
   const [mostrarTodosMov, setMostrarTodosMov] = useState(false);
   // Los iconos ya están importados arriba: FaPlus, FaEdit
 
+  const handleNuevoProducto = (data) => {
+    console.log('Nuevo producto creado:', data);
+    // Aquí puedes agregar la lógica para guardar el producto
+  };
+
   return (
     <div className="flex fixed inset-0 bg-gray-100">
       <Sidebar onNavigate={onNavigate} activeView={'productos'} />
-      <ToastContainer />
       <div className="flex-1 flex flex-col min-h-0">
         <header className="px-8 py-6 bg-white border-b border-gray-200 flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-[#8f5cff]">Productos</h1>
             <p className="text-sm text-gray-400">Gestiona tu catálogo de productos terminados</p>
           </div>
-          <button className="bg-[#8f5cff] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[#6e7ff3] transition flex items-center gap-2">
+          <button 
+            onClick={() => setShowNuevoProductoModal(true)}
+            className="bg-[#8f5cff] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[#6e7ff3] transition flex items-center gap-2"
+          >
             <FaPlus /> Nuevo Producto
           </button>
         </header>
@@ -287,7 +297,13 @@ function ProductosView({ onNavigate }) {
                               <button onClick={() => handleOpenQuickView(p)} className="bg-gradient-to-br from-[#8f5cff] to-[#6e7ff3] text-white px-3 py-1 rounded-lg font-semibold flex items-center gap-2 shadow hover:scale-105 transition-transform duration-200 whitespace-nowrap">
                                 <FaEdit /> Vista rápida
                               </button>
-                              <button onClick={() => alert('Función de edición próximamente')} className="bg-[#f59e42] text-white px-3 py-1 rounded-lg font-semibold flex items-center gap-2 shadow hover:bg-[#f87171] transition whitespace-nowrap">
+                              <button 
+                                onClick={() => {
+                                  setProductoSeleccionado(p);
+                                  setShowEditarProductoModal(true);
+                                }}
+                                className="bg-gradient-to-br from-[#f59e42] to-[#ff7a42] text-white px-3 py-1 rounded-lg font-semibold flex items-center gap-2 shadow hover:scale-105 transition-transform duration-200 whitespace-nowrap"
+                              >
                                 <FaEdit /> Editar
                               </button>
                               <Dropzone onDrop={files => handleDrop(files, p.codigo)} multiple={false} accept={{'image/*': []}}>
@@ -437,6 +453,26 @@ function ProductosView({ onNavigate }) {
               </div>
             )}
           </Modal>
+
+          <NuevoProductoModal
+            isOpen={showNuevoProductoModal}
+            onClose={() => setShowNuevoProductoModal(false)}
+            onSubmit={handleNuevoProducto}
+          />
+
+          <EditarProductoModal
+            isOpen={showEditarProductoModal}
+            onClose={() => {
+              setShowEditarProductoModal(false);
+              setProductoSeleccionado(null);
+            }}
+            onSubmit={(data) => {
+              console.log('Producto editado:', data);
+              setShowEditarProductoModal(false);
+              setProductoSeleccionado(null);
+            }}
+            producto={productoSeleccionado}
+          />
         </main>
       </div>
     </div>
