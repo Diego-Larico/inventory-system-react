@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
-import { FaPlus, FaSearch, FaShippingFast, FaClock, FaCheckCircle, FaTimesCircle, FaEye, FaEdit, FaTrash, FaFilter, FaDownload, FaBoxOpen, FaUser, FaPhone, FaMapMarkerAlt, FaCalendarAlt } from 'react-icons/fa';
+import { FaPlus, FaSearch, FaShippingFast, FaClock, FaCheckCircle, FaTimesCircle, FaEye, FaEdit, FaTrash, FaFilter, FaDownload, FaBoxOpen, FaUser, FaPhone, FaMapMarkerAlt, FaCalendarAlt, FaEnvelope } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 import Select from 'react-select';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
@@ -9,8 +9,18 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGri
 import Modal from 'react-modal';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import toast from 'react-hot-toast';
 import NuevoPedidoModal from './components/NuevoPedidoModal';
 import EditarPedidoModal from './components/EditarPedidoModal';
+import {
+  obtenerPedidos,
+  actualizarEstadoPedido,
+  eliminarPedido,
+  obtenerEstadisticasPedidos,
+  buscarPedidos,
+  obtenerPedidosPorSemana,
+  obtenerIngresosMensuales,
+} from './services/pedidosService';
 
 function PedidosView({ onNavigate }) {
   const [busqueda, setBusqueda] = useState('');
@@ -23,9 +33,90 @@ function PedidosView({ onNavigate }) {
   const [vistaActual, setVistaActual] = useState('lista'); // 'lista', 'kanban', 'calendario'
   const [showNuevoPedidoModal, setShowNuevoPedidoModal] = useState(false);
   const [showEditarPedidoModal, setShowEditarPedidoModal] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [pedidos, setPedidos] = useState([]);
+  const [estadisticas, setEstadisticas] = useState({
+    totalPedidos: 0,
+    pendientes: 0,
+    enProceso: 0,
+    completados: 0,
+    cancelados: 0,
+    ventasMes: 0,
+  });
+  const [dataPorSemana, setDataPorSemana] = useState([]);
+  const [dataIngresos, setDataIngresos] = useState([]);
 
-  // Datos de ejemplo
-  const pedidos = [
+  // Cargar pedidos al montar el componente
+  useEffect(() => {
+    cargarPedidos();
+    cargarEstadisticas();
+    cargarDatosGraficos();
+  }, []);
+
+  const cargarPedidos = async () => {
+    setLoading(true);
+    try {
+      const resultado = await obtenerPedidos();
+      if (resultado.success) {
+        setPedidos(resultado.data);
+      } else {
+        toast.error('Error al cargar pedidos');
+      }
+    } catch (error) {
+      console.error('Error al cargar pedidos:', error);
+      toast.error('Error al cargar pedidos');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const cargarEstadisticas = async () => {
+    try {
+      const resultado = await obtenerEstadisticasPedidos();
+      if (resultado.success) {
+        setEstadisticas(resultado.data);
+      }
+    } catch (error) {
+      console.error('Error al cargar estadísticas:', error);
+    }
+  };
+
+  const cargarDatosGraficos = async () => {
+    try {
+      // Cargar datos de pedidos por semana
+      const resultadoSemana = await obtenerPedidosPorSemana();
+      if (resultadoSemana.success) {
+        setDataPorSemana(resultadoSemana.data);
+      }
+
+      // Cargar datos de ingresos mensuales
+      const resultadoIngresos = await obtenerIngresosMensuales();
+      if (resultadoIngresos.success) {
+        setDataIngresos(resultadoIngresos.data);
+      }
+    } catch (error) {
+      console.error('Error al cargar datos de gráficos:', error);
+    }
+  };
+
+  // Buscar pedidos cuando cambia el término de búsqueda
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(async () => {
+      if (busqueda.trim()) {
+        const resultado = await buscarPedidos(busqueda);
+        if (resultado.success) {
+          setPedidos(resultado.data);
+        }
+      } else {
+        cargarPedidos();
+      }
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [busqueda]);
+
+  // Mock data inicial solo para cuando no hay pedidos en la BD
+  const pedidosMock = [
     {
       id: 'PED-001',
       cliente: 'Juan Pérez',
@@ -127,7 +218,7 @@ function PedidosView({ onNavigate }) {
   const estadoOptions = [
     { value: 'Pendiente', label: 'Pendiente' },
     { value: 'En Proceso', label: 'En Proceso' },
-    { value: 'En Tránsito', label: 'En Tránsito' },
+    { value: 'Entregado', label: 'Entregado' },
     { value: 'Completado', label: 'Completado' },
     { value: 'Cancelado', label: 'Cancelado' }
   ];
@@ -140,23 +231,20 @@ function PedidosView({ onNavigate }) {
 
   // Filtrado
   const pedidosFiltrados = pedidos.filter(p => {
-    const matchBusqueda = busqueda ? 
-      p.id.toLowerCase().includes(busqueda.toLowerCase()) || 
-      p.cliente.toLowerCase().includes(busqueda.toLowerCase()) : true;
     const matchEstado = estadoFiltro ? p.estado === estadoFiltro.value : true;
     const matchPrioridad = prioridadFiltro ? p.prioridad === prioridadFiltro.value : true;
     const matchFecha = fechaInicio && fechaFin ? 
-      new Date(p.fecha) >= new Date(fechaInicio) && new Date(p.fecha) <= new Date(fechaFin) : true;
-    return matchBusqueda && matchEstado && matchPrioridad && matchFecha;
+      new Date(p.fecha_pedido) >= new Date(fechaInicio) && new Date(p.fecha_pedido) <= new Date(fechaFin) : true;
+    return matchEstado && matchPrioridad && matchFecha;
   });
 
-  // Estadísticas
-  const totalPedidos = pedidos.length;
-  const pendientes = pedidos.filter(p => p.estado === 'Pendiente').length;
-  const enProceso = pedidos.filter(p => p.estado === 'En Proceso' || p.estado === 'En Tránsito').length;
-  const completados = pedidos.filter(p => p.estado === 'Completado').length;
+  // Estadísticas calculadas desde el estado
+  const totalPedidos = estadisticas.totalPedidos || pedidos.length;
+  const pendientes = estadisticas.pendientes || pedidos.filter(p => p.estado === 'Pendiente').length;
+  const enProceso = pedidos.filter(p => p.estado === 'En Proceso' || p.estado === 'Entregado').length;
+  const completados = estadisticas.completados || pedidos.filter(p => p.estado === 'Completado').length;
   const cancelados = pedidos.filter(p => p.estado === 'Cancelado').length;
-  const ingresoTotal = pedidos.filter(p => p.estado === 'Completado').reduce((sum, p) => sum + p.total, 0);
+  const ingresoTotal = estadisticas.ventasMes || 0;
 
   // Datos para gráficos
   const dataPorEstado = [
@@ -166,25 +254,63 @@ function PedidosView({ onNavigate }) {
     { name: 'Cancelado', value: cancelados, color: '#ef4444' }
   ];
 
-  const dataPorSemana = [
-    { dia: 'Lun', pedidos: 3 },
-    { dia: 'Mar', pedidos: 5 },
-    { dia: 'Mié', pedidos: 8 },
-    { dia: 'Jue', pedidos: 4 },
-    { dia: 'Vie', pedidos: 7 },
-    { dia: 'Sáb', pedidos: 2 },
-    { dia: 'Dom', pedidos: 1 }
-  ];
-
-  const dataIngresos = [
-    { mes: 'Jul', ingresos: 3200 },
-    { mes: 'Ago', ingresos: 4500 },
-    { mes: 'Sep', ingresos: 3800 },
-    { mes: 'Oct', ingresos: 5200 },
-    { mes: 'Nov', ingresos: 4800 }
-  ];
+  // Los datos de gráficos ahora vienen del estado cargado desde Supabase
 
   // Funciones
+  function handleVerDetalle(pedido) {
+    setSelectedPedido(pedido);
+    setShowModal(true);
+  }
+
+  function handleCerrarModal() {
+    setShowModal(false);
+    setSelectedPedido(null);
+  }
+
+  async function handleCambiarEstado(pedidoId, nuevoEstado) {
+    try {
+      const resultado = await actualizarEstadoPedido(pedidoId, nuevoEstado);
+      if (resultado.success) {
+        toast.success(`Estado actualizado a ${nuevoEstado}`);
+        await cargarPedidos();
+        await cargarEstadisticas();
+      } else {
+        toast.error('Error al actualizar estado');
+      }
+    } catch (error) {
+      console.error('Error al cambiar estado:', error);
+      toast.error('Error al actualizar estado');
+    }
+  }
+
+  async function handleEliminarPedido(pedidoId) {
+    if (!window.confirm('¿Estás seguro de eliminar este pedido?')) {
+      return;
+    }
+
+    try {
+      const resultado = await eliminarPedido(pedidoId);
+      if (resultado.success) {
+        toast.success('Pedido eliminado correctamente');
+        await cargarPedidos();
+        await cargarEstadisticas();
+        if (showModal) {
+          handleCerrarModal();
+        }
+      } else {
+        toast.error('Error al eliminar pedido');
+      }
+    } catch (error) {
+      console.error('Error al eliminar pedido:', error);
+      toast.error('Error al eliminar pedido');
+    }
+  }
+
+  async function handlePedidoCreado(nuevoPedido) {
+    setShowNuevoPedidoModal(false);
+    await cargarPedidos();
+    await cargarEstadisticas();
+  }
   function handleVerDetalle(pedido) {
     setSelectedPedido(pedido);
     setShowModal(true);
@@ -204,7 +330,7 @@ function PedidosView({ onNavigate }) {
     switch (estado) {
       case 'Pendiente': return 'bg-orange-100 text-orange-600';
       case 'En Proceso': return 'bg-blue-100 text-blue-600';
-      case 'En Tránsito': return 'bg-purple-100 text-purple-600';
+      case 'Entregado': return 'bg-purple-100 text-purple-600';
       case 'Completado': return 'bg-green-100 text-green-600';
       case 'Cancelado': return 'bg-red-100 text-red-600';
       default: return 'bg-gray-100 text-gray-600';
@@ -215,7 +341,7 @@ function PedidosView({ onNavigate }) {
     switch (estado) {
       case 'Pendiente': return <FaClock className="text-orange-500" />;
       case 'En Proceso': return <FaBoxOpen className="text-blue-500" />;
-      case 'En Tránsito': return <FaShippingFast className="text-purple-500" />;
+      case 'Entregado': return <FaShippingFast className="text-purple-500" />;
       case 'Completado': return <FaCheckCircle className="text-green-500" />;
       case 'Cancelado': return <FaTimesCircle className="text-red-500" />;
       default: return null;
@@ -479,57 +605,96 @@ function PedidosView({ onNavigate }) {
                   </thead>
                   <tbody>
                     <AnimatePresence>
-                      {pedidosFiltrados.map((pedido, index) => (
-                        <motion.tr
-                          key={pedido.id}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          exit={{ opacity: 0, x: 20 }}
-                          transition={{ duration: 0.3, delay: index * 0.05 }}
-                          className="border-b border-gray-100 hover:bg-gray-50 transition"
-                        >
-                          <td className="py-4">
-                            <span className="font-semibold text-[#8f5cff]">{pedido.id}</span>
-                          </td>
-                          <td className="py-4">
-                            <div className="flex flex-col items-center">
-                              <span className="font-medium text-gray-700">{pedido.cliente}</span>
-                              <span className="text-xs text-gray-400">{pedido.telefono}</span>
-                            </div>
-                          </td>
-                          <td className="py-4 text-gray-600 text-sm">{pedido.fecha}</td>
-                          <td className="py-4 text-gray-600 text-sm font-semibold">{pedido.fechaEntrega}</td>
-                          <td className="py-4">
+                      {loading ? (
+                        <tr>
+                          <td colSpan="8" className="py-8 text-center">
                             <div className="flex items-center justify-center gap-2">
-                              {getEstadoIcon(pedido.estado)}
-                              <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getEstadoColor(pedido.estado)}`}>
-                                {pedido.estado}
+                              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#8f5cff]"></div>
+                              <span className="text-gray-500">Cargando pedidos...</span>
+                            </div>
+                          </td>
+                        </tr>
+                      ) : pedidosFiltrados.length === 0 ? (
+                        <tr>
+                          <td colSpan="8" className="py-8 text-center text-gray-500">
+                            No se encontraron pedidos
+                          </td>
+                        </tr>
+                      ) : (
+                        pedidosFiltrados.map((pedido, index) => (
+                          <motion.tr
+                            key={pedido.id}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: 20 }}
+                            transition={{ duration: 0.3, delay: index * 0.05 }}
+                            className="border-b border-gray-100 hover:bg-gray-50 transition"
+                          >
+                            <td className="py-4">
+                              <div className="flex flex-col items-center">
+                                <span className="font-semibold text-[#8f5cff]">{pedido.numero_pedido || pedido.id}</span>
+                                {pedido.numero_pedido && (
+                                  <span className="text-xs text-gray-400">{pedido.id}</span>
+                                )}
+                              </div>
+                            </td>
+                            <td className="py-4">
+                              <div className="flex flex-col items-center">
+                                <span className="font-medium text-gray-700">{pedido.cliente_nombre}</span>
+                                {pedido.cliente_telefono && (
+                                  <span className="text-xs text-gray-400">{pedido.cliente_telefono}</span>
+                                )}
+                              </div>
+                            </td>
+                            <td className="py-4 text-gray-600 text-sm">
+                              {pedido.fecha_pedido ? new Date(pedido.fecha_pedido).toLocaleDateString('es-ES') : '-'}
+                            </td>
+                            <td className="py-4 text-gray-600 text-sm font-semibold">
+                              {pedido.fecha_entrega ? new Date(pedido.fecha_entrega).toLocaleDateString('es-ES') : '-'}
+                            </td>
+                            <td className="py-4">
+                              <div className="flex items-center justify-center gap-2">
+                                {getEstadoIcon(pedido.estado)}
+                                <select
+                                  value={pedido.estado}
+                                  onChange={(e) => handleCambiarEstado(pedido.id, e.target.value)}
+                                  className={`px-3 py-1 rounded-full text-xs font-semibold cursor-pointer ${getEstadoColor(pedido.estado)}`}
+                                >
+                                  <option value="Pendiente">Pendiente</option>
+                                  <option value="En Proceso">En Proceso</option>
+                                  <option value="Completado">Completado</option>
+                                  <option value="Cancelado">Cancelado</option>
+                                  <option value="Entregado">Entregado</option>
+                                </select>
+                              </div>
+                            </td>
+                            <td className="py-4">
+                              <span className={`${getPrioridadColor(pedido.prioridad)}`}>
+                                {pedido.prioridad}
                               </span>
-                            </div>
-                          </td>
-                          <td className="py-4">
-                            <span className={`${getPrioridadColor(pedido.prioridad)}`}>
-                              {pedido.prioridad}
-                            </span>
-                          </td>
-                          <td className="py-4">
-                            <span className="font-bold text-green-600">S/ {pedido.total.toFixed(2)}</span>
-                          </td>
-                          <td className="py-4">
-                            <div className="flex gap-2 items-center justify-center">
-                              <button
-                                onClick={() => handleVerDetalle(pedido)}
-                                className="bg-[#8f5cff] text-white px-3 py-1 rounded-lg font-semibold flex items-center gap-2 shadow hover:scale-105 transition-transform duration-200 whitespace-nowrap"
-                              >
-                                <FaEye /> Ver
-                              </button>
-                              <button className="bg-blue-500 text-white px-3 py-1 rounded-lg font-semibold flex items-center gap-2 shadow hover:bg-blue-600 transition whitespace-nowrap">
-                                <FaEdit /> Editar
-                              </button>
-                            </div>
-                          </td>
-                        </motion.tr>
-                      ))}
+                            </td>
+                            <td className="py-4">
+                              <span className="font-bold text-green-600">S/ {parseFloat(pedido.total || 0).toFixed(2)}</span>
+                            </td>
+                            <td className="py-4">
+                              <div className="flex gap-2 items-center justify-center">
+                                <button
+                                  onClick={() => handleVerDetalle(pedido)}
+                                  className="bg-[#8f5cff] text-white px-3 py-1 rounded-lg font-semibold flex items-center gap-2 shadow hover:scale-105 transition-transform duration-200 whitespace-nowrap"
+                                >
+                                  <FaEye /> Ver
+                                </button>
+                                <button 
+                                  onClick={() => handleEliminarPedido(pedido.id)}
+                                  className="bg-red-500 text-white px-3 py-1 rounded-lg font-semibold flex items-center gap-2 shadow hover:bg-red-600 transition whitespace-nowrap"
+                                >
+                                  <FaTrash /> Eliminar
+                                </button>
+                              </div>
+                            </td>
+                          </motion.tr>
+                        ))
+                      )}
                     </AnimatePresence>
                   </tbody>
                 </table>
@@ -560,19 +725,26 @@ function PedidosView({ onNavigate }) {
                           onClick={() => handleVerDetalle(pedido)}
                         >
                           <div className="flex items-center justify-between mb-2">
-                            <span className="font-bold text-[#8f5cff]">{pedido.id}</span>
+                            <span className="font-bold text-[#8f5cff] text-sm">{pedido.numero_pedido || pedido.id}</span>
                             <span className={`text-xs font-semibold ${getPrioridadColor(pedido.prioridad)}`}>
                               {pedido.prioridad}
                             </span>
                           </div>
-                          <p className="text-sm font-semibold text-gray-700 mb-1">{pedido.cliente}</p>
-                          <p className="text-xs text-gray-500 mb-2">{pedido.telefono}</p>
+                          <p className="text-sm font-semibold text-gray-700 mb-1">{pedido.cliente_nombre}</p>
+                          {pedido.cliente_telefono && (
+                            <p className="text-xs text-gray-500 mb-2">{pedido.cliente_telefono}</p>
+                          )}
                           <div className="flex items-center justify-between text-xs text-gray-400">
-                            <span>📅 {pedido.fechaEntrega}</span>
-                            <span className="font-bold text-green-600">S/ {pedido.total.toFixed(2)}</span>
+                            <span>📅 {pedido.fecha_entrega ? new Date(pedido.fecha_entrega).toLocaleDateString('es-ES') : '-'}</span>
+                            <span className="font-bold text-green-600">S/ {parseFloat(pedido.total || 0).toFixed(2)}</span>
                           </div>
                         </motion.div>
                       ))}
+                      {pedidosEstado.length === 0 && (
+                        <div className="text-center text-gray-400 text-sm py-4">
+                          Sin pedidos
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
@@ -614,7 +786,12 @@ function PedidosView({ onNavigate }) {
                 </button>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-3xl font-bold">{selectedPedido.id}</span>
+                <div>
+                  <div className="text-3xl font-bold">{selectedPedido.numero_pedido || selectedPedido.id}</div>
+                  {selectedPedido.numero_pedido && (
+                    <div className="text-sm opacity-80">ID: {selectedPedido.id}</div>
+                  )}
+                </div>
                 <div className="flex items-center gap-2">
                   {getEstadoIcon(selectedPedido.estado)}
                   <span className="bg-white text-[#8f5cff] px-4 py-2 rounded-full font-semibold">
@@ -634,16 +811,26 @@ function PedidosView({ onNavigate }) {
                 <div className="bg-gray-50 rounded-xl p-4 space-y-2">
                   <div className="flex items-center gap-2">
                     <FaUser className="text-gray-400" />
-                    <span className="font-semibold">{selectedPedido.cliente}</span>
+                    <span className="font-semibold">{selectedPedido.cliente_nombre}</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <FaPhone className="text-gray-400" />
-                    <span className="text-gray-700">{selectedPedido.telefono}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <FaMapMarkerAlt className="text-gray-400" />
-                    <span className="text-gray-700">{selectedPedido.direccion}</span>
-                  </div>
+                  {selectedPedido.cliente_telefono && (
+                    <div className="flex items-center gap-2">
+                      <FaPhone className="text-gray-400" />
+                      <span className="text-gray-700">{selectedPedido.cliente_telefono}</span>
+                    </div>
+                  )}
+                  {selectedPedido.cliente_direccion && (
+                    <div className="flex items-center gap-2">
+                      <FaMapMarkerAlt className="text-gray-400" />
+                      <span className="text-gray-700">{selectedPedido.cliente_direccion}</span>
+                    </div>
+                  )}
+                  {selectedPedido.cliente_email && (
+                    <div className="flex items-center gap-2">
+                      <FaEnvelope className="text-gray-400" />
+                      <span className="text-gray-700">{selectedPedido.cliente_email}</span>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -654,14 +841,18 @@ function PedidosView({ onNavigate }) {
                     <FaCalendarAlt />
                     <span className="text-sm">Fecha de Pedido</span>
                   </div>
-                  <span className="font-bold text-lg text-gray-700">{selectedPedido.fecha}</span>
+                  <span className="font-bold text-lg text-gray-700">
+                    {selectedPedido.fecha_pedido ? new Date(selectedPedido.fecha_pedido).toLocaleDateString('es-ES') : '-'}
+                  </span>
                 </div>
                 <div className="bg-gray-50 rounded-xl p-4">
                   <div className="flex items-center gap-2 text-gray-600 mb-1">
                     <FaShippingFast />
                     <span className="text-sm">Fecha de Entrega</span>
                   </div>
-                  <span className="font-bold text-lg text-[#8f5cff]">{selectedPedido.fechaEntrega}</span>
+                  <span className="font-bold text-lg text-[#8f5cff]">
+                    {selectedPedido.fecha_entrega ? new Date(selectedPedido.fecha_entrega).toLocaleDateString('es-ES') : '-'}
+                  </span>
                 </div>
               </div>
 
@@ -681,28 +872,73 @@ function PedidosView({ onNavigate }) {
                   <FaBoxOpen /> Productos
                 </h3>
                 <div className="space-y-2">
-                  {selectedPedido.productos.map((prod, index) => (
-                    <div key={index} className="bg-gray-50 rounded-xl p-4 flex items-center justify-between">
+                  {(selectedPedido.detalles || []).map((detalle, index) => (
+                    <div key={detalle.id || index} className="bg-gray-50 rounded-xl p-4 flex items-center justify-between">
                       <div>
-                        <p className="font-semibold text-gray-700">{prod.nombre}</p>
-                        <p className="text-sm text-gray-500">Cantidad: {prod.cantidad}</p>
+                        <p className="font-semibold text-gray-700">{detalle.producto_nombre}</p>
+                        <p className="text-sm text-gray-500">Cantidad: {detalle.cantidad}</p>
+                        {(detalle.talla || detalle.color) && (
+                          <p className="text-xs text-gray-400">
+                            {detalle.talla && `Talla: ${detalle.talla}`}
+                            {detalle.talla && detalle.color && ' | '}
+                            {detalle.color && `Color: ${detalle.color}`}
+                          </p>
+                        )}
                       </div>
                       <div className="text-right">
-                        <p className="text-sm text-gray-500">Precio unit.: S/ {prod.precio.toFixed(2)}</p>
-                        <p className="font-bold text-green-600">S/ {(prod.cantidad * prod.precio).toFixed(2)}</p>
+                        <p className="text-sm text-gray-500">Precio unit.: S/ {parseFloat(detalle.precio_unitario).toFixed(2)}</p>
+                        <p className="font-bold text-green-600">S/ {parseFloat(detalle.subtotal).toFixed(2)}</p>
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* Total */}
-              <div className="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl p-6 mb-6">
-                <div className="flex items-center justify-between">
-                  <span className="text-xl font-semibold">Total del Pedido:</span>
-                  <span className="text-4xl font-bold">S/ {selectedPedido.total.toFixed(2)}</span>
+              {/* Desglose de Totales */}
+              <div className="mb-6 bg-gray-50 rounded-xl p-4 space-y-2">
+                <div className="flex items-center justify-between text-gray-700">
+                  <span>Subtotal:</span>
+                  <span className="font-semibold">S/ {parseFloat(selectedPedido.subtotal || 0).toFixed(2)}</span>
                 </div>
+                {parseFloat(selectedPedido.descuento || 0) > 0 && (
+                  <div className="flex items-center justify-between text-gray-700">
+                    <span>Descuento:</span>
+                    <span className="font-semibold text-red-600">- S/ {parseFloat(selectedPedido.descuento).toFixed(2)}</span>
+                  </div>
+                )}
+                {parseFloat(selectedPedido.impuestos || 0) > 0 && (
+                  <div className="flex items-center justify-between text-gray-700">
+                    <span>Impuestos:</span>
+                    <span className="font-semibold">S/ {parseFloat(selectedPedido.impuestos).toFixed(2)}</span>
+                  </div>
+                )}
+                <div className="border-t pt-2 flex items-center justify-between text-lg font-bold text-gray-800">
+                  <span>Total:</span>
+                  <span className="text-green-600">S/ {parseFloat(selectedPedido.total || 0).toFixed(2)}</span>
+                </div>
+                {parseFloat(selectedPedido.anticipo || 0) > 0 && (
+                  <>
+                    <div className="flex items-center justify-between text-gray-700">
+                      <span>Anticipo:</span>
+                      <span className="font-semibold text-blue-600">S/ {parseFloat(selectedPedido.anticipo).toFixed(2)}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-lg font-bold">
+                      <span>Saldo Pendiente:</span>
+                      <span className="text-orange-600">S/ {parseFloat(selectedPedido.saldo || 0).toFixed(2)}</span>
+                    </div>
+                  </>
+                )}
               </div>
+
+              {/* Método de Pago */}
+              {selectedPedido.metodo_pago && (
+                <div className="mb-6 bg-blue-50 rounded-xl p-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-700 font-semibold">Método de Pago:</span>
+                    <span className="text-blue-700 font-bold">{selectedPedido.metodo_pago}</span>
+                  </div>
+                </div>
+              )}
 
               {/* Notas */}
               {selectedPedido.notas && (
@@ -722,13 +958,10 @@ function PedidosView({ onNavigate }) {
                 Cerrar
               </button>
               <button 
-                onClick={() => {
-                  setShowModal(false);
-                  setShowEditarPedidoModal(true);
-                }}
-                className="flex-1 bg-gradient-to-r from-[#f59e42] to-[#ff7a42] text-white px-4 py-3 rounded-lg font-semibold hover:shadow-lg transition"
+                onClick={() => handleEliminarPedido(selectedPedido.id)}
+                className="bg-red-500 text-white px-4 py-3 rounded-lg font-semibold hover:bg-red-600 transition flex items-center gap-2"
               >
-                Editar Pedido
+                <FaTrash /> Eliminar
               </button>
             </div>
           </div>
@@ -738,10 +971,7 @@ function PedidosView({ onNavigate }) {
       <NuevoPedidoModal
         isOpen={showNuevoPedidoModal}
         onClose={() => setShowNuevoPedidoModal(false)}
-        onSubmit={(data) => {
-          console.log('Nuevo pedido creado:', data);
-          setShowNuevoPedidoModal(false);
-        }}
+        onSubmit={handlePedidoCreado}
       />
 
       <EditarPedidoModal

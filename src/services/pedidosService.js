@@ -353,49 +353,52 @@ export async function obtenerEstadisticasPedidos() {
   try {
     console.log('📊 Obteniendo estadísticas de pedidos...');
     
-    // Total de pedidos
-    const { count: totalPedidos } = await supabase
+    // Obtener todos los pedidos para calcular estadísticas detalladas
+    const { data: pedidos, error } = await supabase
       .from('pedidos')
-      .select('*', { count: 'exact', head: true });
+      .select('id, estado, total, fecha_pedido');
 
-    // Pedidos pendientes
-    const { count: pedidosPendientes } = await supabase
-      .from('pedidos')
-      .select('*', { count: 'exact', head: true })
-      .in('estado', ['Pendiente', 'En Proceso']);
-
-    // Pedidos completados
-    const { count: pedidosCompletados } = await supabase
-      .from('pedidos')
-      .select('*', { count: 'exact', head: true })
-      .in('estado', ['Completado', 'Entregado']);
+    if (error) throw error;
 
     // Total de ventas del mes actual
-    const inicioMes = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
-    const { data: ventasMes } = await supabase
-      .from('pedidos')
-      .select('total')
-      .gte('fecha_pedido', inicioMes)
-      .in('estado', ['Completado', 'Entregado']);
-
-    const totalVentasMes = ventasMes?.reduce((sum, p) => sum + (parseFloat(p.total) || 0), 0) || 0;
+    const inicioMes = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+    const ventasMes = pedidos
+      .filter(p => {
+        const fechaPedido = new Date(p.fecha_pedido);
+        return (p.estado === 'Completado' || p.estado === 'Entregado') &&
+               fechaPedido >= inicioMes;
+      })
+      .reduce((sum, p) => sum + (parseFloat(p.total) || 0), 0);
 
     const estadisticas = {
-      totalPedidos: totalPedidos || 0,
-      pedidosPendientes: pedidosPendientes || 0,
-      pedidosCompletados: pedidosCompletados || 0,
-      ventasMes: totalVentasMes
+      totalPedidos: pedidos.length,
+      pendientes: pedidos.filter(p => p.estado === 'Pendiente').length,
+      enProceso: pedidos.filter(p => p.estado === 'En Proceso').length,
+      completados: pedidos.filter(p => p.estado === 'Completado').length,
+      cancelados: pedidos.filter(p => p.estado === 'Cancelado').length,
+      entregados: pedidos.filter(p => p.estado === 'Entregado').length,
+      ventasMes: ventasMes
     };
 
     console.log('✅ Estadísticas obtenidas:', estadisticas);
-    return estadisticas;
+    return {
+      success: true,
+      data: estadisticas
+    };
   } catch (error) {
     console.error('❌ Error al obtener estadísticas:', error);
     return {
-      totalPedidos: 0,
-      pedidosPendientes: 0,
-      pedidosCompletados: 0,
-      ventasMes: 0
+      success: false,
+      error: error.message,
+      data: {
+        totalPedidos: 0,
+        pendientes: 0,
+        enProceso: 0,
+        completados: 0,
+        cancelados: 0,
+        entregados: 0,
+        ventasMes: 0
+      }
     };
   }
 }
@@ -423,6 +426,114 @@ export async function crearCliente(clienteData) {
     };
   } catch (error) {
     console.error('❌ Error al crear cliente:', error);
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+}
+
+// Obtener pedidos por semana (últimos 7 días)
+export async function obtenerPedidosPorSemana() {
+  try {
+    console.log('📊 Obteniendo pedidos por semana...');
+    
+    const hoy = new Date();
+    const hace7Dias = new Date(hoy);
+    hace7Dias.setDate(hoy.getDate() - 6); // Últimos 7 días incluyendo hoy
+
+    const { data: pedidos, error } = await supabase
+      .from('pedidos')
+      .select('id, fecha_pedido')
+      .gte('fecha_pedido', hace7Dias.toISOString())
+      .lte('fecha_pedido', hoy.toISOString());
+
+    if (error) throw error;
+
+    // Inicializar contadores para cada día
+    const diasSemana = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+    const dataPorDia = [];
+
+    // Generar datos para cada uno de los últimos 7 días
+    for (let i = 6; i >= 0; i--) {
+      const fecha = new Date(hoy);
+      fecha.setDate(hoy.getDate() - i);
+      const diaSemana = diasSemana[fecha.getDay()];
+      
+      const pedidosDelDia = pedidos.filter(p => {
+        const fechaPedido = new Date(p.fecha_pedido);
+        return fechaPedido.toDateString() === fecha.toDateString();
+      }).length;
+
+      dataPorDia.push({
+        dia: diaSemana,
+        pedidos: pedidosDelDia
+      });
+    }
+
+    console.log('✅ Pedidos por semana:', dataPorDia);
+    return {
+      success: true,
+      data: dataPorDia
+    };
+  } catch (error) {
+    console.error('❌ Error al obtener pedidos por semana:', error);
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+}
+
+// Obtener ingresos mensuales (últimos 5 meses)
+export async function obtenerIngresosMensuales() {
+  try {
+    console.log('📊 Obteniendo ingresos mensuales...');
+    
+    const hoy = new Date();
+    const hace5Meses = new Date(hoy);
+    hace5Meses.setMonth(hoy.getMonth() - 4); // Últimos 5 meses incluyendo el actual
+
+    const { data: pedidos, error } = await supabase
+      .from('pedidos')
+      .select('total, fecha_pedido, estado')
+      .gte('fecha_pedido', hace5Meses.toISOString())
+      .in('estado', ['Completado', 'Entregado']);
+
+    if (error) throw error;
+
+    // Nombres de meses en español (abreviados)
+    const nombresMeses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    
+    const ingresosPorMes = [];
+
+    // Generar datos para cada uno de los últimos 5 meses
+    for (let i = 4; i >= 0; i--) {
+      const fecha = new Date(hoy);
+      fecha.setMonth(hoy.getMonth() - i);
+      const mes = nombresMeses[fecha.getMonth()];
+      
+      const ingresosDelMes = pedidos
+        .filter(p => {
+          const fechaPedido = new Date(p.fecha_pedido);
+          return fechaPedido.getMonth() === fecha.getMonth() &&
+                 fechaPedido.getFullYear() === fecha.getFullYear();
+        })
+        .reduce((sum, p) => sum + parseFloat(p.total || 0), 0);
+
+      ingresosPorMes.push({
+        mes: mes,
+        ingresos: parseFloat(ingresosDelMes.toFixed(2))
+      });
+    }
+
+    console.log('✅ Ingresos mensuales:', ingresosPorMes);
+    return {
+      success: true,
+      data: ingresosPorMes
+    };
+  } catch (error) {
+    console.error('❌ Error al obtener ingresos mensuales:', error);
     return {
       success: false,
       error: error.message
