@@ -1,35 +1,58 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
-import { FaTimes, FaBox, FaHashtag, FaPalette, FaBoxes, FaDollarSign, FaWarehouse, FaCube, FaIndustry } from 'react-icons/fa';
+import { FaTimes, FaBox, FaPalette, FaBoxes, FaDollarSign, FaWarehouse, FaCube, FaIndustry } from 'react-icons/fa';
 import Select from 'react-select';
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
+import { crearMaterial, obtenerCategoriasMateriales } from '../services/materialesService';
 
 Modal.setAppElement('#root');
 
 function NuevoMaterialModal({ isOpen, onClose, onSubmit }) {
   const [formData, setFormData] = useState({
     nombre: '',
-    codigo: '',
-    tipo: null,
+    categoria_id: null,
+    tipo: '',
     cantidad: '',
     unidad: null,
-    precioUnitario: '',
+    precio_unitario: '',
     proveedor: '',
     ubicacion: '',
-    stockMinimo: '',
+    stock_minimo: '10',
     color: '',
     notas: '',
   });
 
-  const tipoOptions = [
-    { value: 'Hilo', label: '🧵 Hilo', icon: '🧵' },
-    { value: 'Tela', label: '🧶 Tela', icon: '🧶' },
-    { value: 'Accesorio', label: '📌 Accesorio', icon: '📌' },
-    { value: 'Botón', label: '⚪ Botón', icon: '⚪' },
-    { value: 'Cremallera', label: '🔒 Cremallera', icon: '🔒' },
-    { value: 'Otro', label: '📦 Otro', icon: '📦' },
-  ];
+  const [categorias, setCategorias] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [loadingCategorias, setLoadingCategorias] = useState(true);
+
+  // Cargar categorías al abrir el modal
+  useEffect(() => {
+    if (isOpen) {
+      cargarCategorias();
+    }
+  }, [isOpen]);
+
+  const cargarCategorias = async () => {
+    try {
+      setLoadingCategorias(true);
+      const resultado = await obtenerCategoriasMateriales();
+      if (resultado.success) {
+        const categoriasFormateadas = resultado.data.map(cat => ({
+          value: cat.id,
+          label: `${cat.icono} ${cat.nombre}`,
+          data: cat
+        }));
+        setCategorias(categoriasFormateadas);
+      }
+    } catch (error) {
+      console.error('Error al cargar categorías:', error);
+      toast.error('Error al cargar categorías');
+    } finally {
+      setLoadingCategorias(false);
+    }
+  };
 
   const unidadOptions = [
     { value: 'metros', label: '📏 Metros' },
@@ -37,65 +60,91 @@ function NuevoMaterialModal({ isOpen, onClose, onSubmit }) {
     { value: 'rollos', label: '🎞️ Rollos' },
     { value: 'cajas', label: '📦 Cajas' },
     { value: 'kilos', label: '⚖️ Kilos' },
+    { value: 'gramos', label: '⚖️ Gramos' },
   ];
 
   const handleChange = (field, value) => {
     setFormData({ ...formData, [field]: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
+    // Validaciones
     if (!formData.nombre.trim()) {
-      toast.error('El nombre del material es obligatorio', {
-        icon: '📝',
-        style: { borderRadius: '12px', background: '#333', color: '#fff' },
-      });
+      toast.error('El nombre del material es obligatorio');
       return;
     }
-    if (!formData.codigo.trim()) {
-      toast.error('El código es obligatorio', {
-        icon: '🔢',
-        style: { borderRadius: '12px', background: '#333', color: '#fff' },
-      });
+    if (!formData.categoria_id) {
+      toast.error('Selecciona una categoría');
       return;
     }
-    if (!formData.tipo) {
-      toast.error('Selecciona un tipo de material', {
-        icon: '📦',
-        style: { borderRadius: '12px', background: '#333', color: '#fff' },
-      });
+    if (!formData.tipo.trim()) {
+      toast.error('El tipo de material es obligatorio');
       return;
     }
-    if (!formData.cantidad || formData.cantidad <= 0) {
-      toast.error('La cantidad debe ser mayor a 0', {
-        icon: '⚠️',
-        style: { borderRadius: '12px', background: '#333', color: '#fff' },
-      });
+    if (!formData.cantidad || parseFloat(formData.cantidad) < 0) {
+      toast.error('La cantidad debe ser mayor o igual a 0');
       return;
     }
 
-    toast.success('¡Material agregado exitosamente!', {
-      icon: '✨',
-      style: { borderRadius: '12px', background: '#8f5cff', color: '#fff' },
-      duration: 3000,
-    });
-    
-    onSubmit(formData);
-    handleClose();
+    try {
+      setLoading(true);
+
+      // Preparar datos para enviar a Supabase
+      const materialData = {
+        nombre: formData.nombre.trim(),
+        categoria_id: formData.categoria_id.value,
+        tipo: formData.tipo.trim(),
+        cantidad: parseFloat(formData.cantidad) || 0,
+        unidad: formData.unidad?.value || 'unidades',
+        precio_unitario: parseFloat(formData.precio_unitario) || 0,
+        stock_minimo: parseFloat(formData.stock_minimo) || 10,
+        proveedor: formData.proveedor.trim() || null,
+        ubicacion: formData.ubicacion.trim() || null,
+        color: formData.color.trim() || null,
+        notas: formData.notas.trim() || null,
+        // El código se genera automáticamente por el trigger en la base de datos
+      };
+
+      console.log('📤 Enviando material:', materialData);
+
+      const resultado = await crearMaterial(materialData);
+
+      if (resultado.success) {
+        toast.success('¡Material agregado exitosamente!', {
+          icon: '✨',
+          style: { borderRadius: '12px', background: '#8f5cff', color: '#fff' },
+          duration: 3000,
+        });
+        
+        if (onSubmit) {
+          onSubmit(resultado.data);
+        }
+        
+        handleClose();
+      } else {
+        toast.error(`Error al crear material: ${resultado.error}`);
+      }
+    } catch (error) {
+      console.error('Error al crear material:', error);
+      toast.error('Error inesperado al crear material');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleClose = () => {
     setFormData({
       nombre: '',
-      codigo: '',
-      tipo: null,
+      categoria_id: null,
+      tipo: '',
       cantidad: '',
       unidad: null,
-      precioUnitario: '',
+      precio_unitario: '',
       proveedor: '',
       ubicacion: '',
-      stockMinimo: '',
+      stock_minimo: '10',
       color: '',
       notas: '',
     });
@@ -189,7 +238,7 @@ function NuevoMaterialModal({ isOpen, onClose, onSubmit }) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 gap-6">
                 <div className="group">
                   <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
                     <FaBox className="text-[#8f5cff]" />
@@ -201,19 +250,7 @@ function NuevoMaterialModal({ isOpen, onClose, onSubmit }) {
                     onChange={(e) => handleChange('nombre', e.target.value)}
                     placeholder="Ej: Hilo blanco premium"
                     className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 group-hover:border-gray-300"
-                  />
-                </div>
-                <div className="group">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
-                    <FaHashtag className="text-[#8f5cff]" />
-                    Código *
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.codigo}
-                    onChange={(e) => handleChange('codigo', e.target.value)}
-                    placeholder="Ej: MAT-001"
-                    className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 group-hover:border-gray-300"
+                    disabled={loading}
                   />
                 </div>
               </div>
@@ -239,17 +276,33 @@ function NuevoMaterialModal({ isOpen, onClose, onSubmit }) {
                 <div>
                   <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
                     <FaBoxes className="text-[#8f5cff]" />
-                    Tipo de material *
+                    Categoría *
                   </label>
                   <Select
-                    options={tipoOptions}
-                    value={formData.tipo}
-                    onChange={(value) => handleChange('tipo', value)}
-                    placeholder="Selecciona el tipo"
+                    options={categorias}
+                    value={formData.categoria_id}
+                    onChange={(value) => handleChange('categoria_id', value)}
+                    placeholder={loadingCategorias ? "Cargando categorías..." : "Selecciona la categoría"}
                     styles={customSelectStyles}
+                    isDisabled={loading || loadingCategorias}
+                    isLoading={loadingCategorias}
                   />
                 </div>
                 <div className="group">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                    <FaBox className="text-[#8f5cff]" />
+                    Tipo de material *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.tipo}
+                    onChange={(e) => handleChange('tipo', e.target.value)}
+                    placeholder="Ej: Premium, Estándar, Económico"
+                    className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 group-hover:border-gray-300"
+                    disabled={loading}
+                  />
+                </div>
+                <div className="group md:col-span-2">
                   <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
                     <FaPalette className="text-[#8f5cff]" />
                     Color
@@ -258,8 +311,9 @@ function NuevoMaterialModal({ isOpen, onClose, onSubmit }) {
                     type="text"
                     value={formData.color}
                     onChange={(e) => handleChange('color', e.target.value)}
-                    placeholder="Ej: Blanco, Azul marino"
+                    placeholder="Ej: Blanco, Azul marino, Rojo"
                     className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 group-hover:border-gray-300"
+                    disabled={loading}
                   />
                 </div>
               </div>
@@ -293,12 +347,14 @@ function NuevoMaterialModal({ isOpen, onClose, onSubmit }) {
                     onChange={(e) => handleChange('cantidad', e.target.value)}
                     placeholder="0"
                     min="0"
+                    step="0.01"
                     className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 group-hover:border-gray-300"
+                    disabled={loading}
                   />
                 </div>
                 <div>
                   <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
-                    Unidad de medida
+                    Unidad de medida *
                   </label>
                   <Select
                     options={unidadOptions}
@@ -306,6 +362,7 @@ function NuevoMaterialModal({ isOpen, onClose, onSubmit }) {
                     onChange={(value) => handleChange('unidad', value)}
                     placeholder="Selecciona unidad"
                     styles={customSelectStyles}
+                    isDisabled={loading}
                   />
                 </div>
                 <div className="group">
@@ -315,12 +372,13 @@ function NuevoMaterialModal({ isOpen, onClose, onSubmit }) {
                   </label>
                   <input
                     type="number"
-                    value={formData.precioUnitario}
-                    onChange={(e) => handleChange('precioUnitario', e.target.value)}
+                    value={formData.precio_unitario}
+                    onChange={(e) => handleChange('precio_unitario', e.target.value)}
                     placeholder="0.00"
                     min="0"
                     step="0.01"
                     className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 group-hover:border-gray-300"
+                    disabled={loading}
                   />
                 </div>
                 <div className="group">
@@ -329,11 +387,13 @@ function NuevoMaterialModal({ isOpen, onClose, onSubmit }) {
                   </label>
                   <input
                     type="number"
-                    value={formData.stockMinimo}
-                    onChange={(e) => handleChange('stockMinimo', e.target.value)}
-                    placeholder="0"
+                    value={formData.stock_minimo}
+                    onChange={(e) => handleChange('stock_minimo', e.target.value)}
+                    placeholder="10"
                     min="0"
+                    step="0.01"
                     className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 group-hover:border-gray-300"
+                    disabled={loading}
                   />
                 </div>
               </div>
@@ -367,6 +427,7 @@ function NuevoMaterialModal({ isOpen, onClose, onSubmit }) {
                     onChange={(e) => handleChange('proveedor', e.target.value)}
                     placeholder="Nombre del proveedor"
                     className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 group-hover:border-gray-300"
+                    disabled={loading}
                   />
                 </div>
                 <div className="group">
@@ -380,6 +441,7 @@ function NuevoMaterialModal({ isOpen, onClose, onSubmit }) {
                     onChange={(e) => handleChange('ubicacion', e.target.value)}
                     placeholder="Ej: Estante A3"
                     className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 group-hover:border-gray-300"
+                    disabled={loading}
                   />
                 </div>
               </div>
@@ -394,6 +456,7 @@ function NuevoMaterialModal({ isOpen, onClose, onSubmit }) {
                   placeholder="Información adicional sobre el material"
                   rows={3}
                   className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 resize-none group-hover:border-gray-300"
+                  disabled={loading}
                 />
               </div>
             </motion.div>
@@ -406,17 +469,28 @@ function NuevoMaterialModal({ isOpen, onClose, onSubmit }) {
                 type="button"
                 onClick={handleClose}
                 className="flex-1 px-6 py-4 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-all duration-200 shadow-sm"
+                disabled={loading}
               >
                 Cancelar
               </motion.button>
               <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={{ scale: loading ? 1 : 1.02 }}
+                whileTap={{ scale: loading ? 1 : 0.98 }}
                 type="submit"
-                className="flex-1 px-6 py-4 bg-gradient-to-r from-[#8f5cff] to-[#6e7ff3] text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-200 shadow-md flex items-center justify-center gap-2"
+                className="flex-1 px-6 py-4 bg-gradient-to-r from-[#8f5cff] to-[#6e7ff3] text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-200 shadow-md flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={loading}
               >
-                <FaBox />
-                Agregar Material
+                {loading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    Creando...
+                  </>
+                ) : (
+                  <>
+                    <FaBox />
+                    Agregar Material
+                  </>
+                )}
               </motion.button>
             </div>
           </form>
