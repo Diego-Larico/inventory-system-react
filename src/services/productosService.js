@@ -39,16 +39,29 @@ export async function generarCodigoProducto() {
 // Obtener todas las categorías de productos
 export async function obtenerCategorias() {
   try {
+    console.log('🔍 Consultando categorías desde Supabase...');
+    
     const { data, error } = await supabase
       .from('categorias_productos')
-      .select('*')
+      .select('id, nombre, descripcion, icono, color')
       .order('nombre');
 
-    if (error) throw error;
+    if (error) {
+      console.error('❌ Error de Supabase al obtener categorías:', error);
+      throw error;
+    }
+    
+    console.log('✅ Categorías obtenidas:', data);
     return data || [];
   } catch (error) {
-    console.error('Error al obtener categorías:', error);
-    return [];
+    console.error('❌ Error al obtener categorías:', error);
+    console.error('Detalle del error:', {
+      message: error.message,
+      code: error.code,
+      details: error.details,
+      hint: error.hint
+    });
+    throw error; // Re-lanzar el error para que el modal pueda manejarlo
   }
 }
 

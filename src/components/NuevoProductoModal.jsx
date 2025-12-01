@@ -10,6 +10,7 @@ Modal.setAppElement('#root');
 
 function NuevoProductoModal({ isOpen, onClose, onSuccess }) {
   const [loading, setLoading] = useState(false);
+  const [loadingCategorias, setLoadingCategorias] = useState(false);
   const [categorias, setCategorias] = useState([]);
   const [formData, setFormData] = useState({
     nombre: '',
@@ -34,22 +35,48 @@ function NuevoProductoModal({ isOpen, onClose, onSuccess }) {
 
   const cargarDatosIniciales = async () => {
     try {
+      setLoadingCategorias(true);
+      
       // Generar código automático
       const nuevoCodigo = await generarCodigoProducto();
+      console.log('✅ Código generado:', nuevoCodigo);
       
       // Obtener categorías
       const categoriasDB = await obtenerCategorias();
-      const categoriasFormateadas = categoriasDB.map(cat => ({
-        value: cat.id,
-        label: `${cat.icono || '📦'} ${cat.nombre}`,
-        nombre: cat.nombre
-      }));
+      console.log('✅ Categorías obtenidas de Supabase:', categoriasDB);
       
-      setCategorias(categoriasFormateadas);
+      if (!categoriasDB || categoriasDB.length === 0) {
+        toast.error('No hay categorías disponibles. Ejecuta el script SQL en Supabase.', {
+          duration: 5000,
+          icon: '⚠️',
+        });
+        setCategorias([]);
+      } else {
+        const categoriasFormateadas = categoriasDB.map(cat => ({
+          value: cat.id,
+          label: `${cat.icono || '📦'} ${cat.nombre}`,
+          nombre: cat.nombre,
+          icono: cat.icono,
+          color: cat.color
+        }));
+        
+        console.log('✅ Categorías formateadas:', categoriasFormateadas);
+        setCategorias(categoriasFormateadas);
+        toast.success(`${categoriasFormateadas.length} categorías cargadas`, {
+          icon: '📂',
+          duration: 2000,
+        });
+      }
+      
       setFormData(prev => ({ ...prev, codigo: nuevoCodigo }));
     } catch (error) {
-      console.error('Error al cargar datos iniciales:', error);
-      toast.error('Error al cargar datos iniciales');
+      console.error('❌ Error al cargar datos iniciales:', error);
+      toast.error(`Error al cargar datos: ${error.message || 'Error desconocido'}`, {
+        duration: 5000,
+        icon: '❌',
+      });
+    } finally {
+      setLoadingCategorias(false);
     }
   };
 
@@ -265,22 +292,6 @@ function NuevoProductoModal({ isOpen, onClose, onSuccess }) {
         {/* Formulario con scroll */}
         <form onSubmit={handleSubmit} className="p-8 overflow-y-auto max-h-[calc(90vh-160px)] custom-scrollbar">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Código (generado automáticamente) */}
-            <div className="md:col-span-2">
-              <label className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
-                <FaHashtag className="text-[#8f5cff]" />
-                Código del Producto
-              </label>
-              <input
-                type="text"
-                value={formData.codigo}
-                disabled
-                className="w-full px-4 py-3 bg-gray-100 border-2 border-gray-200 rounded-xl font-mono font-bold text-[#8f5cff] text-lg cursor-not-allowed"
-                placeholder="Se genera automáticamente"
-              />
-              <p className="text-xs text-gray-500 mt-1">✨ Este código se genera automáticamente</p>
-            </div>
-
             {/* Nombre */}
             <div className="md:col-span-2">
               <label className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
@@ -307,10 +318,18 @@ function NuevoProductoModal({ isOpen, onClose, onSuccess }) {
                 onChange={(val) => handleChange('categoria', val)}
                 options={categorias}
                 styles={customSelectStyles}
-                placeholder="Selecciona categoría"
+                placeholder={loadingCategorias ? "Cargando categorías..." : "Selecciona categoría"}
                 isSearchable
                 isClearable
+                isLoading={loadingCategorias}
+                isDisabled={loadingCategorias}
+                noOptionsMessage={() => "No hay categorías disponibles"}
               />
+              {categorias.length === 0 && !loadingCategorias && (
+                <p className="text-xs text-red-500 mt-2">
+                  ⚠️ No hay categorías. Ejecuta el script SQL con los INSERT de categorías_productos.
+                </p>
+              )}
             </div>
 
             {/* Precio */}

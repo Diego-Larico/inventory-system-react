@@ -89,20 +89,26 @@ La aplicación se abrirá en `http://localhost:5173/`
    - Se genera automáticamente: `PROD001`, `PROD002`, `PROD003`, etc.
    - El sistema consulta el último producto y genera el siguiente número
    
-3. **Llenar formulario**:
+3. **Categorías** (⚠️ IMPORTANTE):
+   - **Las categorías se cargan automáticamente desde Supabase**
+   - Si el select aparece vacío o con error, ejecuta: `INSERTAR_CATEGORIAS.sql`
+   - Debes tener al menos 1 categoría para crear productos
+   - Categorías por defecto: Polo, Pantalón, Vestido, Chaqueta, Falda, Camisa, Short, Accesorio
+   
+4. **Llenar formulario**:
    - **Nombre**: Obligatorio (ej: "Camisa Casual Azul")
-   - **Categoría**: Obligatorio (se cargan desde la BD)
+   - **Categoría**: Obligatorio (select con iconos, se carga desde BD)
    - **Precio**: Obligatorio, mayor a 0
    - **Stock**: Obligatorio, no negativo
    - **Costo**: Opcional
    - **Stock Mínimo**: Opcional (default: 5)
-   - **Tallas**: Opcional (multiselección)
-   - **Colores**: Opcional (multiselección)
+   - **Tallas**: Opcional (multiselección: XS, S, M, L, XL, XXL, 28-36)
+   - **Colores**: Opcional (multiselección con iconos)
    - **Descripción**: Opcional
 
-4. **Guardar**: 
+5. **Guardar**: 
    - Se valida el formulario
-   - Se envía a Supabase
+   - Se envía a Supabase (tabla: productos)
    - Se muestra notificación de éxito
    - Se recarga automáticamente la lista de productos
 
@@ -132,10 +138,12 @@ El botón **"Nuevo Producto"** es el botón **MORADO con ícono de +** en la esq
 ### Nuevos archivos:
 - ✅ `src/services/productosService.js` - Servicio para manejar productos en Supabase
 - ✅ `DESHABILITAR_RLS.sql` - Script para deshabilitar RLS en Supabase
+- ✅ `INSERTAR_CATEGORIAS.sql` - Script para insertar categorías de productos
 
 ### Archivos modificados:
-- ✅ `src/components/NuevoProductoModal.jsx` - Modal completamente funcional
+- ✅ `src/components/NuevoProductoModal.jsx` - Modal con carga dinámica de categorías
 - ✅ `src/ProductosView.jsx` - Integración con Supabase y carga dinámica
+- ✅ `src/services/productosService.js` - Logging detallado de errores
 
 ## 📝 Funciones principales del servicio
 
@@ -194,14 +202,26 @@ ALTER TABLE public.categorias_productos DISABLE ROW LEVEL SECURITY;
 **Causa**: Error al consultar la BD
 **Solución**: Revisa la consola del navegador (F12) para ver el error exacto
 
-### No se cargan las categorías
-**Causa**: Tabla categorias_productos vacía o sin acceso
+### ❌ Error: No se cargan las categorías (select vacío)
+**Causa**: Tabla `categorias_productos` vacía o sin acceso
+**Síntoma**: El select de categoría aparece vacío o con mensaje "No hay categorías disponibles"
 **Solución**: 
+1. Abre Supabase SQL Editor
+2. Ejecuta el archivo `INSERTAR_CATEGORIAS.sql`
+3. Verifica con:
 ```sql
 -- Verificar que existan categorías
-SELECT * FROM categorias_productos;
+SELECT * FROM categorias_productos ORDER BY nombre;
 
--- Si está vacía, ejecutar los INSERT del script SQL
+-- Debe mostrar 8 categorías: Polo, Pantalón, Vestido, etc.
+```
+4. Si aún no cargan, verifica RLS:
+```sql
+-- Verificar que RLS esté deshabilitado
+SELECT tablename, rowsecurity FROM pg_tables 
+WHERE schemaname = 'public' AND tablename = 'categorias_productos';
+
+-- Debe mostrar: rowsecurity = false
 ```
 
 ## 🎨 Características implementadas
