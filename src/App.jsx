@@ -22,14 +22,18 @@ function App() {
     };
     // Detecta la ruta actual para Sidebar
     const activeView = window.location.pathname === '/' ? 'dashboard' : window.location.pathname.replace('/', '');
-      // Renderiza el Topbar solo si no está en la vista de Reportes
-      const showTopbar = activeView !== 'reportes';
+    
+    // Renderiza el Topbar solo en Dashboard (no en vistas específicas)
+    const showTopbar = activeView === 'dashboard';
+    
+    // Renderiza el RightPanel solo en Dashboard
+    const showRightPanel = activeView === 'dashboard';
 
     return (
       <div className="flex fixed inset-0 bg-gray-100">
         <Sidebar onNavigate={handleSidebarNav} activeView={activeView} />
         <div className="flex-1 flex flex-col min-h-0">
-            {showTopbar && <Topbar />}
+          {showTopbar && <Topbar />}
           <div className="flex-1 flex min-h-0">
             <div className="flex-1 overflow-y-auto min-h-0">
               <Routes>
@@ -42,7 +46,7 @@ function App() {
                 <Route path="*" element={<Navigate to="/" />} />
               </Routes>
             </div>
-            {activeView !== 'reportes' && <DashboardRightPanel />}
+            {showRightPanel && <DashboardRightPanel />}
           </div>
         </div>
       </div>

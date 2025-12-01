@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Sidebar from './components/Sidebar';
 import { 
@@ -13,6 +13,7 @@ import * as XLSX from 'xlsx';
 import NuevoProductoModal from './components/NuevoProductoModal';
 import EditarProductoModal from './components/EditarProductoModal';
 import toast, { Toaster } from 'react-hot-toast';
+import { obtenerProductos } from './services/productosService';
 
 function ProductosView({ onNavigate }) {
   const [showNuevoProductoModal, setShowNuevoProductoModal] = useState(false);
@@ -24,116 +25,62 @@ function ProductosView({ onNavigate }) {
   const [categoriaFiltro, setCategoriaFiltro] = useState(null);
   const [estadoFiltro, setEstadoFiltro] = useState(null);
   const [ordenamiento, setOrdenamiento] = useState('nombre-asc');
+  const [productos, setProductos] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Datos de ejemplo expandidos
-  const productos = [
-    { 
-      id: 1, 
-      nombre: 'Camisa Casual', 
-      codigo: 'PROD-001', 
-      categoria: 'Camisas', 
-      tallas: ['S', 'M', 'L'], 
-      colores: ['Blanco', 'Azul'], 
-      precio: 45.00, 
-      stock: 25, 
-      stockMinimo: 10,
-      materiales: ['Algodón', 'Poliéster'],
-      estado: 'Disponible',
-      imagen: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400',
-      rating: 4.5,
-      ventas: 120
-    },
-    { 
-      id: 2, 
-      nombre: 'Pantalón Jean', 
-      codigo: 'PROD-002', 
-      categoria: 'Pantalones', 
-      tallas: ['28', '30', '32'], 
-      colores: ['Azul oscuro', 'Negro'], 
-      precio: 65.00, 
-      stock: 5, 
-      stockMinimo: 8,
-      materiales: ['Denim', 'Elastano'],
-      estado: 'Bajo stock',
-      imagen: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=400',
-      rating: 4.8,
-      ventas: 95
-    },
-    { 
-      id: 3, 
-      nombre: 'Vestido Elegante', 
-      codigo: 'PROD-003', 
-      categoria: 'Vestidos', 
-      tallas: ['S', 'M'], 
-      colores: ['Rojo', 'Negro'], 
-      precio: 120.00, 
-      stock: 12, 
-      stockMinimo: 5,
-      materiales: ['Seda', 'Poliéster'],
-      estado: 'Disponible',
-      imagen: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=400',
-      rating: 5.0,
-      ventas: 78
-    },
-    { 
-      id: 4, 
-      nombre: 'Chaqueta Deportiva', 
-      codigo: 'PROD-004', 
-      categoria: 'Abrigos', 
-      tallas: ['M', 'L', 'XL'], 
-      colores: ['Negro', 'Gris'], 
-      precio: 95.00, 
-      stock: 18, 
-      stockMinimo: 10,
-      materiales: ['Nylon', 'Forro polar'],
-      estado: 'Disponible',
-      imagen: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400',
-      rating: 4.3,
-      ventas: 65
-    },
-    { 
-      id: 5, 
-      nombre: 'Blusa Floral', 
-      codigo: 'PROD-005', 
-      categoria: 'Blusas', 
-      tallas: ['S', 'M', 'L'], 
-      colores: ['Blanco', 'Rosa'], 
-      precio: 38.00, 
-      stock: 30, 
-      stockMinimo: 15,
-      materiales: ['Algodón'],
-      estado: 'Disponible',
-      imagen: 'https://images.unsplash.com/photo-1485968579580-b6d095142e6e?w=400',
-      rating: 4.6,
-      ventas: 140
-    },
-    { 
-      id: 6, 
-      nombre: 'Short Veraniego', 
-      codigo: 'PROD-006', 
-      categoria: 'Shorts', 
-      tallas: ['S', 'M', 'L'], 
-      colores: ['Beige', 'Verde'], 
-      precio: 32.00, 
-      stock: 22, 
-      stockMinimo: 12,
-      materiales: ['Lino'],
-      estado: 'Disponible',
-      imagen: 'https://images.unsplash.com/photo-1591195853828-11db59a44f6b?w=400',
-      rating: 4.2,
-      ventas: 88
-    },
-  ];
+  // Cargar productos desde Supabase
+  useEffect(() => {
+    cargarProductos();
+  }, []);
 
+  const cargarProductos = async () => {
+    setLoading(true);
+    try {
+      const productosDB = await obtenerProductos();
+      // Transformar datos de Supabase al formato esperado
+      const productosFormateados = productosDB.map(p => ({
+        id: p.id,
+        nombre: p.nombre,
+        codigo: p.codigo,
+        categoria: p.categoria?.nombre || 'Sin categoría',
+        tallas: p.tallas || [],
+        colores: p.colores || [],
+        precio: parseFloat(p.precio),
+        stock: p.stock,
+        stockMinimo: p.stock_minimo,
+        estado: p.estado,
+        imagen: p.imagen_url || 'https://via.placeholder.com/400?text=Sin+Imagen',
+        descripcion: p.descripcion,
+        costo: p.costo,
+      }));
+      setProductos(productosFormateados);
+    } catch (error) {
+      console.error('Error al cargar productos:', error);
+      toast.error('Error al cargar productos');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleNuevoProducto = () => {
+    setShowNuevoProductoModal(true);
+  };
+
+  const handleProductoCreado = (nuevoProducto) => {
+    toast.success('Producto creado correctamente');
+    cargarProductos(); // Recargar lista
+  };
+
+  // Opciones para filtros
   const categoriaOptions = [...new Set(productos.map(p => p.categoria))].map(cat => ({ 
     value: cat, 
     label: cat 
   }));
 
   const estadoOptions = [
-    { value: 'Disponible', label: '✅ Disponible' },
-    { value: 'Bajo stock', label: '⚠️ Bajo stock' },
-    { value: 'Agotado', label: '❌ Agotado' },
+    { value: 'disponible', label: '✅ Disponible' },
+    { value: 'bajo_stock', label: '⚠️ Bajo stock' },
+    { value: 'agotado', label: '❌ Agotado' },
   ];
 
   // Filtrado y ordenamiento
@@ -169,17 +116,12 @@ function ProductosView({ onNavigate }) {
   // Estadísticas
   const stats = useMemo(() => ({
     total: productos.length,
-    disponibles: productos.filter(p => p.estado === 'Disponible').length,
-    bajoStock: productos.filter(p => p.estado === 'Bajo stock').length,
+    disponibles: productos.filter(p => p.estado === 'disponible').length,
+    bajoStock: productos.filter(p => p.estado === 'bajo_stock').length,
     valorTotal: productos.reduce((acc, p) => acc + (p.stock * p.precio), 0),
-    categorias: [...new Set(productos.map(p => p.categoria))].length,
-    ventasTotales: productos.reduce((acc, p) => acc + p.ventas, 0),
+    categorias: [...new Set(productos.map(p => p.categoria).filter(Boolean))].length,
+    ventasTotales: 0, // TODO: Implementar cuando tengamos tabla de ventas
   }), [productos]);
-
-  const handleNuevoProducto = (data) => {
-    console.log('Nuevo producto:', data);
-    toast.success('Producto agregado exitosamente');
-  };
 
   const exportarExcel = () => {
     const ws = XLSX.utils.json_to_sheet(productosFiltrados);
@@ -203,6 +145,21 @@ function ProductosView({ onNavigate }) {
       '&:hover': { borderColor: '#8f5cff' },
     }),
   };
+
+  if (loading) {
+    return (
+      <div className="flex fixed inset-0 bg-gradient-to-br from-gray-50 to-gray-100">
+        <Toaster position="top-right" />
+        <Sidebar onNavigate={onNavigate} activeView={'productos'} />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-16 h-16 border-4 border-[#8f5cff] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600 font-semibold">Cargando productos...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex fixed inset-0 bg-gradient-to-br from-gray-50 to-gray-100">
@@ -242,7 +199,7 @@ function ProductosView({ onNavigate }) {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => setShowNuevoProductoModal(true)}
+                  onClick={handleNuevoProducto}
                   className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-[#8f5cff] to-[#6e7ff3] text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition"
                 >
                   <FaPlus /> Nuevo Producto
@@ -456,7 +413,7 @@ function ProductosView({ onNavigate }) {
                         </button>
                       </div>
                       <div className="absolute bottom-3 right-3 bg-yellow-400 text-gray-800 px-2 py-1 rounded-lg flex items-center gap-1 font-bold text-sm">
-                        <FaStar /> {producto.rating}
+                        <FaStar /> {producto.rating || 'N/A'}
                       </div>
                     </div>
 
@@ -472,7 +429,7 @@ function ProductosView({ onNavigate }) {
 
                       <div className="flex items-center gap-2 mb-4">
                         <div className="flex gap-1">
-                          {producto.tallas.slice(0, 3).map((talla, i) => (
+                          {(producto.tallas || []).slice(0, 3).map((talla, i) => (
                             <span key={i} className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs font-semibold">
                               {talla}
                             </span>
@@ -480,7 +437,7 @@ function ProductosView({ onNavigate }) {
                         </div>
                         <span className="text-gray-400">•</span>
                         <div className="flex gap-1">
-                          {producto.colores.slice(0, 2).map((color, i) => (
+                          {(producto.colores || []).slice(0, 2).map((color, i) => (
                             <span key={i} className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-semibold">
                               {color}
                             </span>
@@ -559,7 +516,7 @@ function ProductosView({ onNavigate }) {
                         <p className="text-sm mb-2">S/ {producto.precio}</p>
                         <div className="flex items-center gap-2">
                           <FaStar className="text-yellow-400" />
-                          <span className="text-sm">{producto.rating}</span>
+                          <span className="text-sm">{producto.rating || 'N/A'}</span>
                           <span className="text-sm opacity-75">• Stock: {producto.stock}</span>
                         </div>
                       </div>
@@ -622,11 +579,11 @@ function ProductosView({ onNavigate }) {
                           <td className="px-6 py-4 text-center">
                             <span className="text-lg font-bold text-[#8f5cff]">{producto.stock}</span>
                           </td>
-                          <td className="px-6 py-4 text-center text-gray-600">{producto.ventas}</td>
+                          <td className="px-6 py-4 text-center text-gray-600">{producto.ventas || 0}</td>
                           <td className="px-6 py-4 text-center">
                             <div className="flex items-center justify-center gap-1">
                               <FaStar className="text-yellow-400" />
-                              <span className="font-semibold">{producto.rating}</span>
+                              <span className="font-semibold">{producto.rating || 'N/A'}</span>
                             </div>
                           </td>
                           <td className="px-6 py-4 text-center">
@@ -686,7 +643,7 @@ function ProductosView({ onNavigate }) {
       <NuevoProductoModal
         isOpen={showNuevoProductoModal}
         onClose={() => setShowNuevoProductoModal(false)}
-        onSubmit={handleNuevoProducto}
+        onSuccess={handleProductoCreado}
       />
 
       <EditarProductoModal
@@ -745,7 +702,7 @@ function ProductosView({ onNavigate }) {
                     </span>
                     <div className="flex items-center gap-2 bg-yellow-100 px-3 py-1 rounded-lg">
                       <FaStar className="text-yellow-500" />
-                      <span className="font-bold text-gray-800">{productoSeleccionado.rating}</span>
+                      <span className="font-bold text-gray-800">{productoSeleccionado.rating || 'N/A'}</span>
                     </div>
                   </div>
 
@@ -754,14 +711,14 @@ function ProductosView({ onNavigate }) {
 
                   <div className="mb-6">
                     <p className="text-4xl font-bold text-[#8f5cff]">S/ {productoSeleccionado.precio}</p>
-                    <p className="text-sm text-gray-500 mt-1">{productoSeleccionado.ventas} ventas realizadas</p>
+                    <p className="text-sm text-gray-500 mt-1">{productoSeleccionado.ventas || 0} ventas realizadas</p>
                   </div>
 
                   <div className="space-y-4 mb-6">
                     <div>
                       <p className="text-sm font-semibold text-gray-600 mb-2">Tallas disponibles:</p>
                       <div className="flex gap-2">
-                        {productoSeleccionado.tallas.map((talla, i) => (
+                        {(productoSeleccionado.tallas || []).map((talla, i) => (
                           <span key={i} className="px-4 py-2 bg-gray-100 text-gray-800 rounded-lg font-semibold">
                             {talla}
                           </span>
@@ -772,7 +729,7 @@ function ProductosView({ onNavigate }) {
                     <div>
                       <p className="text-sm font-semibold text-gray-600 mb-2">Colores disponibles:</p>
                       <div className="flex gap-2">
-                        {productoSeleccionado.colores.map((color, i) => (
+                        {(productoSeleccionado.colores || []).map((color, i) => (
                           <span key={i} className="px-4 py-2 bg-blue-100 text-blue-800 rounded-lg font-semibold">
                             {color}
                           </span>
@@ -783,7 +740,7 @@ function ProductosView({ onNavigate }) {
                     <div>
                       <p className="text-sm font-semibold text-gray-600 mb-2">Materiales:</p>
                       <div className="flex gap-2">
-                        {productoSeleccionado.materiales.map((material, i) => (
+                        {(productoSeleccionado.materiales || []).map((material, i) => (
                           <span key={i} className="px-4 py-2 bg-green-100 text-green-800 rounded-lg font-semibold">
                             {material}
                           </span>

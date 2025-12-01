@@ -1,38 +1,57 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
-import { FaTimes, FaBox, FaHashtag, FaTshirt, FaDollarSign, FaRuler, FaTag, FaImage, FaPalette } from 'react-icons/fa';
+import { FaTimes, FaBox, FaHashtag, FaTshirt, FaDollarSign, FaRuler, FaTag, FaImage, FaPalette, FaSave, FaSpinner } from 'react-icons/fa';
 import Select from 'react-select';
-import Dropzone from 'react-dropzone';
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
+import { generarCodigoProducto, obtenerCategorias, crearProducto } from '../services/productosService';
 
 Modal.setAppElement('#root');
 
-function NuevoProductoModal({ isOpen, onClose, onSubmit }) {
+function NuevoProductoModal({ isOpen, onClose, onSuccess }) {
+  const [loading, setLoading] = useState(false);
+  const [categorias, setCategorias] = useState([]);
   const [formData, setFormData] = useState({
     nombre: '',
     codigo: '',
+    categoria_id: '',
     categoria: null,
     precio: '',
     costo: '',
     stock: '',
+    stock_minimo: '5',
     tallas: [],
     colores: [],
-    materiales: [],
     descripcion: '',
-    imagen: null,
   });
 
-  const categoriaOptions = [
-    { value: 'Polo', label: '👕 Polo' },
-    { value: 'Pantalón', label: '👖 Pantalón' },
-    { value: 'Vestido', label: '👗 Vestido' },
-    { value: 'Chaqueta', label: '🧥 Chaqueta' },
-    { value: 'Falda', label: '👗 Falda' },
-    { value: 'Camisa', label: '👔 Camisa' },
-    { value: 'Short', label: '🩳 Short' },
-    { value: 'Accesorio', label: '👜 Accesorio' },
-  ];
+  // Cargar código automático y categorías cuando se abre el modal
+  useEffect(() => {
+    if (isOpen) {
+      cargarDatosIniciales();
+    }
+  }, [isOpen]);
+
+  const cargarDatosIniciales = async () => {
+    try {
+      // Generar código automático
+      const nuevoCodigo = await generarCodigoProducto();
+      
+      // Obtener categorías
+      const categoriasDB = await obtenerCategorias();
+      const categoriasFormateadas = categoriasDB.map(cat => ({
+        value: cat.id,
+        label: `${cat.icono || '📦'} ${cat.nombre}`,
+        nombre: cat.nombre
+      }));
+      
+      setCategorias(categoriasFormateadas);
+      setFormData(prev => ({ ...prev, codigo: nuevoCodigo }));
+    } catch (error) {
+      console.error('Error al cargar datos iniciales:', error);
+      toast.error('Error al cargar datos iniciales');
+    }
+  };
 
   const tallasOptions = [
     { value: 'XS', label: 'XS' },
@@ -41,6 +60,11 @@ function NuevoProductoModal({ isOpen, onClose, onSubmit }) {
     { value: 'L', label: 'L' },
     { value: 'XL', label: 'XL' },
     { value: 'XXL', label: 'XXL' },
+    { value: '28', label: '28' },
+    { value: '30', label: '30' },
+    { value: '32', label: '32' },
+    { value: '34', label: '34' },
+    { value: '36', label: '36' },
   ];
 
   const coloresOptions = [
@@ -52,32 +76,18 @@ function NuevoProductoModal({ isOpen, onClose, onSubmit }) {
     { value: 'Amarillo', label: '🟡 Amarillo' },
     { value: 'Rosa', label: '🩷 Rosa' },
     { value: 'Gris', label: '⚪ Gris' },
-  ];
-
-  const materialesOptions = [
-    { value: 'MAT-001', label: 'Hilo blanco' },
-    { value: 'MAT-002', label: 'Tela azul' },
-    { value: 'MAT-003', label: 'Botón dorado' },
-    { value: 'MAT-004', label: 'Cremallera' },
+    { value: 'Naranja', label: '🟠 Naranja' },
+    { value: 'Morado', label: '🟣 Morado' },
   ];
 
   const handleChange = (field, value) => {
     setFormData({ ...formData, [field]: value });
   };
 
-  const handleDrop = (acceptedFiles) => {
-    if (acceptedFiles && acceptedFiles.length > 0) {
-      setFormData({ ...formData, imagen: acceptedFiles[0] });
-      toast.success('Imagen cargada correctamente', {
-        icon: '📸',
-        style: { borderRadius: '12px', background: '#8f5cff', color: '#fff' },
-      });
-    }
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
+    // Validaciones
     if (!formData.nombre.trim()) {
       toast.error('El nombre del producto es obligatorio', {
         icon: '📝',
@@ -85,13 +95,7 @@ function NuevoProductoModal({ isOpen, onClose, onSubmit }) {
       });
       return;
     }
-    if (!formData.codigo.trim()) {
-      toast.error('El código es obligatorio', {
-        icon: '🔢',
-        style: { borderRadius: '12px', background: '#333', color: '#fff' },
-      });
-      return;
-    }
+    
     if (!formData.categoria) {
       toast.error('Selecciona una categoría', {
         icon: '🏷️',
@@ -99,14 +103,16 @@ function NuevoProductoModal({ isOpen, onClose, onSubmit }) {
       });
       return;
     }
-    if (!formData.precio || formData.precio <= 0) {
+    
+    if (!formData.precio || parseFloat(formData.precio) <= 0) {
       toast.error('El precio debe ser mayor a 0', {
         icon: '💰',
         style: { borderRadius: '12px', background: '#333', color: '#fff' },
       });
       return;
     }
-    if (!formData.stock || formData.stock < 0) {
+    
+    if (!formData.stock || parseInt(formData.stock) < 0) {
       toast.error('El stock no puede ser negativo', {
         icon: '📦',
         style: { borderRadius: '12px', background: '#333', color: '#fff' },
@@ -114,29 +120,64 @@ function NuevoProductoModal({ isOpen, onClose, onSubmit }) {
       return;
     }
 
-    toast.success('¡Producto creado exitosamente!', {
-      icon: '🎉',
-      style: { borderRadius: '12px', background: '#8f5cff', color: '#fff' },
-      duration: 3000,
-    });
-    
-    onSubmit(formData);
-    handleClose();
+    setLoading(true);
+
+    try {
+      // Preparar datos para enviar
+      const datosProducto = {
+        codigo: formData.codigo,
+        nombre: formData.nombre.trim(),
+        categoria_id: formData.categoria.value,
+        descripcion: formData.descripcion.trim() || null,
+        precio: parseFloat(formData.precio),
+        costo: formData.costo ? parseFloat(formData.costo) : 0,
+        stock: parseInt(formData.stock),
+        stock_minimo: formData.stock_minimo ? parseInt(formData.stock_minimo) : 5,
+        tallas: formData.tallas.map(t => t.value),
+        colores: formData.colores.map(c => c.value),
+      };
+
+      const resultado = await crearProducto(datosProducto);
+
+      if (resultado.success) {
+        toast.success('¡Producto creado exitosamente!', {
+          icon: '🎉',
+          style: { borderRadius: '12px', background: '#8f5cff', color: '#fff' },
+          duration: 3000,
+        });
+        
+        handleClose();
+        if (onSuccess) onSuccess(resultado.data);
+      } else {
+        toast.error(resultado.error || 'Error al crear el producto', {
+          icon: '❌',
+          style: { borderRadius: '12px', background: '#ef4444', color: '#fff' },
+        });
+      }
+    } catch (error) {
+      console.error('Error al crear producto:', error);
+      toast.error('Error al crear el producto', {
+        icon: '❌',
+        style: { borderRadius: '12px', background: '#ef4444', color: '#fff' },
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleClose = () => {
     setFormData({
       nombre: '',
       codigo: '',
+      categoria_id: '',
       categoria: null,
       precio: '',
       costo: '',
       stock: '',
+      stock_minimo: '5',
       tallas: [],
       colores: [],
-      materiales: [],
       descripcion: '',
-      imagen: null,
     });
     onClose();
   };
@@ -192,327 +233,232 @@ function NuevoProductoModal({ isOpen, onClose, onSubmit }) {
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
         transition={{ duration: 0.3, type: 'spring', stiffness: 300, damping: 30 }}
-        className="bg-white rounded-3xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden"
+        className="bg-white rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
       >
         {/* Header Premium */}
         <div className="sticky top-0 bg-gradient-to-br from-[#8f5cff] via-[#7d4eea] to-[#6e7ff3] text-white p-8 relative overflow-hidden z-10">
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-10 left-10 w-32 h-32 bg-white rounded-full blur-3xl"></div>
-            <div className="absolute bottom-10 right-10 w-40 h-40 bg-white rounded-full blur-3xl"></div>
+            <div className="absolute bottom-0 right-0 w-40 h-40 bg-white rounded-full blur-3xl"></div>
           </div>
-          
-          <div className="flex items-center justify-between relative z-10">
+          <div className="relative flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <motion.div
-                initial={{ rotate: -180, scale: 0 }}
-                animate={{ rotate: 0, scale: 1 }}
-                transition={{ duration: 0.5, delay: 0.2, type: 'spring' }}
-                className="bg-white bg-opacity-20 p-4 rounded-2xl backdrop-blur-md border border-white border-opacity-30"
-              >
-                <FaTshirt className="text-3xl" />
-              </motion.div>
+              <div className="p-4 bg-white/20 backdrop-blur-lg rounded-2xl">
+                <FaBox className="text-3xl" />
+              </div>
               <div>
-                <h2 className="text-3xl font-bold mb-1">Nuevo Producto</h2>
-                <p className="text-sm opacity-90">Agrega productos al catálogo</p>
+                <h2 className="text-3xl font-bold">Nuevo Producto</h2>
+                <p className="text-white/80 mt-1">Agrega un nuevo producto al inventario</p>
               </div>
             </div>
             <motion.button
               whileHover={{ scale: 1.1, rotate: 90 }}
               whileTap={{ scale: 0.9 }}
               onClick={handleClose}
-              className="text-white hover:bg-white hover:bg-opacity-20 rounded-full p-3 transition backdrop-blur-sm"
+              className="p-3 bg-white/20 hover:bg-white/30 rounded-xl transition-all backdrop-blur-lg"
             >
-              <FaTimes className="text-2xl" />
+              <FaTimes className="text-xl" />
             </motion.button>
           </div>
         </div>
 
-        {/* Form */}
-        <div className="overflow-y-auto max-h-[calc(90vh-160px)] custom-scrollbar">
-          <form onSubmit={handleSubmit} className="p-8 space-y-8">
-            {/* Imagen del Producto */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-            >
-              <div className="flex items-center gap-3 mb-6">
-                <div className="bg-gradient-to-r from-[#8f5cff] to-[#6e7ff3] p-3 rounded-xl shadow-lg">
-                  <FaImage className="text-white text-xl" />
-                </div>
-                <div>
-                  <h3 className="text-2xl font-bold text-gray-800">Imagen del Producto</h3>
-                  <p className="text-sm text-gray-500">Agrega una foto representativa</p>
-                </div>
-              </div>
-
-              <Dropzone onDrop={handleDrop} accept={{ 'image/*': [] }} maxFiles={1}>
-                {({ getRootProps, getInputProps, isDragActive }) => (
-                  <div
-                    {...getRootProps()}
-                    className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all duration-200 ${
-                      isDragActive ? 'border-[#8f5cff] bg-purple-50 scale-105' : 'border-gray-300 hover:border-[#8f5cff] hover:bg-gray-50'
-                    }`}
-                  >
-                    <input {...getInputProps()} />
-                    {formData.imagen ? (
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        className="flex flex-col items-center gap-3"
-                      >
-                        <img
-                          src={URL.createObjectURL(formData.imagen)}
-                          alt="Preview"
-                          className="w-40 h-40 object-cover rounded-2xl shadow-lg"
-                        />
-                        <p className="text-sm text-gray-600 font-semibold">{formData.imagen.name}</p>
-                        <p className="text-xs text-gray-400">Haz clic para cambiar la imagen</p>
-                      </motion.div>
-                    ) : (
-                      <div className="flex flex-col items-center gap-3">
-                        <motion.div
-                          animate={{ y: [0, -10, 0] }}
-                          transition={{ duration: 2, repeat: Infinity }}
-                        >
-                          <FaImage className="text-5xl text-gray-400" />
-                        </motion.div>
-                        <div>
-                          <p className="text-gray-600 font-semibold">
-                            {isDragActive ? '¡Suelta la imagen aquí!' : 'Arrastra una imagen o haz clic para seleccionar'}
-                          </p>
-                          <p className="text-xs text-gray-400 mt-1">PNG, JPG, GIF hasta 10MB</p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </Dropzone>
-            </motion.div>
-
-            {/* Información Básica */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              <div className="flex items-center gap-3 mb-6">
-                <div className="bg-gradient-to-r from-[#8f5cff] to-[#6e7ff3] p-3 rounded-xl shadow-lg">
-                  <FaBox className="text-white text-xl" />
-                </div>
-                <div>
-                  <h3 className="text-2xl font-bold text-gray-800">Información Básica</h3>
-                  <p className="text-sm text-gray-500">Identificación del producto</p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="group">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
-                    <FaBox className="text-[#8f5cff]" />
-                    Nombre del producto *
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.nombre}
-                    onChange={(e) => handleChange('nombre', e.target.value)}
-                    placeholder="Ej: Polo básico cuello redondo"
-                    className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 group-hover:border-gray-300"
-                  />
-                </div>
-                <div className="group">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
-                    <FaHashtag className="text-[#8f5cff]" />
-                    Código *
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.codigo}
-                    onChange={(e) => handleChange('codigo', e.target.value)}
-                    placeholder="Ej: P-001"
-                    className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 group-hover:border-gray-300"
-                  />
-                </div>
-              </div>
-
-              <div className="mt-6">
-                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
-                  <FaTag className="text-[#8f5cff]" />
-                  Categoría *
-                </label>
-                <Select
-                  options={categoriaOptions}
-                  value={formData.categoria}
-                  onChange={(value) => handleChange('categoria', value)}
-                  placeholder="Selecciona la categoría"
-                  styles={customSelectStyles}
-                />
-              </div>
-            </motion.div>
-
-            {/* Precios y Stock */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <div className="flex items-center gap-3 mb-6">
-                <div className="bg-gradient-to-r from-[#8f5cff] to-[#6e7ff3] p-3 rounded-xl shadow-lg">
-                  <FaDollarSign className="text-white text-xl" />
-                </div>
-                <div>
-                  <h3 className="text-2xl font-bold text-gray-800">Precios y Stock</h3>
-                  <p className="text-sm text-gray-500">Valoración e inventario</p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="group">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
-                    <FaDollarSign className="text-[#8f5cff]" />
-                    Precio de venta (S/) *
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.precio}
-                    onChange={(e) => handleChange('precio', e.target.value)}
-                    placeholder="0.00"
-                    min="0"
-                    step="0.01"
-                    className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 group-hover:border-gray-300"
-                  />
-                </div>
-                <div className="group">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
-                    <FaDollarSign className="text-[#8f5cff]" />
-                    Costo de producción (S/)
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.costo}
-                    onChange={(e) => handleChange('costo', e.target.value)}
-                    placeholder="0.00"
-                    min="0"
-                    step="0.01"
-                    className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 group-hover:border-gray-300"
-                  />
-                </div>
-                <div className="group">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
-                    <FaBox className="text-[#8f5cff]" />
-                    Stock inicial *
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.stock}
-                    onChange={(e) => handleChange('stock', e.target.value)}
-                    placeholder="0"
-                    min="0"
-                    className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 group-hover:border-gray-300"
-                  />
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Variantes */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-            >
-              <div className="flex items-center gap-3 mb-6">
-                <div className="bg-gradient-to-r from-[#8f5cff] to-[#6e7ff3] p-3 rounded-xl shadow-lg">
-                  <FaPalette className="text-white text-xl" />
-                </div>
-                <div>
-                  <h3 className="text-2xl font-bold text-gray-800">Variantes</h3>
-                  <p className="text-sm text-gray-500">Tallas y colores disponibles</p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
-                    <FaRuler className="text-[#8f5cff]" />
-                    Tallas disponibles
-                  </label>
-                  <Select
-                    isMulti
-                    options={tallasOptions}
-                    value={formData.tallas}
-                    onChange={(value) => handleChange('tallas', value)}
-                    placeholder="Selecciona tallas"
-                    styles={customSelectStyles}
-                  />
-                </div>
-                <div>
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
-                    <FaPalette className="text-[#8f5cff]" />
-                    Colores disponibles
-                  </label>
-                  <Select
-                    isMulti
-                    options={coloresOptions}
-                    value={formData.colores}
-                    onChange={(value) => handleChange('colores', value)}
-                    placeholder="Selecciona colores"
-                    styles={customSelectStyles}
-                  />
-                </div>
-              </div>
-
-              <div className="mt-6">
-                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
-                  <FaBox className="text-[#8f5cff]" />
-                  Materiales utilizados
-                </label>
-                <Select
-                  isMulti
-                  options={materialesOptions}
-                  value={formData.materiales}
-                  onChange={(value) => handleChange('materiales', value)}
-                  placeholder="Selecciona los materiales"
-                  styles={customSelectStyles}
-                />
-              </div>
-
-              <div className="group mt-6">
-                <label className="text-sm font-semibold text-gray-700 mb-3 block">
-                  Descripción del producto
-                </label>
-                <textarea
-                  value={formData.descripcion}
-                  onChange={(e) => handleChange('descripcion', e.target.value)}
-                  placeholder="Características, detalles de diseño, cuidados, etc."
-                  rows={4}
-                  className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 resize-none group-hover:border-gray-300"
-                />
-              </div>
-            </motion.div>
-
-            {/* Buttons */}
-            <div className="flex gap-4 pt-6 border-t-2 border-gray-100">
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                type="button"
-                onClick={handleClose}
-                className="flex-1 px-6 py-4 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-all duration-200 shadow-sm"
-              >
-                Cancelar
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                type="submit"
-                className="flex-1 px-6 py-4 bg-gradient-to-r from-[#8f5cff] to-[#6e7ff3] text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-200 shadow-md flex items-center justify-center gap-2"
-              >
-                <FaTshirt />
-                Crear Producto
-              </motion.button>
+        {/* Formulario con scroll */}
+        <form onSubmit={handleSubmit} className="p-8 overflow-y-auto max-h-[calc(90vh-160px)] custom-scrollbar">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Código (generado automáticamente) */}
+            <div className="md:col-span-2">
+              <label className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+                <FaHashtag className="text-[#8f5cff]" />
+                Código del Producto
+              </label>
+              <input
+                type="text"
+                value={formData.codigo}
+                disabled
+                className="w-full px-4 py-3 bg-gray-100 border-2 border-gray-200 rounded-xl font-mono font-bold text-[#8f5cff] text-lg cursor-not-allowed"
+                placeholder="Se genera automáticamente"
+              />
+              <p className="text-xs text-gray-500 mt-1">✨ Este código se genera automáticamente</p>
             </div>
-          </form>
-        </div>
+
+            {/* Nombre */}
+            <div className="md:col-span-2">
+              <label className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+                <FaTshirt className="text-[#8f5cff]" />
+                Nombre del Producto *
+              </label>
+              <input
+                type="text"
+                value={formData.nombre}
+                onChange={(e) => handleChange('nombre', e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#8f5cff] focus:ring-4 focus:ring-purple-100 outline-none transition-all"
+                placeholder="Ej: Camisa Casual Azul"
+              />
+            </div>
+
+            {/* Categoría */}
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+                <FaTag className="text-[#8f5cff]" />
+                Categoría *
+              </label>
+              <Select
+                value={formData.categoria}
+                onChange={(val) => handleChange('categoria', val)}
+                options={categorias}
+                styles={customSelectStyles}
+                placeholder="Selecciona categoría"
+                isSearchable
+                isClearable
+              />
+            </div>
+
+            {/* Precio */}
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+                <FaDollarSign className="text-[#8f5cff]" />
+                Precio de Venta (S/) *
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                value={formData.precio}
+                onChange={(e) => handleChange('precio', e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#8f5cff] focus:ring-4 focus:ring-purple-100 outline-none transition-all"
+                placeholder="0.00"
+              />
+            </div>
+
+            {/* Costo */}
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+                <FaDollarSign className="text-orange-500" />
+                Costo (S/)
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                value={formData.costo}
+                onChange={(e) => handleChange('costo', e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#8f5cff] focus:ring-4 focus:ring-purple-100 outline-none transition-all"
+                placeholder="0.00"
+              />
+            </div>
+
+            {/* Stock */}
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+                <FaBox className="text-[#8f5cff]" />
+                Stock Inicial *
+              </label>
+              <input
+                type="number"
+                value={formData.stock}
+                onChange={(e) => handleChange('stock', e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#8f5cff] focus:ring-4 focus:ring-purple-100 outline-none transition-all"
+                placeholder="0"
+                min="0"
+              />
+            </div>
+
+            {/* Stock Mínimo */}
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+                <FaBox className="text-red-500" />
+                Stock Mínimo
+              </label>
+              <input
+                type="number"
+                value={formData.stock_minimo}
+                onChange={(e) => handleChange('stock_minimo', e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#8f5cff] focus:ring-4 focus:ring-purple-100 outline-none transition-all"
+                placeholder="5"
+                min="0"
+              />
+            </div>
+
+            {/* Tallas */}
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+                <FaRuler className="text-[#8f5cff]" />
+                Tallas Disponibles
+              </label>
+              <Select
+                value={formData.tallas}
+                onChange={(val) => handleChange('tallas', val)}
+                options={tallasOptions}
+                styles={customSelectStyles}
+                placeholder="Selecciona tallas"
+                isMulti
+                isSearchable
+              />
+            </div>
+
+            {/* Colores */}
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+                <FaPalette className="text-[#8f5cff]" />
+                Colores Disponibles
+              </label>
+              <Select
+                value={formData.colores}
+                onChange={(val) => handleChange('colores', val)}
+                options={coloresOptions}
+                styles={customSelectStyles}
+                placeholder="Selecciona colores"
+                isMulti
+                isSearchable
+              />
+            </div>
+
+            {/* Descripción */}
+            <div className="md:col-span-2">
+              <label className="block text-sm font-bold text-gray-700 mb-2">
+                Descripción
+              </label>
+              <textarea
+                value={formData.descripcion}
+                onChange={(e) => handleChange('descripcion', e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#8f5cff] focus:ring-4 focus:ring-purple-100 outline-none transition-all resize-none"
+                rows="3"
+                placeholder="Descripción detallada del producto..."
+              />
+            </div>
+          </div>
+
+          {/* Botones de acción */}
+          <div className="flex gap-4 mt-8">
+            <motion.button
+              type="button"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleClose}
+              className="flex-1 px-6 py-3 bg-gray-200 text-gray-700 rounded-xl font-bold hover:bg-gray-300 transition-all"
+              disabled={loading}
+            >
+              Cancelar
+            </motion.button>
+            <motion.button
+              type="submit"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="flex-1 px-6 py-3 bg-gradient-to-r from-[#8f5cff] to-[#6e7ff3] text-white rounded-xl font-bold hover:shadow-lg hover:shadow-purple-300 transition-all flex items-center justify-center gap-2"
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <FaSpinner className="animate-spin" />
+                  Guardando...
+                </>
+              ) : (
+                <>
+                  <FaSave />
+                  Guardar Producto
+                </>
+              )}
+            </motion.button>
+          </div>
+        </form>
       </motion.div>
     </Modal>
   );
