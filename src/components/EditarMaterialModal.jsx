@@ -4,83 +4,127 @@ import { FaTimes, FaCube, FaHashtag, FaTag, FaBoxes, FaWarehouse } from 'react-i
 import Select from 'react-select';
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
+import { actualizarMaterial, obtenerCategoriasMateriales } from '../services/materialesService';
 
 Modal.setAppElement('#root');
 
 function EditarMaterialModal({ isOpen, onClose, onSubmit, material }) {
   const [formData, setFormData] = useState({
     nombre: '',
-    codigo: '',
-    tipo: null,
+    categoria_id: null,
+    tipo: '',
     cantidad: '',
-    minimo: '',
-    ubicacion: '',
+    unidad: null,
+    precio_unitario: '',
     proveedor: '',
+    ubicacion: '',
+    stock_minimo: '10',
+    color: '',
     notas: '',
   });
 
+  const [categorias, setCategorias] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [loadingCategorias, setLoadingCategorias] = useState(true);
+
+  // Cargar categorías al abrir el modal
+  useEffect(() => {
+    const cargarCategorias = async () => {
+      setLoadingCategorias(true);
+      const resultado = await obtenerCategoriasMateriales();
+      if (resultado.success) {
+        setCategorias(resultado.data);
+      } else {
+        toast.error('Error al cargar categorías');
+      }
+      setLoadingCategorias(false);
+    };
+
+    if (isOpen) {
+      cargarCategorias();
+    }
+  }, [isOpen]);
+
+  // Cargar datos del material cuando se abre el modal
   useEffect(() => {
     if (material && isOpen) {
       setFormData({
         nombre: material.nombre || '',
-        codigo: material.codigo || '',
-        tipo: material.tipo ? { value: material.tipo, label: material.tipo } : null,
+        categoria_id: material.categoria_id ? { value: material.categoria_id, label: material.categoria?.nombre || '' } : null,
+        tipo: material.tipo || '',
         cantidad: material.cantidad?.toString() || '',
-        minimo: material.minimo?.toString() || '',
-        ubicacion: material.ubicacion || '',
+        unidad: material.unidad ? { value: material.unidad, label: material.unidad } : null,
+        precio_unitario: material.precio_unitario?.toString() || '',
         proveedor: material.proveedor || '',
+        ubicacion: material.ubicacion || '',
+        stock_minimo: material.stock_minimo?.toString() || '10',
+        color: material.color || '',
         notas: material.notas || '',
       });
     }
   }, [material, isOpen]);
 
-  const tipoOptions = [
-    { value: 'Hilo', label: '🧵 Hilo' },
-    { value: 'Tela', label: '🧶 Tela' },
-    { value: 'Botón', label: '⚪ Botón' },
-    { value: 'Cremallera', label: '🔒 Cremallera' },
-    { value: 'Accesorio', label: '📎 Accesorio' },
-    { value: 'Etiqueta', label: '🏷️ Etiqueta' },
-    { value: 'Otro', label: '📦 Otro' },
+  const unidadOptions = [
+    { value: 'metros', label: 'Metros' },
+    { value: 'unidades', label: 'Unidades' },
+    { value: 'rollos', label: 'Rollos' },
+    { value: 'cajas', label: 'Cajas' },
+    { value: 'kilos', label: 'Kilos' },
+    { value: 'gramos', label: 'Gramos' },
   ];
 
   const handleChange = (field, value) => {
     setFormData({ ...formData, [field]: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
+    // Validaciones
     if (!formData.nombre.trim()) {
-      toast.error('El nombre del material es obligatorio', {
-        icon: '📝',
-        style: { borderRadius: '12px', background: '#333', color: '#fff' },
-      });
+      toast.error('El nombre del material es obligatorio');
       return;
     }
-    if (!formData.tipo) {
-      toast.error('Selecciona un tipo de material', {
-        icon: '🏷️',
-        style: { borderRadius: '12px', background: '#333', color: '#fff' },
-      });
+    if (!formData.categoria_id) {
+      toast.error('Selecciona una categoría');
       return;
     }
-    if (!formData.cantidad || formData.cantidad < 0) {
-      toast.error('La cantidad no puede ser negativa', {
-        icon: '📦',
-        style: { borderRadius: '12px', background: '#333', color: '#fff' },
-      });
+    if (!formData.tipo.trim()) {
+      toast.error('El tipo es obligatorio');
+      return;
+    }
+    if (!formData.cantidad || parseFloat(formData.cantidad) < 0) {
+      toast.error('La cantidad no puede ser negativa');
       return;
     }
 
-    toast.success('¡Material actualizado exitosamente!', {
-      icon: '✅',
-      style: { borderRadius: '12px', background: '#8f5cff', color: '#fff' },
-      duration: 3000,
-    });
+    setLoading(true);
+
+    // Preparar datos para Supabase
+    const materialData = {
+      nombre: formData.nombre,
+      categoria_id: formData.categoria_id.value,
+      tipo: formData.tipo,
+      cantidad: parseFloat(formData.cantidad),
+      unidad: formData.unidad?.value || 'unidades',
+      precio_unitario: parseFloat(formData.precio_unitario) || 0,
+      proveedor: formData.proveedor,
+      ubicacion: formData.ubicacion,
+      stock_minimo: parseFloat(formData.stock_minimo) || 10,
+      color: formData.color,
+      notas: formData.notas,
+    };
+
+    const resultado = await actualizarMaterial(material.id, materialData);
     
-    onSubmit({ ...formData, id: material.id || material.codigo });
-    handleClose();
+    setLoading(false);
+
+    if (resultado.success) {
+      toast.success('¡Material actualizado exitosamente!');
+      onSubmit();
+    } else {
+      toast.error('Error al actualizar: ' + resultado.error);
+    }
   };
 
   const handleClose = () => {
@@ -174,33 +218,19 @@ function EditarMaterialModal({ isOpen, onClose, onSubmit, material }) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="group">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
-                    <FaCube className="text-[#f59e42]" />
-                    Nombre del material *
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.nombre}
-                    onChange={(e) => handleChange('nombre', e.target.value)}
-                    placeholder="Ej: Hilo blanco"
-                    className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#f59e42] focus:ring-opacity-20 focus:border-[#f59e42] transition-all duration-200 group-hover:border-gray-300"
-                  />
-                </div>
-                <div className="group">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
-                    <FaHashtag className="text-[#f59e42]" />
-                    Código
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.codigo}
-                    onChange={(e) => handleChange('codigo', e.target.value)}
-                    placeholder="Ej: MAT-001"
-                    className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#f59e42] focus:ring-opacity-20 focus:border-[#f59e42] transition-all duration-200 group-hover:border-gray-300"
-                  />
-                </div>
+              <div className="group">
+                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                  <FaCube className="text-[#f59e42]" />
+                  Nombre del material *
+                </label>
+                <input
+                  type="text"
+                  value={formData.nombre}
+                  onChange={(e) => handleChange('nombre', e.target.value)}
+                  placeholder="Ej: Hilo blanco premium"
+                  disabled={loading}
+                  className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#f59e42] focus:ring-opacity-20 focus:border-[#f59e42] transition-all duration-200 group-hover:border-gray-300 disabled:opacity-50"
+                />
               </div>
             </motion.div>
 
@@ -216,21 +246,56 @@ function EditarMaterialModal({ isOpen, onClose, onSubmit, material }) {
                 </div>
                 <div>
                   <h3 className="text-2xl font-bold text-gray-800">Clasificación</h3>
-                  <p className="text-sm text-gray-500">Tipo y categoría</p>
+                  <p className="text-sm text-gray-500">Categoría y tipo</p>
                 </div>
               </div>
 
-              <div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                    <FaTag className="text-[#f59e42]" />
+                    Categoría *
+                  </label>
+                  <Select
+                    options={categorias.map(cat => ({
+                      value: cat.id,
+                      label: `${cat.icono} ${cat.nombre}`
+                    }))}
+                    value={formData.categoria_id}
+                    onChange={(value) => handleChange('categoria_id', value)}
+                    placeholder={loadingCategorias ? "Cargando..." : "Selecciona categoría"}
+                    isDisabled={loading || loadingCategorias}
+                    styles={customSelectStyles}
+                  />
+                </div>
+                <div className="group">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                    <FaTag className="text-[#f59e42]" />
+                    Tipo *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.tipo}
+                    onChange={(e) => handleChange('tipo', e.target.value)}
+                    placeholder="Ej: Premium, Estándar, Especial"
+                    disabled={loading}
+                    className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#f59e42] focus:ring-opacity-20 focus:border-[#f59e42] transition-all duration-200 group-hover:border-gray-300 disabled:opacity-50"
+                  />
+                </div>
+              </div>
+
+              <div className="group mt-6">
                 <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
                   <FaTag className="text-[#f59e42]" />
-                  Tipo de material *
+                  Color
                 </label>
-                <Select
-                  options={tipoOptions}
-                  value={formData.tipo}
-                  onChange={(value) => handleChange('tipo', value)}
-                  placeholder="Selecciona el tipo"
-                  styles={customSelectStyles}
+                <input
+                  type="text"
+                  value={formData.color}
+                  onChange={(e) => handleChange('color', e.target.value)}
+                  placeholder="Ej: Blanco, Negro, Azul"
+                  disabled={loading}
+                  className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#f59e42] focus:ring-opacity-20 focus:border-[#f59e42] transition-all duration-200 group-hover:border-gray-300 disabled:opacity-50"
                 />
               </div>
             </motion.div>
@@ -263,7 +328,23 @@ function EditarMaterialModal({ isOpen, onClose, onSubmit, material }) {
                     onChange={(e) => handleChange('cantidad', e.target.value)}
                     placeholder="0"
                     min="0"
-                    className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#f59e42] focus:ring-opacity-20 focus:border-[#f59e42] transition-all duration-200 group-hover:border-gray-300"
+                    step="0.01"
+                    disabled={loading}
+                    className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#f59e42] focus:ring-opacity-20 focus:border-[#f59e42] transition-all duration-200 group-hover:border-gray-300 disabled:opacity-50"
+                  />
+                </div>
+                <div>
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                    <FaBoxes className="text-[#f59e42]" />
+                    Unidad
+                  </label>
+                  <Select
+                    options={unidadOptions}
+                    value={formData.unidad}
+                    onChange={(value) => handleChange('unidad', value)}
+                    placeholder="Selecciona unidad"
+                    isDisabled={loading}
+                    styles={customSelectStyles}
                   />
                 </div>
                 <div className="group">
@@ -273,11 +354,29 @@ function EditarMaterialModal({ isOpen, onClose, onSubmit, material }) {
                   </label>
                   <input
                     type="number"
-                    value={formData.minimo}
-                    onChange={(e) => handleChange('minimo', e.target.value)}
-                    placeholder="0"
+                    value={formData.stock_minimo}
+                    onChange={(e) => handleChange('stock_minimo', e.target.value)}
+                    placeholder="10"
                     min="0"
-                    className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#f59e42] focus:ring-opacity-20 focus:border-[#f59e42] transition-all duration-200 group-hover:border-gray-300"
+                    step="0.01"
+                    disabled={loading}
+                    className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#f59e42] focus:ring-opacity-20 focus:border-[#f59e42] transition-all duration-200 group-hover:border-gray-300 disabled:opacity-50"
+                  />
+                </div>
+                <div className="group">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                    <FaTag className="text-[#f59e42]" />
+                    Precio unitario
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.precio_unitario}
+                    onChange={(e) => handleChange('precio_unitario', e.target.value)}
+                    placeholder="0.00"
+                    min="0"
+                    step="0.01"
+                    disabled={loading}
+                    className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#f59e42] focus:ring-opacity-20 focus:border-[#f59e42] transition-all duration-200 group-hover:border-gray-300 disabled:opacity-50"
                   />
                 </div>
               </div>
@@ -349,7 +448,8 @@ function EditarMaterialModal({ isOpen, onClose, onSubmit, material }) {
                 whileTap={{ scale: 0.98 }}
                 type="button"
                 onClick={handleClose}
-                className="flex-1 px-6 py-4 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-all duration-200 shadow-sm"
+                disabled={loading}
+                className="flex-1 px-6 py-4 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-all duration-200 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cancelar
               </motion.button>
@@ -357,10 +457,20 @@ function EditarMaterialModal({ isOpen, onClose, onSubmit, material }) {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 type="submit"
-                className="flex-1 px-6 py-4 bg-gradient-to-r from-[#f59e42] to-[#ff7a42] text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-200 shadow-md flex items-center justify-center gap-2"
+                disabled={loading}
+                className="flex-1 px-6 py-4 bg-gradient-to-r from-[#f59e42] to-[#ff7a42] text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-200 shadow-md flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <FaCube />
-                Guardar Cambios
+                {loading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    Actualizando...
+                  </>
+                ) : (
+                  <>
+                    <FaCube />
+                    Guardar Cambios
+                  </>
+                )}
               </motion.button>
             </div>
           </form>

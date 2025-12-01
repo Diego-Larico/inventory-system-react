@@ -1,6 +1,13 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Sidebar from './components/Sidebar';
+import { 
+  obtenerMateriales, 
+  eliminarMaterial, 
+  obtenerCategoriasMateriales,
+  buscarMateriales,
+  obtenerEstadisticasMateriales 
+} from './services/materialesService';
 import { 
   FaPlus, FaEdit, FaSearch, FaExclamationTriangle, FaBox, FaCube, 
   FaWarehouse, FaTag, FaFilter, FaDownload, FaTh, FaList, FaChartPie,
@@ -18,59 +25,97 @@ function MaterialesView({ onNavigate }) {
   const [showNuevoMaterialModal, setShowNuevoMaterialModal] = useState(false);
   const [showEditarMaterialModal, setShowEditarMaterialModal] = useState(false);
   const [materialSeleccionado, setMaterialSeleccionado] = useState(null);
-  const [vistaActual, setVistaActual] = useState('grid'); // 'grid', 'tabla', 'compacta'
+  const [vistaActual, setVistaActual] = useState('grid');
   const [busqueda, setBusqueda] = useState('');
   const [tipoFiltro, setTipoFiltro] = useState(null);
   const [estadoFiltro, setEstadoFiltro] = useState(null);
   const [ordenamiento, setOrdenamiento] = useState('nombre-asc');
   const [showFiltrosAvanzados, setShowFiltrosAvanzados] = useState(false);
+  
+  // Estado para datos de Supabase
+  const [materiales, setMateriales] = useState([]);
+  const [categorias, setCategorias] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [estadisticas, setEstadisticas] = useState({
+    totalMateriales: 0,
+    disponibles: 0,
+    bajoStock: 0,
+    agotados: 0,
+    valorInventario: 0
+  });
 
-  // Datos de ejemplo expandidos
-  const materiales = [
-    { id: 1, nombre: 'Hilo blanco', codigo: 'MAT-001', tipo: 'Hilo', cantidad: 30, minimo: 10, ubicacion: 'A-1', proveedor: 'Textiles SA', estado: 'Disponible', precio: 2.5, color: '#FFFFFF' },
-    { id: 2, nombre: 'Tela azul', codigo: 'MAT-002', tipo: 'Tela', cantidad: 5, minimo: 8, ubicacion: 'B-3', proveedor: 'Fabrics Co', estado: 'Bajo stock', precio: 15.0, color: '#3B82F6' },
-    { id: 3, nombre: 'Botón dorado', codigo: 'MAT-003', tipo: 'Accesorio', cantidad: 50, minimo: 20, ubicacion: 'C-2', proveedor: 'Accesorios Plus', estado: 'Disponible', precio: 0.5, color: '#FFD700' },
-    { id: 4, nombre: 'Cremallera negra', codigo: 'MAT-004', tipo: 'Accesorio', cantidad: 2, minimo: 5, ubicacion: 'C-1', proveedor: 'Zippers Inc', estado: 'Bajo stock', precio: 3.0, color: '#000000' },
-    { id: 5, nombre: 'Hilo negro', codigo: 'MAT-005', tipo: 'Hilo', cantidad: 45, minimo: 10, ubicacion: 'A-2', proveedor: 'Textiles SA', estado: 'Disponible', precio: 2.5, color: '#000000' },
-    { id: 6, nombre: 'Tela roja', codigo: 'MAT-006', tipo: 'Tela', cantidad: 12, minimo: 8, ubicacion: 'B-1', proveedor: 'Fabrics Co', estado: 'Disponible', precio: 18.0, color: '#EF4444' },
-    { id: 7, nombre: 'Etiqueta premium', codigo: 'MAT-007', tipo: 'Etiqueta', cantidad: 100, minimo: 30, ubicacion: 'D-1', proveedor: 'Labels Pro', estado: 'Disponible', precio: 0.3, color: '#8B5CF6' },
-    { id: 8, nombre: 'Elástico blanco', codigo: 'MAT-008', tipo: 'Accesorio', cantidad: 3, minimo: 10, ubicacion: 'C-3', proveedor: 'Elastic World', estado: 'Bajo stock', precio: 1.5, color: '#FFFFFF' },
-  ];
+  // Cargar materiales desde Supabase
+  const cargarMateriales = async () => {
+    setLoading(true);
+    const resultado = await obtenerMateriales();
+    if (resultado.success) {
+      setMateriales(resultado.data);
+    } else {
+      toast.error('Error al cargar materiales: ' + resultado.error);
+    }
+    setLoading(false);
+  };
 
-  const tipoOptions = [...new Set(materiales.map(m => m.tipo))].map(tipo => ({ 
-    value: tipo, 
-    label: tipo,
-    icon: getTipoIcon(tipo)
+  // Cargar estadísticas
+  const cargarEstadisticas = async () => {
+    const resultado = await obtenerEstadisticasMateriales();
+    if (resultado.success) {
+      setEstadisticas(resultado.data);
+    }
+  };
+
+  // Cargar categorías
+  const cargarCategorias = async () => {
+    const resultado = await obtenerCategoriasMateriales();
+    if (resultado.success) {
+      setCategorias(resultado.data);
+    }
+  };
+
+  // Cargar datos iniciales
+  useEffect(() => {
+    cargarMateriales();
+    cargarEstadisticas();
+    cargarCategorias();
+  }, []);
+
+  // Búsqueda con debounce
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(async () => {
+      if (busqueda.trim()) {
+        setLoading(true);
+        const resultado = await buscarMateriales(busqueda);
+        if (resultado.success) {
+          setMateriales(resultado.data);
+        }
+        setLoading(false);
+      } else {
+        cargarMateriales();
+      }
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [busqueda]);
+
+  // Opciones de categorías dinámicas desde Supabase
+  const categoriaOptions = categorias.map(cat => ({
+    value: cat.id,
+    label: `${cat.icono} ${cat.nombre}`,
+    nombre: cat.nombre
   }));
 
   const estadoOptions = [
-    { value: 'Disponible', label: '✅ Disponible' },
-    { value: 'Bajo stock', label: '⚠️ Bajo stock' },
-    { value: 'Agotado', label: '❌ Agotado' },
+    { value: 'disponible', label: '✅ Disponible' },
+    { value: 'bajo_stock', label: '⚠️ Bajo stock' },
+    { value: 'agotado', label: '❌ Agotado' },
   ];
-
-  function getTipoIcon(tipo) {
-    const icons = {
-      'Hilo': '🧵',
-      'Tela': '🧶',
-      'Accesorio': '📌',
-      'Botón': '⚪',
-      'Cremallera': '🔒',
-      'Etiqueta': '🏷️',
-      'Otro': '📦'
-    };
-    return icons[tipo] || '📦';
-  }
 
   // Filtrado y ordenamiento
   const materialesFiltrados = useMemo(() => {
     let resultado = materiales.filter(m => {
-      const matchBusqueda = busqueda ? 
-        m.nombre.toLowerCase().includes(busqueda.toLowerCase()) || 
-        m.codigo.toLowerCase().includes(busqueda.toLowerCase()) : true;
-      const matchTipo = tipoFiltro ? m.tipo === tipoFiltro.value : true;
+      const matchCategoria = tipoFiltro ? m.categoria_id === tipoFiltro.value : true;
       const matchEstado = estadoFiltro ? m.estado === estadoFiltro.value : true;
-      return matchBusqueda && matchTipo && matchEstado;
+      return matchCategoria && matchEstado;
     });
 
     // Ordenamiento
@@ -78,10 +123,17 @@ function MaterialesView({ onNavigate }) {
     resultado.sort((a, b) => {
       let valorA = a[campo];
       let valorB = b[campo];
+      
+      if (campo === 'precio') {
+        valorA = parseFloat(a.precio_unitario || 0);
+        valorB = parseFloat(b.precio_unitario || 0);
+      }
+      
       if (typeof valorA === 'string') {
         valorA = valorA.toLowerCase();
         valorB = valorB.toLowerCase();
       }
+      
       if (direccion === 'asc') {
         return valorA > valorB ? 1 : -1;
       } else {
@@ -90,20 +142,43 @@ function MaterialesView({ onNavigate }) {
     });
 
     return resultado;
-  }, [materiales, busqueda, tipoFiltro, estadoFiltro, ordenamiento]);
+  }, [materiales, tipoFiltro, estadoFiltro, ordenamiento]);
 
-  // Estadísticas
+  // Estadísticas desde Supabase
   const stats = useMemo(() => ({
-    total: materiales.length,
-    disponibles: materiales.filter(m => m.estado === 'Disponible').length,
-    bajoStock: materiales.filter(m => m.estado === 'Bajo stock').length,
-    valorTotal: materiales.reduce((acc, m) => acc + (m.cantidad * m.precio), 0),
-    tipos: [...new Set(materiales.map(m => m.tipo))].length,
-  }), [materiales]);
+    total: estadisticas.totalMateriales || materiales.length,
+    disponibles: estadisticas.disponibles || materiales.filter(m => m.estado === 'disponible').length,
+    bajoStock: estadisticas.bajoStock || materiales.filter(m => m.estado === 'bajo_stock').length,
+    valorTotal: estadisticas.valorInventario || materiales.reduce((acc, m) => acc + (parseFloat(m.cantidad || 0) * parseFloat(m.precio_unitario || 0)), 0),
+    categorias: categorias.length,
+  }), [estadisticas, materiales, categorias]);
 
-  const handleNuevoMaterial = (data) => {
-    console.log('Nuevo material:', data);
+  const handleNuevoMaterial = async () => {
+    setShowNuevoMaterialModal(false);
+    await cargarMateriales();
+    await cargarEstadisticas();
     toast.success('Material agregado exitosamente');
+  };
+
+  const handleEliminarMaterial = async (material) => {
+    if (!window.confirm(`¿Estás seguro de eliminar "${material.nombre}"?`)) return;
+    
+    const resultado = await eliminarMaterial(material.id);
+    if (resultado.success) {
+      toast.success('Material eliminado exitosamente');
+      await cargarMateriales();
+      await cargarEstadisticas();
+    } else {
+      toast.error('Error al eliminar: ' + resultado.error);
+    }
+  };
+
+  const handleEditarMaterial = async () => {
+    setShowEditarMaterialModal(false);
+    setMaterialSeleccionado(null);
+    await cargarMateriales();
+    await cargarEstadisticas();
+    toast.success('Material actualizado exitosamente');
   };
 
   const exportarExcel = () => {
@@ -225,7 +300,7 @@ function MaterialesView({ onNavigate }) {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm opacity-90">Categorías</p>
-                    <p className="text-3xl font-bold mt-1">{stats.tipos}</p>
+                    <p className="text-3xl font-bold mt-1">{stats.categorias}</p>
                   </div>
                   <FaLayerGroup className="text-4xl opacity-20" />
                 </div>
@@ -263,11 +338,11 @@ function MaterialesView({ onNavigate }) {
               </div>
 
               <Select
-                options={tipoOptions}
+                options={categoriaOptions}
                 value={tipoFiltro}
                 onChange={setTipoFiltro}
                 isClearable
-                placeholder="🏷️ Tipo"
+                placeholder="🏷️ Categoría"
                 className="min-w-[180px]"
                 styles={customSelectStyles}
               />
@@ -337,16 +412,16 @@ function MaterialesView({ onNavigate }) {
                     <div 
                       className="h-24 relative flex items-center justify-center"
                       style={{ 
-                        background: `linear-gradient(135deg, ${material.color}20, ${material.color}40)` 
+                        background: material.categoria?.color ? `linear-gradient(135deg, ${material.categoria.color}20, ${material.categoria.color}40)` : 'linear-gradient(135deg, #8f5cff20, #8f5cff40)'
                       }}
                     >
                       <div 
                         className="w-16 h-16 rounded-full flex items-center justify-center text-4xl shadow-lg"
-                        style={{ backgroundColor: material.color }}
+                        style={{ backgroundColor: material.categoria?.color || '#8f5cff' }}
                       >
-                        {getTipoIcon(material.tipo)}
+                        {material.categoria?.icono || '📦'}
                       </div>
-                      {material.estado === 'Bajo stock' && (
+                      {material.estado === 'bajo_stock' && (
                         <div className="absolute top-3 right-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1">
                           <FaExclamationTriangle className="text-xs" />
                           Bajo Stock
@@ -362,47 +437,56 @@ function MaterialesView({ onNavigate }) {
                       <div className="grid grid-cols-2 gap-3 mb-4">
                         <div className="bg-gray-50 rounded-xl p-3 text-center">
                           <p className="text-xs text-gray-500 mb-1">Stock</p>
-                          <p className="text-xl font-bold text-[#8f5cff]">{material.cantidad}</p>
+                          <p className="text-xl font-bold text-[#8f5cff]">{parseFloat(material.cantidad || 0).toFixed(2)}</p>
+                          <p className="text-xs text-gray-400">{material.unidad || 'unidades'}</p>
                         </div>
                         <div className="bg-gray-50 rounded-xl p-3 text-center">
                           <p className="text-xs text-gray-500 mb-1">Precio</p>
-                          <p className="text-xl font-bold text-green-600">S/ {material.precio}</p>
+                          <p className="text-xl font-bold text-green-600">S/ {parseFloat(material.precio_unitario || 0).toFixed(2)}</p>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-2 mb-4 text-sm text-gray-600">
                         <FaWarehouse className="text-[#8f5cff]" />
-                        <span>{material.ubicacion}</span>
+                        <span>{material.ubicacion || 'Sin ubicación'}</span>
                         <span className="mx-2">•</span>
                         <FaTag className="text-[#8f5cff]" />
-                        <span>{material.tipo}</span>
+                        <span>{material.categoria?.nombre || 'Sin categoría'}</span>
                       </div>
 
                       {/* Barra de progreso */}
                       <div className="mb-4">
                         <div className="flex justify-between text-xs text-gray-500 mb-2">
                           <span>Stock vs Mínimo</span>
-                          <span>{Math.round((material.cantidad / material.minimo) * 100)}%</span>
+                          <span>{material.stock_minimo > 0 ? Math.round((parseFloat(material.cantidad || 0) / parseFloat(material.stock_minimo)) * 100) : 100}%</span>
                         </div>
                         <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                           <motion.div
                             initial={{ width: 0 }}
-                            animate={{ width: `${Math.min((material.cantidad / material.minimo) * 100, 100)}%` }}
+                            animate={{ width: `${material.stock_minimo > 0 ? Math.min((parseFloat(material.cantidad || 0) / parseFloat(material.stock_minimo)) * 100, 100) : 100}%` }}
                             transition={{ duration: 1, delay: index * 0.05 }}
-                            className={`h-full ${material.cantidad < material.minimo ? 'bg-red-500' : 'bg-green-500'}`}
+                            className={`h-full ${parseFloat(material.cantidad || 0) < parseFloat(material.stock_minimo || 0) ? 'bg-red-500' : 'bg-green-500'}`}
                           />
                         </div>
                       </div>
 
-                      <button
-                        onClick={() => {
-                          setMaterialSeleccionado(material);
-                          setShowEditarMaterialModal(true);
-                        }}
-                        className="w-full bg-gradient-to-r from-[#8f5cff] to-[#6e7ff3] text-white py-2.5 rounded-xl font-semibold flex items-center justify-center gap-2 hover:shadow-lg transition"
-                      >
-                        <FaEdit /> Editar
-                      </button>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => {
+                            setMaterialSeleccionado(material);
+                            setShowEditarMaterialModal(true);
+                          }}
+                          className="flex-1 bg-gradient-to-r from-[#8f5cff] to-[#6e7ff3] text-white py-2.5 rounded-xl font-semibold flex items-center justify-center gap-2 hover:shadow-lg transition"
+                        >
+                          <FaEdit /> Editar
+                        </button>
+                        <button
+                          onClick={() => handleEliminarMaterial(material)}
+                          className="px-4 bg-red-500 text-white py-2.5 rounded-xl font-semibold hover:bg-red-600 hover:shadow-lg transition"
+                        >
+                          🗑️
+                        </button>
+                      </div>
                     </div>
                   </motion.div>
                 ))}
@@ -442,9 +526,9 @@ function MaterialesView({ onNavigate }) {
                             <div className="flex items-center gap-3">
                               <div 
                                 className="w-10 h-10 rounded-lg flex items-center justify-center text-xl"
-                                style={{ backgroundColor: `${material.color}40` }}
+                                style={{ backgroundColor: material.categoria?.color ? `${material.categoria.color}40` : '#8f5cff40' }}
                               >
-                                {getTipoIcon(material.tipo)}
+                                {material.categoria?.icono || '📦'}
                               </div>
                               <div>
                                 <p className="font-semibold text-gray-800">{material.nombre}</p>
@@ -454,15 +538,18 @@ function MaterialesView({ onNavigate }) {
                           </td>
                           <td className="px-6 py-4">
                             <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-sm font-semibold">
-                              {material.tipo}
+                              {material.categoria?.nombre || 'Sin categoría'}
                             </span>
                           </td>
                           <td className="px-6 py-4 text-center">
-                            <span className="text-lg font-bold text-[#8f5cff]">{material.cantidad}</span>
+                            <div>
+                              <span className="text-lg font-bold text-[#8f5cff]">{parseFloat(material.cantidad || 0).toFixed(2)}</span>
+                              <p className="text-xs text-gray-400">{material.unidad || 'unidades'}</p>
+                            </div>
                           </td>
-                          <td className="px-6 py-4 text-center text-gray-600">{material.minimo}</td>
+                          <td className="px-6 py-4 text-center text-gray-600">{parseFloat(material.stock_minimo || 0).toFixed(2)}</td>
                           <td className="px-6 py-4 text-center">
-                            <span className="font-semibold text-green-600">S/ {material.precio}</span>
+                            <span className="font-semibold text-green-600">S/ {parseFloat(material.precio_unitario || 0).toFixed(2)}</span>
                           </td>
                           <td className="px-6 py-4 text-center">
                             <div className="flex items-center justify-center gap-1 text-gray-600">
@@ -471,13 +558,17 @@ function MaterialesView({ onNavigate }) {
                             </div>
                           </td>
                           <td className="px-6 py-4 text-center">
-                            {material.estado === 'Disponible' ? (
+                            {material.estado === 'disponible' ? (
                               <span className="px-3 py-1 bg-green-100 text-green-700 rounded-lg text-sm font-semibold">
                                 ✅ Disponible
                               </span>
-                            ) : (
-                              <span className="px-3 py-1 bg-red-100 text-red-700 rounded-lg text-sm font-semibold flex items-center gap-1 justify-center">
+                            ) : material.estado === 'bajo_stock' ? (
+                              <span className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-lg text-sm font-semibold flex items-center gap-1 justify-center">
                                 <FaExclamationTriangle /> Bajo Stock
+                              </span>
+                            ) : (
+                              <span className="px-3 py-1 bg-red-100 text-red-700 rounded-lg text-sm font-semibold">
+                                ❌ Agotado
                               </span>
                             )}
                           </td>
@@ -491,6 +582,12 @@ function MaterialesView({ onNavigate }) {
                                 className="p-2 bg-gradient-to-r from-[#f59e42] to-[#ff7a42] text-white rounded-lg hover:shadow-lg transition"
                               >
                                 <FaEdit />
+                              </button>
+                              <button
+                                onClick={() => handleEliminarMaterial(material)}
+                                className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 hover:shadow-lg transition"
+                              >
+                                🗑️
                               </button>
                             </div>
                           </td>
@@ -530,12 +627,7 @@ function MaterialesView({ onNavigate }) {
           setShowEditarMaterialModal(false);
           setMaterialSeleccionado(null);
         }}
-        onSubmit={(data) => {
-          console.log('Material editado:', data);
-          toast.success('Material actualizado exitosamente');
-          setShowEditarMaterialModal(false);
-          setMaterialSeleccionado(null);
-        }}
+        onSubmit={handleEditarMaterial}
         material={materialSeleccionado}
       />
     </div>
