@@ -1,0 +1,285 @@
+/* 
+ * Estilos personalizados para SweetAlert2
+ * Sistema de Inventario - Tema personalizado
+ */
+
+/* Animaciones personalizadas */
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* Contenedor del modal */
+.swal2-popup {
+  animation: bounceIn 0.4s ease-out;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* Título */
+.swal2-title {
+  padding: 1.5rem 2rem 0 2rem;
+  font-weight: 900;
+  letter-spacing: -0.025em;
+}
+
+/* Contenido HTML */
+.swal2-html-container {
+  margin: 0;
+  padding: 0;
+}
+
+/* Icono */
+.swal2-icon {
+  margin: 1.5rem auto 1rem;
+  animation: slideInDown 0.5s ease-out;
+}
+
+/* Contenedor de botones */
+.swal2-actions {
+  margin-top: 2rem;
+  padding: 0 2rem 2rem 2rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Botones personalizados */
+.swal2-styled {
+  margin: 0;
+  padding: 0.875rem 2.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: 0.75rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.swal2-styled:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.swal2-styled:active {
+  transform: translateY(0);
+}
+
+/* Botón de confirmación */
+.swal2-confirm {
+  background: linear-gradient(135deg, #8f5cff 0%, #6e7ff3 100%);
+  box-shadow: 0 10px 25px -5px rgba(143, 92, 255, 0.4);
+}
+
+.swal2-confirm:hover {
+  box-shadow: 0 20px 40px -5px rgba(143, 92, 255, 0.5);
+}
+
+/* Botón de cancelación */
+.swal2-cancel {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.swal2-cancel:hover {
+  background: #d1d5db;
+}
+
+/* Dark mode para cancelación */
+.dark .swal2-cancel {
+  background: #374151;
+  color: #e5e7eb;
+}
+
+.dark .swal2-cancel:hover {
+  background: #4b5563;
+}
+
+/* Botón de denegar */
+.swal2-deny {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.4);
+}
+
+.swal2-deny:hover {
+  box-shadow: 0 20px 40px -5px rgba(239, 68, 68, 0.5);
+}
+
+/* Barra de progreso del timer */
+.swal2-timer-progress-bar {
+  background: linear-gradient(90deg, #8f5cff 0%, #6e7ff3 100%);
+}
+
+/* Backdrop */
+.swal2-backdrop-show {
+  backdrop-filter: blur(8px);
+}
+
+/* Popup en dark mode */
+.dark .swal2-popup {
+  background: #1f2937;
+  color: #e5e7eb;
+  border: 2px solid #374151;
+}
+
+.dark .swal2-title {
+  color: #f3f4f6;
+}
+
+.dark .swal2-html-container {
+  color: #d1d5db;
+}
+
+/* Animación de entrada para iconos */
+.swal2-icon.swal2-success {
+  animation: slideInDown 0.5s ease-out, pulse 1s ease-in-out 0.5s;
+}
+
+.swal2-icon.swal2-error {
+  animation: slideInDown 0.5s ease-out;
+}
+
+.swal2-icon.swal2-warning {
+  animation: slideInDown 0.5s ease-out, pulse 1s ease-in-out 0.5s infinite;
+}
+
+.swal2-icon.swal2-question {
+  animation: slideInDown 0.5s ease-out;
+}
+
+/* Ajustes para móviles */
+@media (max-width: 640px) {
+  .swal2-popup {
+    width: 90% !important;
+    padding: 1.5rem;
+  }
+
+  .swal2-title {
+    font-size: 1.5rem;
+    padding: 1rem 1rem 0 1rem;
+  }
+
+  .swal2-actions {
+    padding: 0 1rem 1.5rem 1rem;
+    gap: 0.75rem;
+  }
+
+  .swal2-styled {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Animación de focus para accesibilidad */
+.swal2-styled:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(143, 92, 255, 0.5);
+}
+
+/* Animación suave para el backdrop */
+.swal2-backdrop-show {
+  animation: swal2-show-backdrop 0.3s;
+}
+
+@keyframes swal2-show-backdrop {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Mejoras de contraste para accesibilidad */
+.swal2-popup {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Loader personalizado */
+.swal2-loader {
+  border-color: #8f5cff transparent #8f5cff transparent;
+}
+
+/* Input fields en modales (si se usan) */
+.swal2-input {
+  border-radius: 0.75rem;
+  border: 2px solid #e5e7eb;
+  padding: 0.875rem 1rem;
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+.swal2-input:focus {
+  border-color: #8f5cff;
+  box-shadow: 0 0 0 3px rgba(143, 92, 255, 0.1);
+  outline: none;
+}
+
+.dark .swal2-input {
+  background: #374151;
+  border-color: #4b5563;
+  color: #f3f4f6;
+}
+
+.dark .swal2-input:focus {
+  border-color: #8f5cff;
+}
+
+/* Textarea en modales */
+.swal2-textarea {
+  border-radius: 0.75rem;
+  border: 2px solid #e5e7eb;
+  padding: 0.875rem 1rem;
+  font-size: 1rem;
+  min-height: 100px;
+  resize: vertical;
+  transition: all 0.2s;
+}
+
+.swal2-textarea:focus {
+  border-color: #8f5cff;
+  box-shadow: 0 0 0 3px rgba(143, 92, 255, 0.1);
+  outline: none;
+}
+
+.dark .swal2-textarea {
+  background: #374151;
+  border-color: #4b5563;
+  color: #f3f4f6;
+}
+
+.dark .swal2-textarea:focus {
+  border-color: #8f5cff;
+}

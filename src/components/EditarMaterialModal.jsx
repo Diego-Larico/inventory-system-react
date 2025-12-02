@@ -5,6 +5,7 @@ import Select from 'react-select';
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
 import { actualizarMaterial, obtenerCategoriasMateriales } from '../services/materialesService';
+import { confirmarGuardar, confirmarDescartarCambios, mostrarExito, mostrarError } from '../utils/confirmationModals';
 
 Modal.setAppElement('#root');
 
@@ -26,6 +27,7 @@ function EditarMaterialModal({ isOpen, onClose, onSubmit, material }) {
   const [categorias, setCategorias] = useState([]);
   const [loading, setLoading] = useState(false);
   const [loadingCategorias, setLoadingCategorias] = useState(true);
+  const [hasChanges, setHasChanges] = useState(false);
 
   // Cargar categorías al abrir el modal
   useEffect(() => {
@@ -61,6 +63,7 @@ function EditarMaterialModal({ isOpen, onClose, onSubmit, material }) {
         color: material.color || '',
         notas: material.notas || '',
       });
+      setHasChanges(false);
     }
   }, [material, isOpen]);
 
@@ -75,6 +78,7 @@ function EditarMaterialModal({ isOpen, onClose, onSubmit, material }) {
 
   const handleChange = (field, value) => {
     setFormData({ ...formData, [field]: value });
+    setHasChanges(true);
   };
 
   const handleSubmit = async (e) => {
@@ -98,6 +102,10 @@ function EditarMaterialModal({ isOpen, onClose, onSubmit, material }) {
       return;
     }
 
+    // Confirmar guardado
+    const confirmado = await confirmarGuardar(`Material "${formData.nombre}"`);
+    if (!confirmado) return;
+
     setLoading(true);
 
     // Preparar datos para Supabase
@@ -120,14 +128,26 @@ function EditarMaterialModal({ isOpen, onClose, onSubmit, material }) {
     setLoading(false);
 
     if (resultado.success) {
-      toast.success('¡Material actualizado exitosamente!');
+      await mostrarExito('Material actualizado exitosamente', 'Los cambios se han guardado correctamente');
+      setHasChanges(false);
       onSubmit();
+      onClose();
     } else {
-      toast.error('Error al actualizar: ' + resultado.error);
+      await mostrarError('Error al actualizar el material', resultado.error);
     }
   };
 
-  const handleClose = () => {
+  const handleClose = async () => {
+    if (hasChanges) {
+      const accion = await confirmarDescartarCambios();
+      if (accion === 'save') {
+        document.getElementById('form-editar-material')?.requestSubmit();
+        return;
+      } else if (accion === 'cancel') {
+        return;
+      }
+    }
+    setHasChanges(false);
     onClose();
   };
 
@@ -156,7 +176,7 @@ function EditarMaterialModal({ isOpen, onClose, onSubmit, material }) {
       isOpen={isOpen}
       onRequestClose={handleClose}
       className="fixed inset-0 flex items-center justify-center p-4 z-50"
-      overlayClassName="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm z-40"
+      overlayClassName="fixed inset-0 bg-black dark:bg-gray-950 bg-opacity-60 dark:bg-opacity-80 backdrop-blur-sm z-40"
       closeTimeoutMS={300}
     >
       <motion.div
@@ -164,7 +184,7 @@ function EditarMaterialModal({ isOpen, onClose, onSubmit, material }) {
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
         transition={{ duration: 0.3, type: 'spring', stiffness: 300, damping: 30 }}
-        className="bg-white rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
+        className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
       >
         {/* Header Premium */}
         <div className="sticky top-0 bg-gradient-to-br from-[#f59e42] via-[#ff8c42] to-[#ff7a42] text-white p-8 relative overflow-hidden z-10">
@@ -201,7 +221,7 @@ function EditarMaterialModal({ isOpen, onClose, onSubmit, material }) {
 
         {/* Form */}
         <div className="overflow-y-auto max-h-[calc(90vh-160px)] custom-scrollbar">
-          <form onSubmit={handleSubmit} className="p-8 space-y-8">
+          <form id="form-editar-material" onSubmit={handleSubmit} className="p-8 space-y-8">
             {/* Información Básica */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}

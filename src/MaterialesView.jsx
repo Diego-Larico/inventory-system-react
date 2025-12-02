@@ -20,6 +20,7 @@ import * as XLSX from 'xlsx';
 import NuevoMaterialModal from './components/NuevoMaterialModal';
 import EditarMaterialModal from './components/EditarMaterialModal';
 import toast, { Toaster } from 'react-hot-toast';
+import { confirmarEliminar } from './utils/confirmationModals';
 
 function MaterialesView({ onNavigate }) {
   const [showNuevoMaterialModal, setShowNuevoMaterialModal] = useState(false);
@@ -161,7 +162,8 @@ function MaterialesView({ onNavigate }) {
   };
 
   const handleEliminarMaterial = async (material) => {
-    if (!window.confirm(`¿Estás seguro de eliminar "${material.nombre}"?`)) return;
+    const confirmado = await confirmarEliminar(material.nombre, 'Material');
+    if (!confirmado) return;
     
     const resultado = await eliminarMaterial(material.id);
     if (resultado.success) {
@@ -173,12 +175,16 @@ function MaterialesView({ onNavigate }) {
     }
   };
 
+  const handleAbrirEditar = (material) => {
+    setMaterialSeleccionado(material);
+    setShowEditarMaterialModal(true);
+  };
+
   const handleEditarMaterial = async () => {
     setShowEditarMaterialModal(false);
     setMaterialSeleccionado(null);
     await cargarMateriales();
     await cargarEstadisticas();
-    toast.success('Material actualizado exitosamente');
   };
 
   const exportarExcel = () => {
@@ -472,10 +478,7 @@ function MaterialesView({ onNavigate }) {
 
                       <div className="flex gap-2">
                         <button
-                          onClick={() => {
-                            setMaterialSeleccionado(material);
-                            setShowEditarMaterialModal(true);
-                          }}
+                          onClick={() => handleAbrirEditar(material)}
                           className="flex-1 bg-gradient-to-r from-[#8f5cff] to-[#6e7ff3] text-white py-2.5 rounded-xl font-semibold flex items-center justify-center gap-2 hover:shadow-lg transition"
                         >
                           <FaEdit /> Editar
@@ -575,10 +578,7 @@ function MaterialesView({ onNavigate }) {
                           <td className="px-6 py-4">
                             <div className="flex justify-center gap-2">
                               <button
-                                onClick={() => {
-                                  setMaterialSeleccionado(material);
-                                  setShowEditarMaterialModal(true);
-                                }}
+                                onClick={() => handleAbrirEditar(material)}
                                 className="p-2 bg-gradient-to-r from-[#f59e42] to-[#ff7a42] text-white rounded-lg hover:shadow-lg transition"
                               >
                                 <FaEdit />

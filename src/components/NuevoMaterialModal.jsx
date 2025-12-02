@@ -4,6 +4,7 @@ import { FaTimes, FaBox, FaPalette, FaBoxes, FaDollarSign, FaWarehouse, FaCube, 
 import Select from 'react-select';
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
+import { confirmarGuardar, mostrarExito, mostrarError } from '../utils/confirmationModals';
 import { crearMaterial, obtenerCategoriasMateriales } from '../services/materialesService';
 
 Modal.setAppElement('#root');
@@ -88,6 +89,10 @@ function NuevoMaterialModal({ isOpen, onClose, onSubmit }) {
       return;
     }
 
+    // Confirmación antes de crear el material
+    const confirmado = await confirmarGuardar(`Nuevo Material "${formData.nombre}"`);
+    if (!confirmado) return;
+
     try {
       setLoading(true);
 
@@ -112,11 +117,10 @@ function NuevoMaterialModal({ isOpen, onClose, onSubmit }) {
       const resultado = await crearMaterial(materialData);
 
       if (resultado.success) {
-        toast.success('¡Material agregado exitosamente!', {
-          icon: '✨',
-          style: { borderRadius: '12px', background: '#8f5cff', color: '#fff' },
-          duration: 3000,
-        });
+        await mostrarExito(
+          '¡Material agregado exitosamente!',
+          `Material "${formData.nombre}" registrado en el inventario`
+        );
         
         if (onSubmit) {
           onSubmit(resultado.data);
@@ -124,11 +128,17 @@ function NuevoMaterialModal({ isOpen, onClose, onSubmit }) {
         
         handleClose();
       } else {
-        toast.error(`Error al crear material: ${resultado.error}`);
+        await mostrarError(
+          'Error al crear el material',
+          resultado.error || 'No se pudo registrar el material en la base de datos'
+        );
       }
     } catch (error) {
       console.error('Error al crear material:', error);
-      toast.error('Error inesperado al crear material');
+      await mostrarError(
+        'Error inesperado',
+        error.message || 'Ocurrió un error al procesar la solicitud'
+      );
     } finally {
       setLoading(false);
     }

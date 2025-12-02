@@ -4,6 +4,7 @@ import { FaTimes, FaBox, FaHashtag, FaTshirt, FaDollarSign, FaRuler, FaTag, FaIm
 import Select from 'react-select';
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
+import { confirmarGuardar, mostrarExito, mostrarError } from '../utils/confirmationModals';
 import { generarCodigoProducto, obtenerCategorias, crearProducto } from '../services/productosService';
 
 Modal.setAppElement('#root');
@@ -147,6 +148,10 @@ function NuevoProductoModal({ isOpen, onClose, onSuccess }) {
       return;
     }
 
+    // Confirmación antes de crear el producto
+    const confirmado = await confirmarGuardar(`Nuevo Producto "${formData.nombre}"`);
+    if (!confirmado) return;
+
     setLoading(true);
 
     try {
@@ -167,26 +172,25 @@ function NuevoProductoModal({ isOpen, onClose, onSuccess }) {
       const resultado = await crearProducto(datosProducto);
 
       if (resultado.success) {
-        toast.success('¡Producto creado exitosamente!', {
-          icon: '🎉',
-          style: { borderRadius: '12px', background: '#8f5cff', color: '#fff' },
-          duration: 3000,
-        });
+        await mostrarExito(
+          '¡Producto creado exitosamente!',
+          `Código: ${resultado.data?.codigo || formData.codigo}`
+        );
         
         handleClose();
         if (onSuccess) onSuccess(resultado.data);
       } else {
-        toast.error(resultado.error || 'Error al crear el producto', {
-          icon: '❌',
-          style: { borderRadius: '12px', background: '#ef4444', color: '#fff' },
-        });
+        await mostrarError(
+          'Error al crear el producto',
+          resultado.error || 'No se pudo registrar el producto en la base de datos'
+        );
       }
     } catch (error) {
       console.error('Error al crear producto:', error);
-      toast.error('Error al crear el producto', {
-        icon: '❌',
-        style: { borderRadius: '12px', background: '#ef4444', color: '#fff' },
-      });
+      await mostrarError(
+        'Error inesperado',
+        error.message || 'Ocurrió un error al procesar la solicitud'
+      );
     } finally {
       setLoading(false);
     }

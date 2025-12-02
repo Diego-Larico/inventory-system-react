@@ -136,6 +136,11 @@ function ProductosView({ onNavigate }) {
     setShowQuickView(true);
   };
 
+  const handleEditarProducto = (producto) => {
+    setProductoSeleccionado(producto);
+    setShowEditarProductoModal(true);
+  };
+
   const customSelectStyles = {
     control: (base, state) => ({
       ...base,
@@ -474,10 +479,7 @@ function ProductosView({ onNavigate }) {
 
                       <div className="flex gap-2">
                         <button
-                          onClick={() => {
-                            setProductoSeleccionado(producto);
-                            setShowEditarProductoModal(true);
-                          }}
+                          onClick={() => handleEditarProducto(producto)}
                           className="flex-1 bg-gradient-to-r from-[#8f5cff] to-[#6e7ff3] text-white py-2.5 rounded-xl font-semibold flex items-center justify-center gap-2 hover:shadow-lg transition"
                         >
                           <FaEdit /> Editar
@@ -606,10 +608,7 @@ function ProductosView({ onNavigate }) {
                                 <FaEye />
                               </button>
                               <button
-                                onClick={() => {
-                                  setProductoSeleccionado(producto);
-                                  setShowEditarProductoModal(true);
-                                }}
+                                onClick={() => handleEditarProducto(producto)}
                                 className="p-2 bg-gradient-to-r from-[#f59e42] to-[#ff7a42] text-white rounded-lg hover:shadow-lg transition"
                               >
                                 <FaEdit />

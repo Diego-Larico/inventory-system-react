@@ -5,6 +5,7 @@ import Select from 'react-select';
 import CreatableSelect from 'react-select/creatable';
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
+import { confirmarGuardar, mostrarExito, mostrarError } from '../utils/confirmationModals';
 import {
   obtenerClientes,
   obtenerProductosDisponibles,
@@ -243,6 +244,10 @@ function NuevoPedidoModal({ isOpen, onClose, onSubmit }) {
       return;
     }
 
+    // Confirmación antes de crear el pedido
+    const confirmado = await confirmarGuardar(`Nuevo Pedido para "${formData.clienteNombre}"`);
+    if (!confirmado) return;
+
     setLoading(true);
 
     try {
@@ -303,11 +308,10 @@ function NuevoPedidoModal({ isOpen, onClose, onSubmit }) {
       const resultado = await crearPedido(pedidoData, detalles);
 
       if (resultado.success) {
-        toast.success('¡Pedido creado exitosamente!', {
-          icon: '🎉',
-          style: { borderRadius: '12px', background: '#8f5cff', color: '#fff' },
-          duration: 3000,
-        });
+        await mostrarExito(
+          '¡Pedido creado exitosamente!',
+          `Pedido registrado con éxito en el sistema`
+        );
         
         if (onSubmit) {
           onSubmit(resultado.data);

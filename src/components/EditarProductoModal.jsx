@@ -5,13 +5,14 @@ import Select from 'react-select';
 import Dropzone from 'react-dropzone';
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
+import { actualizarProducto } from '../services/productosService';
+import { confirmarGuardar, confirmarDescartarCambios, mostrarExito, mostrarError } from '../utils/confirmationModals';
 
 Modal.setAppElement('#root');
 
 function EditarProductoModal({ isOpen, onClose, onSubmit, producto }) {
   const [formData, setFormData] = useState({
     nombre: '',
-    codigo: '',
     categoria: null,
     precio: '',
     costo: '',
@@ -24,11 +25,13 @@ function EditarProductoModal({ isOpen, onClose, onSubmit, producto }) {
     imagenPreview: null,
   });
 
+  const [loading, setLoading] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
+
   useEffect(() => {
     if (producto && isOpen) {
       setFormData({
         nombre: producto.nombre || '',
-        codigo: producto.codigo || '',
         categoria: producto.categoria ? { value: producto.categoria, label: `👕 ${producto.categoria}` } : null,
         precio: producto.precio?.toString() || '',
         costo: producto.costo?.toString() || '',
@@ -38,8 +41,9 @@ function EditarProductoModal({ isOpen, onClose, onSubmit, producto }) {
         materiales: producto.materiales || [],
         descripcion: producto.descripcion || '',
         imagen: null,
-        imagenPreview: producto.imagenUrl || null,
+        imagenPreview: producto.imagen_url || null,
       });
+      setHasChanges(false);
     }
   }, [producto, isOpen]);
 
@@ -83,6 +87,7 @@ function EditarProductoModal({ isOpen, onClose, onSubmit, producto }) {
 
   const handleChange = (field, value) => {
     setFormData({ ...formData, [field]: value });
+    setHasChanges(true);
   };
 
   const handleDrop = (acceptedFiles) => {
@@ -99,42 +104,69 @@ function EditarProductoModal({ isOpen, onClose, onSubmit, producto }) {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
+    // Validaciones
     if (!formData.nombre.trim()) {
-      toast.error('El nombre del producto es obligatorio', {
-        icon: '📝',
-        style: { borderRadius: '12px', background: '#333', color: '#fff' },
-      });
+      toast.error('El nombre del producto es obligatorio');
       return;
     }
     if (!formData.categoria) {
-      toast.error('Selecciona una categoría', {
-        icon: '🏷️',
-        style: { borderRadius: '12px', background: '#333', color: '#fff' },
-      });
+      toast.error('Selecciona una categoría');
       return;
     }
-    if (!formData.precio || formData.precio <= 0) {
-      toast.error('El precio debe ser mayor a 0', {
-        icon: '💰',
-        style: { borderRadius: '12px', background: '#333', color: '#fff' },
-      });
+    if (!formData.precio || parseFloat(formData.precio) <= 0) {
+      toast.error('El precio debe ser mayor a 0');
       return;
     }
 
-    toast.success('¡Producto actualizado exitosamente!', {
-      icon: '🎉',
-      style: { borderRadius: '12px', background: '#8f5cff', color: '#fff' },
-      duration: 3000,
-    });
+    // Confirmar guardado
+    const confirmado = await confirmarGuardar(`Producto "${formData.nombre}"`);
+    if (!confirmado) return;
+
+    setLoading(true);
+
+    // Preparar datos para Supabase
+    const productoData = {
+      nombre: formData.nombre,
+      categoria: formData.categoria.value,
+      precio: parseFloat(formData.precio),
+      costo: parseFloat(formData.costo) || 0,
+      stock: parseInt(formData.stock) || 0,
+      tallas: formData.tallas.map(t => t.value),
+      colores: formData.colores.map(c => c.value),
+      materiales: formData.materiales.map(m => m.value),
+      descripcion: formData.descripcion,
+      // La imagen se manejará después si es necesario
+    };
+
+    const resultado = await actualizarProducto(producto.id, productoData);
     
-    onSubmit({ ...formData, id: producto.id || producto.codigo });
-    handleClose();
+    setLoading(false);
+
+    if (resultado.success) {
+      await mostrarExito('Producto actualizado exitosamente', 'Los cambios se han guardado correctamente');
+      setHasChanges(false);
+      onSubmit();
+      onClose();
+    } else {
+      await mostrarError('Error al actualizar el producto', resultado.error);
+    }
   };
 
-  const handleClose = () => {
+  const handleClose = async () => {
+    if (hasChanges) {
+      const accion = await confirmarDescartarCambios();
+      if (accion === 'save') {
+        // Forzar submit del formulario
+        document.getElementById('form-editar-producto')?.requestSubmit();
+        return;
+      } else if (accion === 'cancel') {
+        return;
+      }
+    }
+    setHasChanges(false);
     onClose();
   };
 
@@ -181,7 +213,7 @@ function EditarProductoModal({ isOpen, onClose, onSubmit, producto }) {
       isOpen={isOpen}
       onRequestClose={handleClose}
       className="fixed inset-0 flex items-center justify-center p-4 z-50"
-      overlayClassName="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm z-40"
+      overlayClassName="fixed inset-0 bg-black dark:bg-gray-950 bg-opacity-60 dark:bg-opacity-80 backdrop-blur-sm z-40"
       closeTimeoutMS={300}
     >
       <motion.div
@@ -226,7 +258,7 @@ function EditarProductoModal({ isOpen, onClose, onSubmit, producto }) {
 
         {/* Form */}
         <div className="overflow-y-auto max-h-[calc(90vh-160px)] custom-scrollbar">
-          <form onSubmit={handleSubmit} className="p-8 space-y-8">
+          <form id="form-editar-producto" onSubmit={handleSubmit} className="p-8 space-y-8">
             {/* Imagen del Producto */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
@@ -305,9 +337,9 @@ function EditarProductoModal({ isOpen, onClose, onSubmit, producto }) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 gap-6">
                 <div className="group">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                     <FaTshirt className="text-[#f59e42]" />
                     Nombre del producto *
                   </label>
@@ -316,26 +348,13 @@ function EditarProductoModal({ isOpen, onClose, onSubmit, producto }) {
                     value={formData.nombre}
                     onChange={(e) => handleChange('nombre', e.target.value)}
                     placeholder="Ej: Polo básico cuello redondo"
-                    className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#f59e42] focus:ring-opacity-20 focus:border-[#f59e42] transition-all duration-200 group-hover:border-gray-300"
-                  />
-                </div>
-                <div className="group">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
-                    <FaHashtag className="text-[#f59e42]" />
-                    Código
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.codigo}
-                    onChange={(e) => handleChange('codigo', e.target.value)}
-                    placeholder="Ej: P-001"
-                    className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#f59e42] focus:ring-opacity-20 focus:border-[#f59e42] transition-all duration-200 group-hover:border-gray-300"
+                    className="w-full px-5 py-4 border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#f59e42] focus:ring-opacity-20 focus:border-[#f59e42] transition-all duration-200 group-hover:border-gray-300"
                   />
                 </div>
               </div>
 
               <div className="mt-6">
-                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                   <FaTag className="text-[#f59e42]" />
                   Categoría *
                 </label>
