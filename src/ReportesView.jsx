@@ -7,7 +7,7 @@ import { format, subDays, subMonths } from 'date-fns';
 import { es } from 'date-fns/locale';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import toast, { Toaster } from 'react-hot-toast';
 import { 
   obtenerReporteCompleto,
@@ -356,7 +356,7 @@ function ReportesView({ onNavigate }) {
       ['Margen de Ganancia', `${metricas.margenGanancia}%`],
     ];
     
-    doc.autoTable({
+    autoTable(doc, {
       startY: 45,
       head: [['Métrica', 'Valor']],
       body: metricasData,
@@ -366,7 +366,8 @@ function ReportesView({ onNavigate }) {
     
     // Productos más vendidos
     if (productosMasVendidos.length > 0) {
-      doc.text('Productos Más Vendidos', 14, doc.lastAutoTable.finalY + 15);
+      const finalY = doc.lastAutoTable?.finalY || 45;
+      doc.text('Productos Más Vendidos', 14, finalY + 15);
       
       const productosData = productosMasVendidos.map(p => [
         p.nombre,
@@ -374,8 +375,8 @@ function ReportesView({ onNavigate }) {
         `S/ ${p.ingresos.toLocaleString()}`,
       ]);
       
-      doc.autoTable({
-        startY: doc.lastAutoTable.finalY + 20,
+      autoTable(doc, {
+        startY: finalY + 20,
         head: [['Producto', 'Cantidad', 'Ingresos']],
         body: productosData,
         theme: 'striped',
@@ -395,7 +396,7 @@ function ReportesView({ onNavigate }) {
         `${c.porcentaje}%`
       ]);
       
-      doc.autoTable({
+      autoTable(doc, {
         startY: 25,
         head: [['Categoría', 'Ventas', 'Porcentaje']],
         body: categoriasData,
@@ -409,8 +410,316 @@ function ReportesView({ onNavigate }) {
   };
 
   const imprimir = () => {
-    window.print();
-    toast.info('📄 Preparando impresión...');
+    if (loading) {
+      toast.error('Espera a que se carguen los datos');
+      return;
+    }
+
+    // Crear una ventana nueva con el contenido formateado para imprimir
+    const ventanaImpresion = window.open('', '_blank', 'width=800,height=600');
+    
+    const contenidoHTML = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Reporte - ${tipoReporteOptions.find(t => t.value === tipoReporte)?.label}</title>
+          <meta charset="UTF-8">
+          <style>
+            @media print {
+              @page { 
+                margin: 2cm 1.5cm;
+                size: A4 portrait;
+              }
+              body { 
+                print-color-adjust: exact; 
+                -webkit-print-color-adjust: exact;
+              }
+              .no-print { display: none; }
+            }
+            * { 
+              margin: 0; 
+              padding: 0; 
+              box-sizing: border-box; 
+            }
+            body {
+              font-family: 'Arial', 'Helvetica', sans-serif;
+              font-size: 11pt;
+              line-height: 1.4;
+              color: #000;
+              background: #fff;
+              padding: 20px;
+              max-width: 800px;
+              margin: 0 auto;
+            }
+            .header {
+              border-bottom: 2px solid #000;
+              padding-bottom: 15px;
+              margin-bottom: 25px;
+            }
+            .header h1 {
+              font-size: 20pt;
+              font-weight: bold;
+              color: #000;
+              margin-bottom: 5px;
+              text-transform: uppercase;
+              letter-spacing: 1px;
+            }
+            .header .info {
+              font-size: 9pt;
+              color: #333;
+              margin-top: 8px;
+            }
+            .header .info strong {
+              font-weight: bold;
+            }
+            .seccion {
+              margin-bottom: 30px;
+              page-break-inside: avoid;
+            }
+            .seccion h2 {
+              font-size: 14pt;
+              font-weight: bold;
+              color: #000;
+              margin-bottom: 12px;
+              padding-bottom: 5px;
+              border-bottom: 1px solid #333;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+            }
+            .metricas-grid {
+              display: table;
+              width: 100%;
+              border: 1px solid #000;
+              margin-bottom: 20px;
+            }
+            .metrica-row {
+              display: table-row;
+            }
+            .metrica-cell {
+              display: table-cell;
+              padding: 10px 12px;
+              border-bottom: 1px solid #ccc;
+              vertical-align: middle;
+            }
+            .metrica-cell:first-child {
+              font-weight: bold;
+              width: 60%;
+              background: #f5f5f5;
+            }
+            .metrica-cell:last-child {
+              text-align: right;
+              font-weight: bold;
+            }
+            .metrica-row:last-child .metrica-cell {
+              border-bottom: none;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-bottom: 20px;
+              border: 1px solid #000;
+              font-size: 10pt;
+            }
+            table thead {
+              background: #e0e0e0;
+              border-bottom: 2px solid #000;
+            }
+            table th {
+              padding: 8px 10px;
+              text-align: left;
+              font-weight: bold;
+              text-transform: uppercase;
+              font-size: 9pt;
+              border-right: 1px solid #ccc;
+            }
+            table th:last-child {
+              border-right: none;
+            }
+            table td {
+              padding: 8px 10px;
+              border-bottom: 1px solid #ddd;
+              border-right: 1px solid #ddd;
+            }
+            table td:last-child {
+              border-right: none;
+            }
+            table tbody tr:last-child td {
+              border-bottom: none;
+            }
+            table tbody tr:nth-child(even) {
+              background: #f9f9f9;
+            }
+            .text-right {
+              text-align: right;
+            }
+            .text-center {
+              text-align: center;
+            }
+            .bold {
+              font-weight: bold;
+            }
+            .footer {
+              margin-top: 40px;
+              padding-top: 15px;
+              border-top: 1px solid #000;
+              text-align: center;
+              font-size: 8pt;
+              color: #666;
+            }
+            .summary-box {
+              border: 1px solid #000;
+              padding: 15px;
+              margin-bottom: 20px;
+              background: #f9f9f9;
+            }
+            .summary-box p {
+              margin: 5px 0;
+              font-size: 10pt;
+            }
+            .summary-box strong {
+              font-weight: bold;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>${tipoReporteOptions.find(t => t.value === tipoReporte)?.label}</h1>
+            <div class="info">
+              <strong>Fecha de generación:</strong> ${format(new Date(), "dd/MM/yyyy HH:mm", { locale: es })}
+            </div>
+            <div class="info">
+              <strong>Período:</strong> ${rangoFecha === 'mes' ? 'Último mes' : rangoFecha === 'trimestre' ? 'Último trimestre' : rangoFecha === 'semestre' ? 'Último semestre' : rangoFecha === 'año' ? 'Último año' : 'Personalizado'}
+            </div>
+          </div>
+
+          <div class="seccion">
+            <h2>Resumen Ejecutivo</h2>
+            <div class="metricas-grid">
+              <div class="metrica-row">
+                <div class="metrica-cell">Ventas Totales</div>
+                <div class="metrica-cell">S/ ${metricas.ventasTotales.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+              </div>
+              <div class="metrica-row">
+                <div class="metrica-cell">Crecimiento</div>
+                <div class="metrica-cell">${metricas.crecimiento > 0 ? '+' : ''}${metricas.crecimiento}%</div>
+              </div>
+              <div class="metrica-row">
+                <div class="metrica-cell">Pedidos Completados</div>
+                <div class="metrica-cell">${metricas.pedidosCompletados} unidades</div>
+              </div>
+              <div class="metrica-row">
+                <div class="metrica-cell">Ticket Promedio</div>
+                <div class="metrica-cell">S/ ${metricas.ticketPromedio.toFixed(2)}</div>
+              </div>
+              <div class="metrica-row">
+                <div class="metrica-cell">Margen de Ganancia</div>
+                <div class="metrica-cell">${metricas.margenGanancia}%</div>
+              </div>
+            </div>
+          </div>
+
+          ${productosMasVendidos.length > 0 ? `
+            <div class="seccion">
+              <h2>Productos Más Vendidos</h2>
+              <table>
+                <thead>
+                  <tr>
+                    <th style="width: 50%;">Producto</th>
+                    <th style="width: 20%;" class="text-center">Cantidad</th>
+                    <th style="width: 30%;" class="text-right">Ingresos</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${productosMasVendidos.slice(0, 15).map((p, idx) => `
+                    <tr>
+                      <td>${idx + 1}. ${p.nombre}</td>
+                      <td class="text-center">${p.cantidad} unidades</td>
+                      <td class="text-right bold">S/ ${p.ingresos.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          ` : ''}
+
+          ${ventasPorCategoria.length > 0 ? `
+            <div class="seccion">
+              <h2>Ventas por Categoría</h2>
+              <table>
+                <thead>
+                  <tr>
+                    <th style="width: 50%;">Categoría</th>
+                    <th style="width: 30%;" class="text-right">Ventas</th>
+                    <th style="width: 20%;" class="text-center">Porcentaje</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${ventasPorCategoria.map(c => `
+                    <tr>
+                      <td>${c.categoria}</td>
+                      <td class="text-right">S/ ${c.ventas.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                      <td class="text-center bold">${c.porcentaje}%</td>
+                    </tr>
+                  `).join('')}
+                  <tr style="border-top: 2px solid #000; background: #e8e8e8;">
+                    <td class="bold">TOTAL</td>
+                    <td class="text-right bold">S/ ${ventasPorCategoria.reduce((sum, c) => sum + c.ventas, 0).toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                    <td class="text-center bold">100%</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          ` : ''}
+
+          ${ventasMensuales.length > 0 ? `
+            <div class="seccion">
+              <h2>Ventas Mensuales</h2>
+              <table>
+                <thead>
+                  <tr>
+                    <th style="width: 40%;">Período</th>
+                    <th style="width: 35%;" class="text-right">Ventas</th>
+                    <th style="width: 25%;" class="text-center">Pedidos</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${ventasMensuales.map(v => `
+                    <tr>
+                      <td>${v.mes}</td>
+                      <td class="text-right">S/ ${v.ventas.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                      <td class="text-center">${v.pedidos}</td>
+                    </tr>
+                  `).join('')}
+                  <tr style="border-top: 2px solid #000; background: #e8e8e8;">
+                    <td class="bold">TOTAL</td>
+                    <td class="text-right bold">S/ ${ventasMensuales.reduce((sum, v) => sum + v.ventas, 0).toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                    <td class="text-center bold">${ventasMensuales.reduce((sum, v) => sum + v.pedidos, 0)}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          ` : ''}
+
+          <div class="footer">
+            <p>Sistema de Inventario - Reporte generado automáticamente</p>
+            <p>Documento impreso: ${format(new Date(), "dd/MM/yyyy HH:mm")}</p>
+            <p>Página 1 de 1</p>
+          </div>
+        </body>
+      </html>
+    `;
+
+    ventanaImpresion.document.write(contenidoHTML);
+    ventanaImpresion.document.close();
+    
+    // Esperar a que se cargue el contenido antes de imprimir
+    ventanaImpresion.onload = () => {
+      ventanaImpresion.focus();
+      setTimeout(() => {
+        ventanaImpresion.print();
+        toast.success('📄 Documento preparado para impresión');
+      }, 250);
+    };
   };
 
   // Calcular tendencias
@@ -461,7 +770,9 @@ function ReportesView({ onNavigate }) {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={exportarExcel}
-              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition shadow-md"
+              disabled={loading}
+              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Exportar a Excel"
             >
               <FaFileExcel /> Excel
             </motion.button>
@@ -469,7 +780,9 @@ function ReportesView({ onNavigate }) {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={exportarPDF}
-              className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition shadow-md"
+              disabled={loading}
+              className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Exportar a PDF"
             >
               <FaFilePdf /> PDF
             </motion.button>
@@ -477,7 +790,9 @@ function ReportesView({ onNavigate }) {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={imprimir}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg font-semibold hover:bg-gray-700 transition shadow-md"
+              disabled={loading}
+              className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg font-semibold hover:bg-gray-700 transition shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Imprimir reporte"
             >
               <FaPrint /> Imprimir
             </motion.button>

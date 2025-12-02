@@ -66,11 +66,83 @@ function Sidebar({ onNavigate, activeView }) {
     { id: 'logout', label: 'Cerrar sesión', icon: FaSignOutAlt },
   ];
 
-  const handleItemClick = (itemId) => {
-    if (['config', 'help', 'logout'].includes(itemId)) {
+  const handleItemClick = async (itemId) => {
+    if (itemId === 'logout') {
+      // Importar dinámicamente el modal de confirmación
+      const { default: Swal } = await import('sweetalert2');
+      
+      const result = await Swal.fire({
+        title: '<i class="fas fa-sign-out-alt" style="color: #ef4444; margin-right: 12px;"></i>¿Cerrar sesión?',
+        html: `
+          <div style="text-align: center; padding: 1.5rem 1rem;">
+            <div style="font-size: 3rem; margin-bottom: 1rem; color: #ef4444;"><i class="fas fa-door-open"></i></div>
+            <p style="color: #6b7280; margin-bottom: 1rem; font-size: 1rem; line-height: 1.6;">
+              ¿Estás seguro que deseas cerrar sesión?
+            </p>
+            <p style="color: #9ca3af; font-size: 0.875rem;">
+              Tendrás que volver a iniciar sesión para acceder al sistema.
+            </p>
+          </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: '<span style="display: flex; align-items: center; gap: 8px;"><i class="fas fa-sign-out-alt"></i> Sí, cerrar sesión</span>',
+        cancelButtonText: '<span style="display: flex; align-items: center; gap: 8px;"><i class="fas fa-times"></i> Cancelar</span>',
+        customClass: {
+          popup: 'rounded-3xl shadow-2xl border-2 border-gray-200 dark:border-gray-700',
+          confirmButton: 'bg-gradient-to-r from-red-500 to-red-600 text-white font-bold py-3 px-10 rounded-xl hover:shadow-2xl transition-all duration-300 hover:scale-110 hover:-translate-y-1',
+          cancelButton: 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-bold py-3 px-10 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-300 hover:scale-105',
+          actions: 'gap-4 mt-6',
+          title: 'text-gray-800 dark:text-gray-100 font-black text-2xl',
+          htmlContainer: 'text-gray-600 dark:text-gray-400',
+        },
+        buttonsStyling: false,
+        reverseButtons: true,
+        backdrop: 'rgba(0, 0, 0, 0.75)',
+        allowOutsideClick: false,
+        width: '500px',
+      });
+
+      if (result.isConfirmed) {
+        // Mostrar mensaje de éxito
+        await Swal.fire({
+          title: '<i class="fas fa-check-circle" style="color: #10b981; margin-right: 12px;"></i>¡Hasta pronto!',
+          html: `
+            <div style="text-align: center; padding: 1.5rem 1rem;">
+              <div style="font-size: 4rem; margin-bottom: 1rem; animation: bounce 0.6s; color: #10b981;"><i class="fas fa-wave-square"></i></div>
+              <p style="color: #10b981; font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem;">
+                Sesión cerrada exitosamente
+              </p>
+            </div>
+            <style>
+              @keyframes bounce {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-20px); }
+              }
+            </style>
+          `,
+          confirmButtonText: '<span style="display: flex; align-items: center; gap: 8px;"><i class="fas fa-thumbs-up"></i> Entendido</span>',
+          customClass: {
+            popup: 'rounded-3xl shadow-2xl border-2 border-gray-200',
+            confirmButton: 'bg-gradient-to-r from-green-500 to-green-600 text-white font-bold py-3 px-10 rounded-xl hover:shadow-2xl transition-all duration-300 hover:scale-110 hover:-translate-y-1',
+          },
+          buttonsStyling: false,
+          timer: 2000,
+          timerProgressBar: true,
+          backdrop: 'rgba(0, 0, 0, 0.5)',
+          width: '500px',
+        });
+        
+        // Recargar la página para cerrar sesión
+        window.location.reload();
+      }
+      return;
+    }
+    
+    if (['config', 'help'].includes(itemId)) {
       console.log(`${itemId} clicked`);
       return;
     }
+    
     onNavigate(itemId);
   };
 

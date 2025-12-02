@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  FaSearch, FaBell, FaUser, FaChevronDown, FaCog, FaSignOutAlt, 
-  FaMoon, FaSun, FaShoppingCart, FaBox, FaTshirt
+  FaSearch, FaBell, FaMoon, FaSun, FaShoppingCart, FaBox, FaTshirt
 } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import { obtenerNotificaciones, marcarComoLeida, marcarTodasComoLeidas } from '../services/notificacionesService';
@@ -14,7 +13,6 @@ import NuevoProductoModal from './NuevoProductoModal';
 function Topbar() {
   const { darkMode, toggleTheme } = useTheme();
   const [showNotifications, setShowNotifications] = useState(false);
-  const [showUserMenu, setShowUserMenu] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentTime, setCurrentTime] = useState(new Date());
   const [notifications, setNotifications] = useState([]);
@@ -281,67 +279,7 @@ function Topbar() {
                 </AnimatePresence>
               </div>
 
-              {/* Usuario */}
-              <div className="relative">
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => setShowUserMenu(!showUserMenu)}
-                  className="flex items-center gap-3 px-4 py-2 rounded-xl bg-gradient-to-r from-[#8f5cff] to-[#6e7ff3] hover:shadow-lg transition-all"
-                >
-                  <img 
-                    src="https://randomuser.me/api/portraits/men/32.jpg" 
-                    alt="Usuario" 
-                    className="w-10 h-10 rounded-full border-2 border-white shadow-md" 
-                  />
-                  <div className="text-left hidden xl:block">
-                    <p className="font-semibold text-white text-sm">Diego Larico</p>
-                    <p className="text-xs text-purple-100">Administrador</p>
-                  </div>
-                  <FaChevronDown className="text-white text-sm" />
-                </motion.button>
 
-                <AnimatePresence>
-                  {showUserMenu && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      className="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden z-50"
-                    >
-                      <div className="p-4 bg-gradient-to-r from-[#8f5cff] to-[#6e7ff3]">
-                        <div className="flex items-center gap-3">
-                          <img 
-                            src="https://randomuser.me/api/portraits/men/32.jpg" 
-                            alt="Usuario" 
-                            className="w-12 h-12 rounded-full border-2 border-white" 
-                          />
-                          <div>
-                            <p className="font-bold text-white">Diego Larico</p>
-                            <p className="text-xs text-purple-100">diego@inventario.com</p>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="p-2">
-                        <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-purple-50 dark:hover:bg-gray-700 transition-colors text-left">
-                          <FaUser className="text-[#8f5cff] dark:text-[#a78bfa]" />
-                          <span className="font-semibold text-gray-700 dark:text-gray-200">Mi Perfil</span>
-                        </button>
-                        <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-purple-50 dark:hover:bg-gray-700 transition-colors text-left">
-                          <FaCog className="text-[#8f5cff] dark:text-[#a78bfa]" />
-                          <span className="font-semibold text-gray-700 dark:text-gray-200">Configuración</span>
-                        </button>
-                        <div className="h-px bg-gray-200 dark:bg-gray-600 my-2"></div>
-                        <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-left">
-                          <FaSignOutAlt className="text-red-500 dark:text-red-400" />
-                          <span className="font-semibold text-red-500 dark:text-red-400">Cerrar Sesión</span>
-                        </button>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
             </div>
           </div>
         </div>
