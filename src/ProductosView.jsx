@@ -162,13 +162,13 @@ function ProductosView({ onNavigate }) {
   }
 
   return (
-    <div className="flex fixed inset-0 bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="flex fixed inset-0 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <Toaster position="top-right" />
       <Sidebar onNavigate={onNavigate} activeView={'productos'} />
       
       <div className="flex-1 flex flex-col min-h-0">
         {/* Header Premium */}
-        <header className="bg-white border-b border-gray-200 shadow-sm">
+        <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
           <div className="px-8 py-6">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-4">
@@ -183,7 +183,7 @@ function ProductosView({ onNavigate }) {
                   <h1 className="text-3xl font-bold bg-gradient-to-r from-[#8f5cff] to-[#6e7ff3] bg-clip-text text-transparent">
                     Gestión de Productos
                   </h1>
-                  <p className="text-gray-500 text-sm mt-1">Catálogo completo de productos</p>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Catálogo completo de productos</p>
                 </div>
               </div>
 

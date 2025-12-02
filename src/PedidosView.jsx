@@ -358,10 +358,10 @@ function PedidosView({ onNavigate }) {
   }
 
   return (
-    <div className="flex fixed inset-0 bg-gray-100">
+    <div className="flex fixed inset-0 bg-gray-100 dark:bg-gray-900">
       <Sidebar onNavigate={onNavigate} activeView={'pedidos'} />
       <div className="flex-1 flex flex-col min-h-0">
-        <header className="px-8 py-6 bg-white border-b border-gray-200 flex items-center justify-between">
+        <header className="px-8 py-6 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-[#8f5cff]">Pedidos</h1>
             <p className="text-sm text-gray-400">Gestiona y monitorea todos los pedidos del negocio</p>

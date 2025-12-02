@@ -47,8 +47,8 @@ function TodoListWidget() {
         <div className="w-8 h-8 bg-gradient-to-br from-[#8f5cff] to-[#6e7ff3] rounded-lg flex items-center justify-center">
           <FaPlus className="text-white text-sm" />
         </div>
-        <h3 className="text-lg font-bold text-gray-800">Tareas Pendientes</h3>
-        <span className="ml-auto bg-purple-100 text-purple-700 text-xs font-bold px-2.5 py-1 rounded-full">
+        <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">Tareas Pendientes</h3>
+        <span className="ml-auto bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 text-xs font-bold px-2.5 py-1 rounded-full">
           {tasks.filter(t => !t.completed).length}
         </span>
       </div>
@@ -59,7 +59,7 @@ function TodoListWidget() {
           value={input}
           onChange={e => setInput(e.target.value)}
           placeholder="Agregar nueva tarea..."
-          className="flex-1 px-4 py-2.5 rounded-xl border-2 border-gray-200 focus:outline-none focus:border-[#8f5cff] focus:ring-2 focus:ring-purple-100 transition-all text-sm"
+          className="flex-1 px-4 py-2.5 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-[#8f5cff] focus:ring-2 focus:ring-purple-100 dark:focus:ring-purple-900 transition-all text-sm"
         />
         <button 
           type="submit" 
@@ -77,7 +77,7 @@ function TodoListWidget() {
               ref={provided.innerRef}
             >
               {tasks.length === 0 ? (
-                <div className="text-center py-8 text-gray-400">
+                <div className="text-center py-8 text-gray-400 dark:text-gray-500">
                   <p className="text-sm">No hay tareas pendientes</p>
                   <p className="text-xs mt-1">¡Agrega una nueva tarea!</p>
                 </div>
@@ -88,10 +88,10 @@ function TodoListWidget() {
                       <li
                         className={`flex items-center gap-3 px-4 py-3 rounded-xl border-2 transition-all cursor-pointer group ${
                           snapshot.isDragging 
-                            ? 'bg-purple-50 border-purple-300 shadow-lg scale-105' 
+                            ? 'bg-purple-50 dark:bg-purple-900/30 border-purple-300 dark:border-purple-600 shadow-lg scale-105' 
                             : task.completed 
-                            ? 'bg-gray-50 border-gray-200 opacity-60' 
-                            : 'bg-white border-gray-200 hover:border-purple-300 hover:shadow-md'
+                            ? 'bg-gray-50 dark:bg-gray-700/50 border-gray-200 dark:border-gray-600 opacity-60' 
+                            : 'bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 hover:border-purple-300 dark:hover:border-purple-500 hover:shadow-md'
                         }`}
                         ref={provided.innerRef}
                         {...provided.draggableProps}
@@ -106,15 +106,15 @@ function TodoListWidget() {
                         <span
                           className={`flex-1 text-sm font-medium transition-all ${
                             task.completed 
-                              ? 'line-through text-gray-400' 
-                              : 'text-gray-700 group-hover:text-[#8f5cff]'
+                              ? 'line-through text-gray-400 dark:text-gray-500' 
+                              : 'text-gray-700 dark:text-gray-300 group-hover:text-[#8f5cff]'
                           }`}
                           onClick={() => handleToggleComplete(task.id)}
                         >
                           {task.text}
                         </span>
                         <button
-                          className="opacity-0 group-hover:opacity-100 transition-opacity text-red-400 hover:text-red-600 hover:scale-110 p-1"
+                          className="opacity-0 group-hover:opacity-100 transition-opacity text-red-400 dark:text-red-500 hover:text-red-600 dark:hover:text-red-400 hover:scale-110 p-1"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleDeleteTask(task.id);

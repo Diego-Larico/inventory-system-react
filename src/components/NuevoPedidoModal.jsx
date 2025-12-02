@@ -388,7 +388,7 @@ function NuevoPedidoModal({ isOpen, onClose, onSubmit }) {
       isOpen={isOpen}
       onRequestClose={handleClose}
       className="fixed inset-0 flex items-center justify-center p-4 z-50"
-      overlayClassName="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm z-40"
+      overlayClassName="fixed inset-0 bg-black dark:bg-gray-950 bg-opacity-60 dark:bg-opacity-80 backdrop-blur-sm z-40"
       closeTimeoutMS={300}
     >
       <motion.div
@@ -396,7 +396,7 @@ function NuevoPedidoModal({ isOpen, onClose, onSubmit }) {
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
         transition={{ duration: 0.3, type: 'spring', stiffness: 300, damping: 30 }}
-        className="bg-white rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden relative"
+        className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden relative"
       >
         {/* Header con diseño premium */}
         <div className="sticky top-0 bg-gradient-to-br from-[#8f5cff] via-[#7d4eea] to-[#6e7ff3] text-white p-8 relative overflow-hidden z-10">
@@ -461,13 +461,13 @@ function NuevoPedidoModal({ isOpen, onClose, onSubmit }) {
                     <FaUser className="text-white text-xl" />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-gray-800">Información del Cliente</h3>
-                    <p className="text-sm text-gray-500">Datos de contacto y ubicación</p>
+                    <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Información del Cliente</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Datos de contacto y ubicación</p>
                   </div>
                 </div>
 
                 <div>
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                     <FaUser className="text-[#8f5cff]" />
                     Seleccionar cliente existente
                   </label>

@@ -1,6 +1,8 @@
 
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
+import { ThemeProvider } from './context/ThemeContext';
 import Sidebar from './components/Sidebar';
 import Topbar from './components/Topbar';
 import DashboardMain from './components/DashboardMain';
@@ -30,12 +32,12 @@ function App() {
     const showRightPanel = activeView === 'dashboard';
 
     return (
-      <div className="flex fixed inset-0 bg-gray-100">
+      <div className="flex fixed inset-0 bg-gray-100 dark:bg-gray-900">
         <Sidebar onNavigate={handleSidebarNav} activeView={activeView} />
         <div className="flex-1 flex flex-col min-h-0">
           {showTopbar && <Topbar />}
           <div className="flex-1 flex min-h-0">
-            <div className="flex-1 overflow-y-auto min-h-0">
+            <div className="flex-1 overflow-y-auto min-h-0 bg-gray-50 dark:bg-gray-800">
               <Routes>
                 <Route path="/" element={<DashboardMain />} />
                 <Route path="/materiales" element={<MaterialesView onNavigate={handleSidebarNav} />} />
@@ -54,9 +56,36 @@ function App() {
   }
 
   return (
-    <Router>
-      {isLoggedIn ? <MainLayout /> : <Login onLoginSuccess={() => setIsLoggedIn(true)} />}
-    </Router>
+    <ThemeProvider>
+      <Router>
+        <Toaster 
+        position="top-right"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: '#fff',
+            color: '#333',
+            borderRadius: '12px',
+            padding: '16px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          },
+          success: {
+            iconTheme: {
+              primary: '#10b981',
+              secondary: '#fff',
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: '#ef4444',
+              secondary: '#fff',
+            },
+          },
+        }}
+      />
+        {isLoggedIn ? <MainLayout /> : <Login onLoginSuccess={() => setIsLoggedIn(true)} />}
+      </Router>
+    </ThemeProvider>
   );
 }
 

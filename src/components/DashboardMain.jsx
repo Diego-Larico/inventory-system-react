@@ -12,78 +12,105 @@ import { LineChart, Line, AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
          Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from 'recharts';
 import { Tooltip as ReactTooltip } from 'react-tooltip';
 import 'react-tooltip/dist/react-tooltip.css';
+import { toast } from 'react-hot-toast';
+import { obtenerDashboardCompleto } from '../services/dashboardService';
 
 function DashboardMain() {
   const [selectedPeriod, setSelectedPeriod] = useState('mes');
   const [animateCards, setAnimateCards] = useState(false);
+  const [loading, setLoading] = useState(true);
+  
+  // Estados para datos de Supabase
+  const [estadisticas, setEstadisticas] = useState({
+    ventasTotales: 0,
+    pedidosActivos: 0,
+    totalProductos: 0,
+    stockTotal: 0,
+    cambioVentas: '+0%',
+    cambioPedidos: '+0%',
+    cambioProductos: '+0%',
+    cambioStock: '+0%'
+  });
+  const [ventasMensuales, setVentasMensuales] = useState([]);
+  const [distribucionProductos, setDistribucionProductos] = useState([]);
+  const [inventarioCategorias, setInventarioCategorias] = useState([]);
+  const [topProductos, setTopProductos] = useState([]);
+  const [alertas, setAlertas] = useState([]);
+  const [actividadReciente, setActividadReciente] = useState([]);
 
   useEffect(() => {
     setAnimateCards(true);
+    cargarDashboard();
   }, []);
 
-  // Datos de ventas por mes
-  const ventasMensuales = [
-    { mes: 'Ene', ventas: 42000, pedidos: 45, productos: 180 },
-    { mes: 'Feb', ventas: 48000, pedidos: 52, productos: 210 },
-    { mes: 'Mar', ventas: 55000, pedidos: 61, productos: 240 },
-    { mes: 'Abr', ventas: 51000, pedidos: 58, productos: 225 },
-    { mes: 'May', ventas: 62000, pedidos: 68, productos: 275 },
-    { mes: 'Jun', ventas: 71000, pedidos: 78, productos: 310 },
-  ];
+  const cargarDashboard = async () => {
+    setLoading(true);
+    
+    try {
+      const resultado = await obtenerDashboardCompleto();
+      
+      if (resultado.success) {
+        const { data } = resultado;
+        
+        // Actualizar estados
+        if (data.estadisticas) setEstadisticas(data.estadisticas);
+        if (data.ventasMensuales) setVentasMensuales(data.ventasMensuales);
+        if (data.distribucionProductos) setDistribucionProductos(data.distribucionProductos);
+        if (data.inventarioCategorias) setInventarioCategorias(data.inventarioCategorias);
+        if (data.topProductos) setTopProductos(data.topProductos);
+        if (data.alertas) setAlertas(data.alertas);
+        if (data.actividadReciente) setActividadReciente(data.actividadReciente);
+      } else {
+        toast.error('Error al cargar el dashboard');
+        console.error('Error:', resultado.error);
+      }
+    } catch (error) {
+      toast.error('Error al cargar datos: ' + error.message);
+      console.error('Error al cargar dashboard:', error);
+    }
+    
+    setLoading(false);
+  };
 
-  // Datos para el gráfico de distribución
-  const distribucionProductos = [
-    { name: 'Camisas', value: 35, color: '#8f5cff' },
-    { name: 'Pantalones', value: 28, color: '#6e7ff3' },
-    { name: 'Vestidos', value: 18, color: '#f59e42' },
-    { name: 'Abrigos', value: 12, color: '#10b981' },
-    { name: 'Accesorios', value: 7, color: '#ef4444' },
-  ];
-
-  // Datos de inventario por categoría
-  const inventarioCategorias = [
-    { categoria: 'Materiales', cantidad: 120, minimo: 80 },
-    { categoria: 'Productos', cantidad: 85, minimo: 50 },
-    { categoria: 'Telas', cantidad: 95, minimo: 70 },
-    { categoria: 'Accesorios', cantidad: 65, minimo: 40 },
-    { categoria: 'Hilos', cantidad: 150, minimo: 100 },
-  ];
-
-  // Datos de radar para métricas
+  // Datos de radar para métricas (estáticos - se pueden calcular después)
   const metricsData = [
-    { metric: 'Ventas', value: 85 },
-    { metric: 'Inventario', value: 92 },
-    { metric: 'Pedidos', value: 78 },
+    { metric: 'Ventas', value: estadisticas.ventasTotales > 50000 ? 85 : 60 },
+    { metric: 'Inventario', value: estadisticas.stockTotal > 1000 ? 92 : 70 },
+    { metric: 'Pedidos', value: estadisticas.pedidosActivos > 50 ? 78 : 65 },
     { metric: 'Calidad', value: 95 },
     { metric: 'Rapidez', value: 88 },
     { metric: 'Satisfacción', value: 90 },
   ];
 
-  // Alertas y notificaciones
-  const alertas = [
-    { id: 1, tipo: 'warning', mensaje: '5 productos con stock bajo', icon: FaExclamationTriangle, color: 'orange' },
-    { id: 2, tipo: 'info', mensaje: '8 pedidos pendientes de entrega', icon: FaClock, color: 'blue' },
-    { id: 3, tipo: 'success', mensaje: '12 pedidos completados hoy', icon: FaCheckCircle, color: 'green' },
-  ];
+  // Mapear alertas con iconos
+  const alertasConIconos = alertas.map(alerta => ({
+    ...alerta,
+    icon: alerta.color === 'orange' ? FaExclamationTriangle :
+          alerta.color === 'blue' ? FaClock : FaCheckCircle
+  }));
 
-  // Productos más vendidos
-  const topProductos = [
-    { nombre: 'Camisa Casual Blanca', ventas: 145, tendencia: 'up', imagen: '👕' },
-    { nombre: 'Pantalón Jean Azul', ventas: 132, tendencia: 'up', imagen: '👖' },
-    { nombre: 'Vestido Floral Rojo', ventas: 98, tendencia: 'down', imagen: '👗' },
-    { nombre: 'Chaqueta Denim', ventas: 87, tendencia: 'up', imagen: '🧥' },
-  ];
+  // Mapear actividad con iconos
+  const actividadConIconos = actividadReciente.map(actividad => ({
+    ...actividad,
+    icon: actividad.color === 'purple' ? FaClipboardList :
+          actividad.color === 'blue' ? FaBox :
+          actividad.color === 'green' ? FaCheckCircle : FaShoppingBag
+  }));
 
-  // Actividad reciente
-  const actividadReciente = [
-    { id: 1, accion: 'Nuevo pedido #1245', tiempo: 'Hace 5 min', icon: FaClipboardList, color: 'purple' },
-    { id: 2, accion: 'Stock actualizado: Hilo Negro', tiempo: 'Hace 12 min', icon: FaBox, color: 'blue' },
-    { id: 3, accion: 'Pedido #1240 completado', tiempo: 'Hace 25 min', icon: FaCheckCircle, color: 'green' },
-    { id: 4, accion: 'Nuevo producto agregado', tiempo: 'Hace 1 hora', icon: FaShoppingBag, color: 'orange' },
-  ];
+  // Skeleton Loader Component
+  const SkeletonCard = () => (
+    <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl animate-pulse">
+      <div className="flex items-center justify-between mb-4">
+        <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
+        <div className="w-20 h-6 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+      </div>
+      <div className="w-24 h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
+      <div className="w-32 h-8 bg-gray-200 dark:bg-gray-700 rounded"></div>
+    </div>
+  );
 
   return (
-    <main className="flex-1 bg-gradient-to-br from-gray-50 via-purple-50 to-blue-50 min-h-screen overflow-y-auto">
+    <main className="flex-1 bg-gradient-to-br from-gray-50 via-purple-50 to-blue-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900 min-h-screen overflow-y-auto">
       {/* Hero Section con Animación */}
       <div className="relative bg-gradient-to-r from-[#8f5cff] via-[#6e7ff3] to-[#8f5cff] bg-[length:200%_100%] animate-gradient p-8 overflow-hidden">
         <div className="absolute inset-0 opacity-10">
@@ -108,7 +135,23 @@ function DashboardMain() {
               </p>
             </div>
             
-            <div className="flex gap-3">
+            <div className="flex gap-3 items-center">
+              {/* Botón Refrescar */}
+              <button
+                onClick={cargarDashboard}
+                disabled={loading}
+                className="px-4 py-2.5 rounded-xl font-semibold transition-all bg-white/20 text-white hover:bg-white/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                <svg 
+                  className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                {loading ? 'Cargando...' : 'Refrescar'}
+              </button>
               {['hoy', 'semana', 'mes', 'año'].map((period) => (
                 <button
                   key={period}
@@ -127,40 +170,47 @@ function DashboardMain() {
 
           {/* Stats Cards Premium */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
+            {loading ? (
+              <>
+                <SkeletonCard />
+                <SkeletonCard />
+                <SkeletonCard />
+                <SkeletonCard />
+              </>
+            ) : [
               { 
                 title: 'Ventas Totales', 
-                value: 71000, 
+                value: estadisticas.ventasTotales, 
                 prefix: 'S/ ', 
-                change: '+12.5%', 
-                isPositive: true, 
+                change: estadisticas.cambioVentas, 
+                isPositive: estadisticas.cambioVentas.startsWith('+'), 
                 icon: FaDollarSign, 
                 color: 'from-green-500 to-emerald-600',
                 bgPattern: '🌟'
               },
               { 
                 title: 'Pedidos Activos', 
-                value: 78, 
-                change: '+8.3%', 
-                isPositive: true, 
+                value: estadisticas.pedidosActivos, 
+                change: estadisticas.cambioPedidos, 
+                isPositive: estadisticas.cambioPedidos.startsWith('+'), 
                 icon: FaClipboardList, 
                 color: 'from-blue-500 to-cyan-600',
                 bgPattern: '📋'
               },
               { 
                 title: 'Productos', 
-                value: 310, 
-                change: '+15.2%', 
-                isPositive: true, 
+                value: estadisticas.totalProductos, 
+                change: estadisticas.cambioProductos, 
+                isPositive: estadisticas.cambioProductos.startsWith('+'), 
                 icon: FaShoppingBag, 
                 color: 'from-purple-500 to-pink-600',
                 bgPattern: '🛍️'
               },
               { 
                 title: 'Stock Total', 
-                value: 1250, 
-                change: '-3.1%', 
-                isPositive: false, 
+                value: estadisticas.stockTotal, 
+                change: estadisticas.cambioStock, 
+                isPositive: estadisticas.cambioStock.startsWith('+'), 
                 icon: FaBoxes, 
                 color: 'from-orange-500 to-red-600',
                 bgPattern: '📦'
@@ -172,7 +222,7 @@ function DashboardMain() {
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 whileHover={{ y: -8, transition: { duration: 0.2 } }}
-                className="relative bg-white rounded-2xl p-6 shadow-xl overflow-hidden group cursor-pointer"
+                className="relative bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl overflow-hidden group cursor-pointer"
               >
                 {/* Patrón de fondo */}
                 <div className="absolute top-3 right-3 text-6xl opacity-5 group-hover:opacity-10 transition-opacity">
@@ -192,8 +242,8 @@ function DashboardMain() {
                     </div>
                   </div>
                   
-                  <h3 className="text-gray-500 text-sm font-semibold mb-2">{stat.title}</h3>
-                  <p className="text-3xl font-bold text-gray-800">
+                  <h3 className="text-gray-500 dark:text-gray-400 text-sm font-semibold mb-2">{stat.title}</h3>
+                  <p className="text-3xl font-bold text-gray-800 dark:text-gray-100">
                     {stat.prefix}
                     <CountUp end={stat.value} duration={2.5} separator="," />
                   </p>
@@ -202,7 +252,8 @@ function DashboardMain() {
                 {/* Efecto de brillo al hover */}
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-10 transform -skew-x-12 group-hover:translate-x-full transition-all duration-1000"></div>
               </motion.div>
-            ))}
+            ))
+            }
           </div>
         </div>
       </div>
@@ -218,31 +269,31 @@ function DashboardMain() {
         >
           <div className="flex items-center gap-2 mb-4">
             <FaBell className="text-2xl text-[#8f5cff]" />
-            <h2 className="text-2xl font-bold text-gray-800">Notificaciones</h2>
+            <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Notificaciones</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {alertas.map((alerta, index) => (
+            {alertasConIconos.map((alerta, index) => (
               <motion.div
                 key={alerta.id}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.6 + index * 0.1 }}
-                className={`bg-white rounded-2xl p-4 shadow-lg border-l-4 hover:shadow-xl transition-all cursor-pointer ${
+                className={`bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-lg border-l-4 hover:shadow-xl transition-all cursor-pointer ${
                   alerta.color === 'orange' ? 'border-orange-500' :
                   alerta.color === 'blue' ? 'border-blue-500' : 'border-green-500'
                 }`}
               >
                 <div className="flex items-center gap-3">
                   <div className={`p-3 rounded-xl ${
-                    alerta.color === 'orange' ? 'bg-orange-100' :
-                    alerta.color === 'blue' ? 'bg-blue-100' : 'bg-green-100'
+                    alerta.color === 'orange' ? 'bg-orange-100 dark:bg-orange-900/30' :
+                    alerta.color === 'blue' ? 'bg-blue-100 dark:bg-blue-900/30' : 'bg-green-100 dark:bg-green-900/30'
                   }`}>
                     <alerta.icon className={`text-xl ${
-                      alerta.color === 'orange' ? 'text-orange-600' :
-                      alerta.color === 'blue' ? 'text-blue-600' : 'text-green-600'
+                      alerta.color === 'orange' ? 'text-orange-600 dark:text-orange-400' :
+                      alerta.color === 'blue' ? 'text-blue-600 dark:text-blue-400' : 'text-green-600 dark:text-green-400'
                     }`} />
                   </div>
-                  <p className="font-semibold text-gray-700">{alerta.mensaje}</p>
+                  <p className="font-semibold text-gray-700 dark:text-gray-300">{alerta.mensaje}</p>
                 </div>
               </motion.div>
             ))}
@@ -256,7 +307,7 @@ function DashboardMain() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.7 }}
-            className="lg:col-span-2 bg-white rounded-2xl p-6 shadow-xl"
+            className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl"
           >
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
@@ -264,8 +315,8 @@ function DashboardMain() {
                   <FaChartLine className="text-2xl text-white" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-gray-800">Evolución de Ventas</h3>
-                  <p className="text-sm text-gray-500">Últimos 6 meses</p>
+                  <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100">Evolución de Ventas</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Últimos 6 meses</p>
                 </div>
               </div>
               <div className="flex items-center gap-2 text-green-600 font-bold">
@@ -273,28 +324,41 @@ function DashboardMain() {
                 <span>+23.4%</span>
               </div>
             </div>
-            <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={ventasMensuales}>
-                <defs>
-                  <linearGradient id="colorVentas" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#8f5cff" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#8f5cff" stopOpacity={0.1}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="mes" stroke="#6b7280" />
-                <YAxis stroke="#6b7280" />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: '#fff', 
-                    border: 'none', 
-                    borderRadius: '12px', 
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)' 
-                  }} 
-                />
-                <Area type="monotone" dataKey="ventas" stroke="#8f5cff" strokeWidth={3} fillOpacity={1} fill="url(#colorVentas)" />
-              </AreaChart>
-            </ResponsiveContainer>
+            {loading ? (
+              <div className="h-[300px] flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#8f5cff]"></div>
+              </div>
+            ) : ventasMensuales.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <AreaChart data={ventasMensuales}>
+                  <defs>
+                    <linearGradient id="colorVentas" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#8f5cff" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="#8f5cff" stopOpacity={0.1}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                  <XAxis dataKey="mes" stroke="#6b7280" />
+                  <YAxis stroke="#6b7280" />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: '#fff', 
+                      border: 'none', 
+                      borderRadius: '12px', 
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.1)' 
+                    }} 
+                  />
+                  <Area type="monotone" dataKey="ventas" stroke="#8f5cff" strokeWidth={3} fillOpacity={1} fill="url(#colorVentas)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-[300px] flex items-center justify-center text-gray-500 dark:text-gray-400">
+                <div className="text-center">
+                  <p className="text-lg font-semibold mb-2">No hay datos de ventas</p>
+                  <p className="text-sm">Agrega pedidos para ver estadísticas</p>
+                </div>
+              </div>
+            )}
           </motion.div>
 
           {/* Distribución de Productos */}
@@ -302,43 +366,57 @@ function DashboardMain() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.8 }}
-            className="bg-white rounded-2xl p-6 shadow-xl"
+            className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl"
           >
             <div className="flex items-center gap-3 mb-6">
               <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl shadow-lg">
                 <FaShoppingBag className="text-2xl text-white" />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-800">Categorías</h3>
-                <p className="text-sm text-gray-500">Distribución</p>
+                <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100">Categorías</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Distribución</p>
               </div>
             </div>
-            <ResponsiveContainer width="100%" height={260}>
-              <PieChart>
-                <Pie
-                  data={distribucionProductos}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={90}
-                  paddingAngle={5}
-                  dataKey="value"
-                >
-                  {distribucionProductos.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
+            {loading ? (
+              <div className="h-[260px] flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
+              </div>
+            ) : distribucionProductos.length > 0 ? (
+              <>
+                <ResponsiveContainer width="100%" height={260}>
+                  <PieChart>
+                    <Pie
+                      data={distribucionProductos}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={90}
+                      paddingAngle={5}
+                      dataKey="value"
+                    >
+                      {distribucionProductos.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="grid grid-cols-2 gap-2 mt-4">
+                  {distribucionProductos.map((item, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></div>
+                      <span className="text-xs text-gray-600 dark:text-gray-300 font-semibold">{item.name}</span>
+                    </div>
                   ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-            <div className="grid grid-cols-2 gap-2 mt-4">
-              {distribucionProductos.map((item, index) => (
-                <div key={index} className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></div>
-                  <span className="text-xs text-gray-600 font-semibold">{item.name}</span>
                 </div>
-              ))}
-            </div>
+              </>
+            ) : (
+              <div className="h-[260px] flex items-center justify-center text-gray-500 dark:text-gray-400">
+                <div className="text-center">
+                  <p className="text-sm">No hay productos</p>
+                </div>
+              </div>
+            )}
           </motion.div>
         </div>
 
@@ -349,34 +427,46 @@ function DashboardMain() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.9 }}
-            className="bg-white rounded-2xl p-6 shadow-xl"
+            className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl"
           >
             <div className="flex items-center gap-3 mb-6">
               <div className="p-3 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl shadow-lg">
                 <FaWarehouse className="text-2xl text-white" />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-800">Inventario</h3>
-                <p className="text-sm text-gray-500">Por categoría</p>
+                <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100">Inventario</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Por categoría</p>
               </div>
             </div>
-            <ResponsiveContainer width="100%" height={260}>
-              <BarChart data={inventarioCategorias}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="categoria" stroke="#6b7280" fontSize={12} />
-                <YAxis stroke="#6b7280" />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: '#fff', 
-                    border: 'none', 
-                    borderRadius: '12px', 
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)' 
-                  }} 
-                />
-                <Bar dataKey="cantidad" fill="#8f5cff" radius={[8, 8, 0, 0]} />
-                <Bar dataKey="minimo" fill="#e5e7eb" radius={[8, 8, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+            {loading ? (
+              <div className="h-[260px] flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+              </div>
+            ) : inventarioCategorias.length > 0 ? (
+              <ResponsiveContainer width="100%" height={260}>
+                <BarChart data={inventarioCategorias}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                  <XAxis dataKey="categoria" stroke="#6b7280" fontSize={12} />
+                  <YAxis stroke="#6b7280" />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: '#fff', 
+                      border: 'none', 
+                      borderRadius: '12px', 
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.1)' 
+                    }} 
+                  />
+                  <Bar dataKey="cantidad" fill="#8f5cff" radius={[8, 8, 0, 0]} />
+                  <Bar dataKey="minimo" fill="#e5e7eb" radius={[8, 8, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-[260px] flex items-center justify-center text-gray-500 dark:text-gray-400">
+                <div className="text-center">
+                  <p className="text-sm">No hay datos de inventario</p>
+                </div>
+              </div>
+            )}
           </motion.div>
 
           {/* Métricas de Rendimiento */}
@@ -384,15 +474,15 @@ function DashboardMain() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.0 }}
-            className="bg-white rounded-2xl p-6 shadow-xl"
+            className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl"
           >
             <div className="flex items-center gap-3 mb-6">
               <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl shadow-lg">
                 <FaTrophy className="text-2xl text-white" />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-800">Rendimiento</h3>
-                <p className="text-sm text-gray-500">Métricas clave</p>
+                <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100">Rendimiento</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Métricas clave</p>
               </div>
             </div>
             <ResponsiveContainer width="100%" height={260}>
@@ -411,31 +501,31 @@ function DashboardMain() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.1 }}
-            className="bg-white rounded-2xl p-6 shadow-xl"
+            className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl"
           >
             <div className="flex items-center gap-3 mb-6">
               <div className="p-3 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl shadow-lg">
                 <FaFire className="text-2xl text-white" />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-800">Top Ventas</h3>
-                <p className="text-sm text-gray-500">Más populares</p>
+                <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100">Top Ventas</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Más populares</p>
               </div>
             </div>
             <div className="space-y-4">
-              {topProductos.map((producto, index) => (
+              {topProductos.length > 0 ? topProductos.map((producto, index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 1.2 + index * 0.1 }}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-xl hover:bg-purple-50 transition-colors cursor-pointer"
+                  className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-xl hover:bg-purple-50 dark:hover:bg-gray-600 transition-colors cursor-pointer"
                 >
                   <div className="flex items-center gap-3">
                     <div className="text-3xl">{producto.imagen}</div>
                     <div>
-                      <p className="font-semibold text-gray-800 text-sm">{producto.nombre}</p>
-                      <p className="text-xs text-gray-500">{producto.ventas} ventas</p>
+                      <p className="font-semibold text-gray-800 dark:text-gray-100 text-sm">{producto.nombre}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{producto.ventas} ventas</p>
                     </div>
                   </div>
                   <div className={`flex items-center gap-1 ${
@@ -447,99 +537,16 @@ function DashboardMain() {
                     </span>
                   </div>
                 </motion.div>
-              ))}
+              )) : (
+                <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                  <p>No hay datos de productos disponibles</p>
+                </div>
+              )}
             </div>
           </motion.div>
         </div>
 
-        {/* Actividad Reciente y Quick Actions */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Actividad Reciente */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 1.2 }}
-            className="bg-white rounded-2xl p-6 shadow-xl"
-          >
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-3 bg-gradient-to-br from-[#8f5cff] to-[#6e7ff3] rounded-xl shadow-lg">
-                <FaClock className="text-2xl text-white" />
-              </div>
-              <div>
-                <h3 className="text-xl font-bold text-gray-800">Actividad Reciente</h3>
-                <p className="text-sm text-gray-500">Últimas acciones</p>
-              </div>
-            </div>
-            <div className="space-y-4">
-              {actividadReciente.map((actividad, index) => (
-                <motion.div
-                  key={actividad.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 1.3 + index * 0.1 }}
-                  className="flex items-center gap-4 p-3 bg-gray-50 rounded-xl hover:bg-purple-50 transition-colors cursor-pointer"
-                >
-                  <div className={`p-2.5 rounded-lg ${
-                    actividad.color === 'purple' ? 'bg-purple-100' :
-                    actividad.color === 'blue' ? 'bg-blue-100' :
-                    actividad.color === 'green' ? 'bg-green-100' : 'bg-orange-100'
-                  }`}>
-                    <actividad.icon className={`text-lg ${
-                      actividad.color === 'purple' ? 'text-purple-600' :
-                      actividad.color === 'blue' ? 'text-blue-600' :
-                      actividad.color === 'green' ? 'text-green-600' : 'text-orange-600'
-                    }`} />
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-semibold text-gray-800 text-sm">{actividad.accion}</p>
-                    <p className="text-xs text-gray-500">{actividad.tiempo}</p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
 
-          {/* Quick Actions */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 1.3 }}
-            className="bg-white rounded-2xl p-6 shadow-xl"
-          >
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-3 bg-gradient-to-br from-pink-500 to-rose-600 rounded-xl shadow-lg">
-                <FaLightbulb className="text-2xl text-white" />
-              </div>
-              <div>
-                <h3 className="text-xl font-bold text-gray-800">Acciones Rápidas</h3>
-                <p className="text-sm text-gray-500">Atajos frecuentes</p>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              {[
-                { icon: FaClipboardList, label: 'Nuevo Pedido', color: 'from-purple-500 to-purple-600' },
-                { icon: FaShoppingBag, label: 'Agregar Producto', color: 'from-blue-500 to-blue-600' },
-                { icon: FaBox, label: 'Registrar Material', color: 'from-green-500 to-green-600' },
-                { icon: FaUsers, label: 'Nuevo Cliente', color: 'from-orange-500 to-orange-600' },
-                { icon: FaChartLine, label: 'Ver Reportes', color: 'from-pink-500 to-pink-600' },
-                { icon: FaWarehouse, label: 'Inventario', color: 'from-cyan-500 to-cyan-600' },
-              ].map((action, index) => (
-                <motion.button
-                  key={index}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 1.4 + index * 0.1 }}
-                  whileHover={{ scale: 1.05, y: -4 }}
-                  whileTap={{ scale: 0.95 }}
-                  className={`p-4 bg-gradient-to-br ${action.color} rounded-xl shadow-lg text-white font-semibold text-sm flex flex-col items-center gap-2 hover:shadow-xl transition-all`}
-                >
-                  <action.icon className="text-2xl" />
-                  {action.label}
-                </motion.button>
-              ))}
-            </div>
-          </motion.div>
-        </div>
       </div>
 
       <ReactTooltip />

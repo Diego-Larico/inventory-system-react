@@ -424,18 +424,18 @@ function ReportesView({ onNavigate }) {
   const tendencia = calcularTendencia(ventasMensuales);
 
   return (
-    <div className="flex fixed inset-0 bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="flex fixed inset-0 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <Toaster position="top-right" />
       <Sidebar onNavigate={onNavigate} activeView={'reportes'} />
       
       <div className="flex-1 flex flex-col overflow-y-auto">
       {/* Topbar */}
-      <header className="bg-white border-b border-gray-200 px-8 py-6 shadow-sm sticky top-0 z-10">
+      <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-8 py-6 shadow-sm sticky top-0 z-10">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-4">
             <div>
               <h1 className="text-3xl font-bold text-[#8f5cff]">{seccionActual.titulo}</h1>
-              <p className="text-sm text-gray-500 mt-1">{seccionActual.descripcion}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{seccionActual.descripcion}</p>
             </div>
             <div className="flex items-center gap-2">
               <span className="px-3 py-1 bg-purple-100 text-[#8f5cff] rounded-full text-sm font-semibold">

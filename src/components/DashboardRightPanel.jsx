@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import TodoListWidget from './TodoListWidget';
-import WeatherWidget from './WeatherWidget';
 import { 
   FaCalendarAlt, 
   FaLightbulb,
@@ -17,7 +16,7 @@ function DashboardRightPanel() {
   const [date, setDate] = useState(new Date());
 
   return (
-    <aside className="w-96 bg-gradient-to-b from-gray-50 to-white border-l border-gray-200 overflow-y-auto custom-scrollbar">
+    <aside className="w-96 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 border-l border-gray-200 dark:border-gray-700 overflow-y-auto custom-scrollbar">
       <div className="p-6 space-y-6">
         {/* Header del Panel */}
         <motion.div
@@ -28,17 +27,7 @@ function DashboardRightPanel() {
           <h2 className="text-2xl font-bold bg-gradient-to-r from-[#8f5cff] to-[#6e7ff3] bg-clip-text text-transparent mb-1">
             Panel Lateral
           </h2>
-          <p className="text-sm text-gray-500">Tu asistente personal</p>
-        </motion.div>
-
-        {/* Clima Widget */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.1 }}
-          className="flex justify-center"
-        >
-          <WeatherWidget />
+          <p className="text-sm text-gray-500 dark:text-gray-400">Tu asistente personal</p>
         </motion.div>
 
         {/* Calendario */}
@@ -46,11 +35,11 @@ function DashboardRightPanel() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-white rounded-2xl p-4 shadow-lg border border-gray-200"
+          className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-lg border border-gray-200 dark:border-gray-700"
         >
           <div className="flex items-center gap-2 mb-3">
             <FaCalendarAlt className="text-[#8f5cff] text-xl" />
-            <h3 className="font-bold text-gray-800">Calendario</h3>
+            <h3 className="font-bold text-gray-800 dark:text-gray-100">Calendario</h3>
           </div>
           <Calendar
             onChange={setDate}
@@ -65,7 +54,7 @@ function DashboardRightPanel() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden"
+          className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden"
         >
           <TodoListWidget />
         </motion.div>

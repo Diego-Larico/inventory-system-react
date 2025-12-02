@@ -15,6 +15,7 @@ import {
   FaFire,
   FaBolt
 } from 'react-icons/fa';
+import WeatherWidget from './WeatherWidget';
 
 function Sidebar({ onNavigate, activeView }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -104,7 +105,7 @@ function Sidebar({ onNavigate, activeView }) {
                 transition={{ duration: 0.2 }}
               >
                 <h1 className="font-bold text-xl text-white">Inventario</h1>
-                <p className="text-xs text-gray-400">Sistema Pro</p>
+                <p className="text-xs text-gray-400">Sistema Web</p>
               </motion.div>
             )}
           </AnimatePresence>
@@ -241,6 +242,16 @@ function Sidebar({ onNavigate, activeView }) {
           transition={{ delay: 0.3 }}
           className="my-6 h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent"
         />
+
+        {/* Weather Widget */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35 }}
+          className="mb-6"
+        >
+          <WeatherWidget isCollapsed={isCollapsed} />
+        </motion.div>
 
         {/* Secondary Items */}
         <div className="space-y-1">

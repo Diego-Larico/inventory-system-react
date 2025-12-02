@@ -32,13 +32,13 @@ function Login({ onLoginSuccess }) {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen w-full">
-      <Tilt glareEnable={true} glareMaxOpacity={0.45} scale={1.05} className="w-full flex flex-col md:flex-row max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden animate-fade-in">
+    <div className="flex items-center justify-center min-h-screen w-full dark:bg-gray-900">
+      <Tilt glareEnable={true} glareMaxOpacity={0.45} scale={1.05} className="w-full flex flex-col md:flex-row max-w-4xl bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden animate-fade-in">
         {/* Left: Form */}
         <div className="flex-1 flex flex-col justify-center px-8 py-12 md:py-16">
           <div className="flex flex-col items-center mb-10">
             <img src="/vite.svg" alt="Logo" className="w-16 h-16 mb-2" />
-            <span className="text-2xl font-bold text-gray-800 text-center">Iniciar Sesión</span>
+            <span className="text-2xl font-bold text-gray-800 dark:text-gray-100 text-center">Iniciar Sesión</span>
           </div>
           <form className="space-y-5" onSubmit={handleSubmit}>
             <div>
