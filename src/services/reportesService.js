@@ -366,3 +366,411 @@ export async function obtenerReporteCompleto() {
     return { success: false, error: error.message };
   }
 }
+
+// ============================================
+// NUEVAS FUNCIONES PARA GRÁFICOS ADICIONALES
+// ============================================
+
+/**
+ * Obtener productos agrupados por estado
+ */
+export async function obtenerProductosPorEstado() {
+  try {
+    console.log('📊 Consultando productos por estado...');
+    
+    const { data: productos, error } = await supabase
+      .from('productos')
+      .select('estado');
+
+    if (error) throw error;
+
+    const estadosCount = {
+      'disponible': 0,
+      'bajo_stock': 0,
+      'agotado': 0,
+      'descontinuado': 0
+    };
+
+    productos.forEach(p => {
+      const estado = p.estado?.toLowerCase() || 'disponible';
+      if (estadosCount.hasOwnProperty(estado)) {
+        estadosCount[estado]++;
+      }
+    });
+
+    const total = productos.length;
+    const resultado = [
+      { 
+        estado: 'Disponible', 
+        cantidad: estadosCount.disponible, 
+        porcentaje: ((estadosCount.disponible / total) * 100).toFixed(1),
+        color: '#10b981' 
+      },
+      { 
+        estado: 'Bajo Stock', 
+        cantidad: estadosCount.bajo_stock, 
+        porcentaje: ((estadosCount.bajo_stock / total) * 100).toFixed(1),
+        color: '#f59e42' 
+      },
+      { 
+        estado: 'Agotado', 
+        cantidad: estadosCount.agotado, 
+        porcentaje: ((estadosCount.agotado / total) * 100).toFixed(1),
+        color: '#ef4444' 
+      },
+      { 
+        estado: 'Descontinuado', 
+        cantidad: estadosCount.descontinuado, 
+        porcentaje: ((estadosCount.descontinuado / total) * 100).toFixed(1),
+        color: '#6b7280' 
+      }
+    ];
+
+    console.log('✅ Productos por estado:', resultado);
+    return { success: true, data: resultado };
+  } catch (error) {
+    console.error('❌ Error al obtener productos por estado:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Calcular rotación de inventario
+ * Rotación = Ventas del período / Inventario promedio
+ */
+export async function obtenerRotacionInventario() {
+  try {
+    console.log('📊 Calculando rotación de inventario...');
+    
+    // Obtener productos con sus ventas de los últimos 30 días
+    const fechaInicio = new Date();
+    fechaInicio.setDate(fechaInicio.getDate() - 30);
+    
+    const { data: detalles, error: errorDetalles } = await supabase
+      .from('detalles_pedido')
+      .select(`
+        producto_id,
+        producto_nombre,
+        cantidad,
+        pedidos!inner(fecha_pedido, estado)
+      `)
+      .gte('pedidos.fecha_pedido', fechaInicio.toISOString())
+      .in('pedidos.estado', ['Completado', 'Entregado']);
+
+    if (errorDetalles) throw errorDetalles;
+
+    const { data: productos, error: errorProductos } = await supabase
+      .from('productos')
+      .select('id, nombre, stock');
+
+    if (errorProductos) throw errorProductos;
+
+    // Agrupar ventas por producto
+    const ventasPorProducto = {};
+    detalles.forEach(detalle => {
+      const id = detalle.producto_id;
+      if (!ventasPorProducto[id]) {
+        ventasPorProducto[id] = {
+          nombre: detalle.producto_nombre,
+          cantidadVendida: 0
+        };
+      }
+      ventasPorProducto[id].cantidadVendida += detalle.cantidad;
+    });
+
+    // Calcular rotación (ventas mensuales / stock actual)
+    const rotaciones = [];
+    Object.keys(ventasPorProducto).forEach(id => {
+      const producto = productos.find(p => p.id === id);
+      if (producto && producto.stock > 0) {
+        const rotacion = ventasPorProducto[id].cantidadVendida / producto.stock;
+        const diasInventario = Math.round(30 / (rotacion || 0.1));
+        
+        rotaciones.push({
+          producto: ventasPorProducto[id].nombre,
+          rotacion: parseFloat(rotacion.toFixed(1)),
+          dias: diasInventario > 365 ? 365 : diasInventario
+        });
+      }
+    });
+
+    // Ordenar por rotación descendente y tomar top 5
+    const top5 = rotaciones
+      .sort((a, b) => b.rotacion - a.rotacion)
+      .slice(0, 5);
+
+    console.log('✅ Rotación de inventario:', top5);
+    return { success: true, data: top5 };
+  } catch (error) {
+    console.error('❌ Error al calcular rotación:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Obtener margen de ganancia por producto
+ */
+export async function obtenerMargenGananciaPorProducto() {
+  try {
+    console.log('📊 Calculando margen de ganancia por producto...');
+    
+    const { data: productos, error } = await supabase
+      .from('productos')
+      .select('nombre, precio, costo')
+      .gt('precio', 0)
+      .gt('costo', 0)
+      .limit(5)
+      .order('precio', { ascending: false });
+
+    if (error) throw error;
+
+    const resultado = productos.map(p => ({
+      producto: p.nombre,
+      precio: parseFloat(p.precio),
+      costo: parseFloat(p.costo),
+      margen: (((p.precio - p.costo) / p.precio) * 100).toFixed(0)
+    }));
+
+    console.log('✅ Margen de ganancia:', resultado);
+    return { success: true, data: resultado };
+  } catch (error) {
+    console.error('❌ Error al calcular margen:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Obtener segmentación de clientes por tipo
+ */
+export async function obtenerTiposCliente() {
+  try {
+    console.log('📊 Obteniendo segmentación de clientes...');
+    
+    const { data: clientes, error: errorClientes } = await supabase
+      .from('clientes')
+      .select('id, tipo_cliente')
+      .eq('activo', true);
+
+    if (errorClientes) throw errorClientes;
+
+    const { data: pedidos, error: errorPedidos } = await supabase
+      .from('pedidos')
+      .select('cliente_id, total, estado')
+      .in('estado', ['Completado', 'Entregado'])
+      .not('cliente_id', 'is', null);
+
+    if (errorPedidos) throw errorPedidos;
+
+    // Agrupar por tipo de cliente
+    const tiposMap = {
+      'regular': { cantidad: 0, ventas: 0, color: '#8f5cff' },
+      'vip': { cantidad: 0, ventas: 0, color: '#f59e42' },
+      'mayorista': { cantidad: 0, ventas: 0, color: '#10b981' }
+    };
+
+    // Contar clientes por tipo
+    clientes.forEach(cliente => {
+      const tipo = cliente.tipo_cliente || 'regular';
+      if (tiposMap[tipo]) {
+        tiposMap[tipo].cantidad++;
+      }
+    });
+
+    // Sumar ventas por tipo de cliente
+    pedidos.forEach(pedido => {
+      const cliente = clientes.find(c => c.id === pedido.cliente_id);
+      if (cliente) {
+        const tipo = cliente.tipo_cliente || 'regular';
+        if (tiposMap[tipo]) {
+          tiposMap[tipo].ventas += parseFloat(pedido.total || 0);
+        }
+      }
+    });
+
+    const resultado = [
+      { tipo: 'Regular', ...tiposMap.regular },
+      { tipo: 'VIP', ...tiposMap.vip },
+      { tipo: 'Mayorista', ...tiposMap.mayorista }
+    ];
+
+    console.log('✅ Tipos de cliente:', resultado);
+    return { success: true, data: resultado };
+  } catch (error) {
+    console.error('❌ Error al obtener tipos de cliente:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Obtener clientes más frecuentes
+ */
+export async function obtenerClientesFrecuentes() {
+  try {
+    console.log('📊 Obteniendo clientes frecuentes...');
+    
+    const { data: pedidos, error } = await supabase
+      .from('pedidos')
+      .select('cliente_id, cliente_nombre, total, estado')
+      .in('estado', ['Completado', 'Entregado'])
+      .not('cliente_id', 'is', null);
+
+    if (error) throw error;
+
+    // Agrupar por cliente
+    const clientesMap = {};
+    pedidos.forEach(pedido => {
+      const id = pedido.cliente_id;
+      if (!clientesMap[id]) {
+        clientesMap[id] = {
+          nombre: pedido.cliente_nombre || 'Cliente sin nombre',
+          pedidos: 0,
+          total: 0
+        };
+      }
+      clientesMap[id].pedidos++;
+      clientesMap[id].total += parseFloat(pedido.total || 0);
+    });
+
+    // Convertir a array y ordenar por número de pedidos
+    const resultado = Object.values(clientesMap)
+      .sort((a, b) => b.pedidos - a.pedidos)
+      .slice(0, 5)
+      .map(c => ({
+        nombre: c.nombre,
+        pedidos: c.pedidos,
+        total: Math.round(c.total)
+      }));
+
+    console.log('✅ Clientes frecuentes:', resultado);
+    return { success: true, data: resultado };
+  } catch (error) {
+    console.error('❌ Error al obtener clientes frecuentes:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Obtener desglose de costos mensuales
+ */
+export async function obtenerCostosMensuales() {
+  try {
+    console.log('📊 Calculando costos mensuales...');
+    
+    const añoActual = new Date().getFullYear();
+    
+    // Obtener pedidos completados
+    const { data: pedidos, error: errorPedidos } = await supabase
+      .from('pedidos')
+      .select('fecha_pedido, total, subtotal')
+      .in('estado', ['Completado', 'Entregado'])
+      .gte('fecha_pedido', `${añoActual}-01-01`)
+      .lte('fecha_pedido', `${añoActual}-12-31`);
+
+    if (errorPedidos) throw errorPedidos;
+
+    // Obtener movimientos de materiales (entradas = compras de materiales)
+    const { data: movimientos, error: errorMovimientos } = await supabase
+      .from('movimientos_inventario')
+      .select('created_at, tipo, tipo_item')
+      .eq('tipo', 'entrada')
+      .gte('created_at', `${añoActual}-01-01`);
+
+    if (errorMovimientos) throw errorMovimientos;
+
+    const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    const costosPorMes = meses.map((mes, index) => ({
+      mes,
+      materiales: 0,
+      operativos: 0,
+      personal: 0
+    }));
+
+    // Calcular costos de materiales (estimado como compras de materiales)
+    pedidos.forEach(pedido => {
+      const fecha = new Date(pedido.fecha_pedido);
+      const mesIndex = fecha.getMonth();
+      
+      // Estimar costos:
+      // - Materiales: 50% del subtotal
+      // - Operativos: 15% del subtotal
+      // - Personal: costo fijo de 12000 por mes
+      costosPorMes[mesIndex].materiales += parseFloat(pedido.subtotal || 0) * 0.5;
+      costosPorMes[mesIndex].operativos += parseFloat(pedido.subtotal || 0) * 0.15;
+      costosPorMes[mesIndex].personal = 12000; // Costo fijo mensual
+    });
+
+    // Redondear valores
+    costosPorMes.forEach(mes => {
+      mes.materiales = Math.round(mes.materiales);
+      mes.operativos = Math.round(mes.operativos);
+    });
+
+    // Tomar solo últimos 6 meses
+    const mesActual = new Date().getMonth();
+    const ultimos6Meses = costosPorMes.slice(Math.max(0, mesActual - 5), mesActual + 1);
+
+    console.log('✅ Costos mensuales:', ultimos6Meses);
+    return { success: true, data: ultimos6Meses };
+  } catch (error) {
+    console.error('❌ Error al calcular costos:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Obtener análisis de rentabilidad mensual
+ */
+export async function obtenerRentabilidadMensual() {
+  try {
+    console.log('📊 Calculando rentabilidad mensual...');
+    
+    const añoActual = new Date().getFullYear();
+    
+    const { data: pedidos, error } = await supabase
+      .from('pedidos')
+      .select('fecha_pedido, total, subtotal')
+      .in('estado', ['Completado', 'Entregado'])
+      .gte('fecha_pedido', `${añoActual}-01-01`)
+      .lte('fecha_pedido', `${añoActual}-12-31`);
+
+    if (error) throw error;
+
+    const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    const rentabilidadPorMes = meses.map((mes, index) => ({
+      mes,
+      ingresos: 0,
+      costos: 0,
+      utilidad: 0,
+      margen: 0
+    }));
+
+    pedidos.forEach(pedido => {
+      const fecha = new Date(pedido.fecha_pedido);
+      const mesIndex = fecha.getMonth();
+      
+      const ingresos = parseFloat(pedido.total || 0);
+      const costos = parseFloat(pedido.subtotal || 0) * 0.65; // 65% del subtotal como costos totales
+      
+      rentabilidadPorMes[mesIndex].ingresos += ingresos;
+      rentabilidadPorMes[mesIndex].costos += costos;
+    });
+
+    // Calcular utilidad y margen
+    rentabilidadPorMes.forEach(mes => {
+      mes.ingresos = Math.round(mes.ingresos);
+      mes.costos = Math.round(mes.costos);
+      mes.utilidad = mes.ingresos - mes.costos;
+      mes.margen = mes.ingresos > 0 ? Math.round((mes.utilidad / mes.ingresos) * 100) : 0;
+    });
+
+    // Tomar solo últimos 6 meses
+    const mesActual = new Date().getMonth();
+    const ultimos6Meses = rentabilidadPorMes.slice(Math.max(0, mesActual - 5), mesActual + 1);
+
+    console.log('✅ Rentabilidad mensual:', ultimos6Meses);
+    return { success: true, data: ultimos6Meses };
+  } catch (error) {
+    console.error('❌ Error al calcular rentabilidad:', error);
+    return { success: false, error: error.message };
+  }
+}

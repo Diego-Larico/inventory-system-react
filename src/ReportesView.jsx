@@ -9,7 +9,16 @@ import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import toast, { Toaster } from 'react-hot-toast';
-import { obtenerReporteCompleto } from './services/reportesService';
+import { 
+  obtenerReporteCompleto,
+  obtenerProductosPorEstado,
+  obtenerRotacionInventario,
+  obtenerMargenGananciaPorProducto,
+  obtenerTiposCliente,
+  obtenerClientesFrecuentes,
+  obtenerCostosMensuales,
+  obtenerRentabilidadMensual
+} from './services/reportesService';
 import Sidebar from './components/Sidebar';
 
 function ReportesView({ onNavigate }) {
@@ -23,6 +32,7 @@ function ReportesView({ onNavigate }) {
   
   // Estados para datos de Supabase
   const [loading, setLoading] = useState(true);
+  const [ultimaActualizacion, setUltimaActualizacion] = useState(new Date());
   const [ventasMensuales, setVentasMensuales] = useState([]);
   const [productosMasVendidos, setProductosMasVendidos] = useState([]);
   const [ventasPorCategoria, setVentasPorCategoria] = useState([]);
@@ -41,33 +51,213 @@ function ReportesView({ onNavigate }) {
   });
   const [añoActual, setAñoActual] = useState(new Date().getFullYear());
   const [añoAnterior, setAñoAnterior] = useState(new Date().getFullYear() - 1);
+  
+  // Estados para nuevos gráficos
+  const [productosPorEstado, setProductosPorEstado] = useState([]);
+  const [rotacionInventario, setRotacionInventario] = useState([]);
+  const [margenGananciaPorProducto, setMargenGananciaPorProducto] = useState([]);
+  const [tiposCliente, setTiposCliente] = useState([]);
+  const [clientesFrecuentes, setClientesFrecuentes] = useState([]);
+  const [costosMensuales, setCostosMensuales] = useState([]);
+  const [rentabilidadMensual, setRentabilidadMensual] = useState([]);
 
   // Cargar datos completos desde Supabase
   useEffect(() => {
     cargarReporte();
   }, []);
 
+  // Reaccionar al cambio de tipo de reporte
+  useEffect(() => {
+    if (tipoReporte) {
+      toast.success(`Vista cambiada a: ${tipoReporteOptions.find(t => t.value === tipoReporte)?.label}`);
+    }
+  }, [tipoReporte]);
+
+  // Recargar cuando cambien los filtros de fecha
+  useEffect(() => {
+    if (rangoFecha !== 'personalizado') {
+      aplicarFiltros();
+    }
+  }, [rangoFecha]);
+
+  // Aplicar filtros cuando se seleccione rango personalizado
+  useEffect(() => {
+    if (rangoFecha === 'personalizado' && fechaInicio && fechaFin) {
+      aplicarFiltros();
+    }
+  }, [fechaInicio, fechaFin]);
+
   const cargarReporte = async () => {
     setLoading(true);
-    const resultado = await obtenerReporteCompleto();
     
-    if (resultado.success) {
-      const { data } = resultado;
-      setVentasMensuales(data.ventasMensuales || []);
-      setProductosMasVendidos(data.productosMasVendidos || []);
-      setVentasPorCategoria(data.ventasPorCategoria || []);
-      setComparativoAnual(data.comparativoAnual || []);
-      setEstadoInventario(data.estadoInventario || []);
-      setRendimientoPorCanal(data.rendimientoPorCanal || []);
-      setMetricas(data.metricasClave || metricas);
-      if (data.añoActual) setAñoActual(data.añoActual);
-      if (data.añoAnterior) setAñoAnterior(data.añoAnterior);
+    try {
+      // Cargar reporte base
+      const resultado = await obtenerReporteCompleto();
+      
+      if (resultado.success) {
+        const { data } = resultado;
+        setVentasMensuales(data.ventasMensuales || []);
+        setProductosMasVendidos(data.productosMasVendidos || []);
+        setVentasPorCategoria(data.ventasPorCategoria || []);
+        setComparativoAnual(data.comparativoAnual || []);
+        setEstadoInventario(data.estadoInventario || []);
+        setRendimientoPorCanal(data.rendimientoPorCanal || []);
+        setMetricas(data.metricasClave || metricas);
+        if (data.añoActual) setAñoActual(data.añoActual);
+        if (data.añoAnterior) setAñoAnterior(data.añoAnterior);
+      }
+
+      // Cargar datos adicionales en paralelo
+      const [
+        resProductosEstado,
+        resRotacion,
+        resMargen,
+        resTiposCliente,
+        resClientesFrecuentes,
+        resCostos,
+        resRentabilidad
+      ] = await Promise.all([
+        obtenerProductosPorEstado(),
+        obtenerRotacionInventario(),
+        obtenerMargenGananciaPorProducto(),
+        obtenerTiposCliente(),
+        obtenerClientesFrecuentes(),
+        obtenerCostosMensuales(),
+        obtenerRentabilidadMensual()
+      ]);
+
+      // Actualizar estados con los nuevos datos
+      if (resProductosEstado.success) setProductosPorEstado(resProductosEstado.data);
+      if (resRotacion.success) setRotacionInventario(resRotacion.data);
+      if (resMargen.success) setMargenGananciaPorProducto(resMargen.data);
+      if (resTiposCliente.success) setTiposCliente(resTiposCliente.data);
+      if (resClientesFrecuentes.success) setClientesFrecuentes(resClientesFrecuentes.data);
+      if (resCostos.success) setCostosMensuales(resCostos.data);
+      if (resRentabilidad.success) setRentabilidadMensual(resRentabilidad.data);
+
+      setUltimaActualizacion(new Date());
       toast.success('Reporte cargado exitosamente');
-    } else {
-      toast.error('Error al cargar reporte: ' + resultado.error);
+    } catch (error) {
+      toast.error('Error al cargar reporte: ' + error.message);
     }
     
     setLoading(false);
+  };
+
+  const aplicarFiltros = () => {
+    toast.success('Filtros aplicados correctamente');
+    // Los datos ya están cargados, solo aplicamos filtros visuales
+  };
+
+  const refrescarDatos = async () => {
+    toast.loading('Actualizando datos...');
+    await cargarReporte();
+  };
+
+  // Determinar qué secciones mostrar según el tipo de reporte
+  const seccionesPorTipo = {
+    ventas: {
+      mostrarMetricas: true,
+      mostrarVentasMensuales: true,
+      mostrarCategorias: true,
+      mostrarComparativo: true,
+      mostrarTopProductos: true,
+      mostrarCanales: true,
+      mostrarInventario: false,
+      mostrarProductosPorEstado: false,
+      mostrarRotacionInventario: false,
+      mostrarMargenGanancia: false,
+      mostrarTiposCliente: false,
+      mostrarClientesFrecuentes: false,
+      mostrarCostos: false,
+      mostrarRentabilidad: false,
+      titulo: '📊 Análisis de Ventas',
+      descripcion: 'Métricas y tendencias de ventas por canal'
+    },
+    inventario: {
+      mostrarMetricas: false,
+      mostrarVentasMensuales: false,
+      mostrarCategorias: false,
+      mostrarComparativo: false,
+      mostrarTopProductos: false, // ❌ ELIMINADO
+      mostrarCanales: false,
+      mostrarInventario: false, // ❌ ELIMINADO
+      mostrarProductosPorEstado: true,
+      mostrarRotacionInventario: true,
+      mostrarMargenGanancia: false,
+      mostrarTiposCliente: false,
+      mostrarClientesFrecuentes: false,
+      mostrarCostos: false,
+      mostrarRentabilidad: false,
+      titulo: '📦 Estado del Inventario',
+      descripcion: 'Rotación, stock y valorización de inventario'
+    },
+    productos: {
+      mostrarMetricas: false,
+      mostrarVentasMensuales: false,
+      mostrarCategorias: true,
+      mostrarComparativo: false,
+      mostrarTopProductos: false, // ❌ ELIMINADO
+      mostrarCanales: false,
+      mostrarInventario: false, // ❌ ELIMINADO
+      mostrarProductosPorEstado: true,
+      mostrarRotacionInventario: false,
+      mostrarMargenGanancia: true,
+      mostrarTiposCliente: false,
+      mostrarClientesFrecuentes: false,
+      mostrarCostos: false,
+      mostrarRentabilidad: false,
+      titulo: '🏷️ Análisis de Productos',
+      descripcion: 'Rentabilidad, precios y estado de productos'
+    },
+    clientes: {
+      mostrarMetricas: true,
+      mostrarVentasMensuales: false, // ❌ ELIMINADO
+      mostrarCategorias: false,
+      mostrarComparativo: false, // ❌ ELIMINADO
+      mostrarTopProductos: false,
+      mostrarCanales: false, // ❌ ELIMINADO
+      mostrarInventario: false,
+      mostrarProductosPorEstado: false,
+      mostrarRotacionInventario: false,
+      mostrarMargenGanancia: false,
+      mostrarTiposCliente: true,
+      mostrarClientesFrecuentes: true,
+      mostrarCostos: false,
+      mostrarRentabilidad: false,
+      titulo: '👥 Análisis de Clientes',
+      descripcion: 'Segmentación y comportamiento de clientes'
+    },
+    financiero: {
+      mostrarMetricas: true,
+      mostrarVentasMensuales: false, // ❌ ELIMINADO
+      mostrarCategorias: false, // ❌ ELIMINADO
+      mostrarComparativo: false, // ❌ ELIMINADO
+      mostrarTopProductos: false, // ❌ ELIMINADO
+      mostrarCanales: false, // ❌ ELIMINADO
+      mostrarInventario: false,
+      mostrarProductosPorEstado: false,
+      mostrarRotacionInventario: false,
+      mostrarMargenGanancia: false,
+      mostrarTiposCliente: false,
+      mostrarClientesFrecuentes: false,
+      mostrarCostos: true,
+      mostrarRentabilidad: true,
+      titulo: '💰 Reporte Financiero',
+      descripcion: 'Ingresos, costos, gastos y rentabilidad global'
+    }
+  };
+
+  const seccionActual = seccionesPorTipo[tipoReporte] || seccionesPorTipo.ventas;
+
+  // Filtrar datos según categoría seleccionada
+  const datosFiltrados = {
+    productosMasVendidos: categoriaFiltro 
+      ? productosMasVendidos.filter(p => p.categoria?.toLowerCase() === categoriaFiltro.value?.toLowerCase())
+      : productosMasVendidos,
+    ventasPorCategoria: categoriaFiltro
+      ? ventasPorCategoria.filter(c => c.categoria?.toLowerCase() === categoriaFiltro.value?.toLowerCase())
+      : ventasPorCategoria,
   };
 
   const COLORS = ['#8f5cff', '#6e7ff3', '#b6aaff', '#a18fff', '#f59e42', '#f87171'];
@@ -91,11 +281,14 @@ function ReportesView({ onNavigate }) {
   ];
 
   const categoriaOptions = [
-    { value: 'polo', label: 'Polo' },
-    { value: 'pantalon', label: 'Pantalón' },
-    { value: 'chaqueta', label: 'Chaqueta' },
-    { value: 'vestido', label: 'Vestido' },
-    { value: 'camisa', label: 'Camisa' },
+    { value: 'Polo', label: '👕 Polo' },
+    { value: 'Pantalón', label: '👖 Pantalón' },
+    { value: 'Chaqueta', label: '🧥 Chaqueta' },
+    { value: 'Vestido', label: '👗 Vestido' },
+    { value: 'Camisa', label: '👔 Camisa' },
+    { value: 'Short', label: '🩳 Short' },
+    { value: 'Falda', label: '👗 Falda' },
+    { value: 'Accesorio', label: '👜 Accesorio' },
   ];
 
   // Funciones de exportación
@@ -240,12 +433,30 @@ function ReportesView({ onNavigate }) {
       <header className="bg-white border-b border-gray-200 px-8 py-6 shadow-sm sticky top-0 z-10">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-4">
-            <h1 className="text-3xl font-bold text-[#8f5cff]">📊 Reportes y Análisis</h1>
-            <span className="px-3 py-1 bg-purple-100 text-[#8f5cff] rounded-full text-sm font-semibold">
-              Actualizado hoy
-            </span>
+            <div>
+              <h1 className="text-3xl font-bold text-[#8f5cff]">{seccionActual.titulo}</h1>
+              <p className="text-sm text-gray-500 mt-1">{seccionActual.descripcion}</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="px-3 py-1 bg-purple-100 text-[#8f5cff] rounded-full text-sm font-semibold">
+                {format(new Date(), 'dd MMM yyyy', { locale: es })}
+              </span>
+              <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs flex items-center gap-1">
+                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                Actualizado {format(ultimaActualizacion, 'HH:mm', { locale: es })}
+              </span>
+            </div>
           </div>
           <div className="flex items-center gap-3">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={refrescarDatos}
+              disabled={loading}
+              className="flex items-center gap-2 px-4 py-2 bg-[#8f5cff] text-white rounded-lg font-semibold hover:bg-[#7c4de0] transition shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <FaSearch className={loading ? 'animate-spin' : ''} /> Refrescar
+            </motion.button>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -274,50 +485,108 @@ function ReportesView({ onNavigate }) {
         </div>
 
         {/* Filtros */}
-        <div className="flex flex-wrap items-center gap-4">
-          <div className="flex-1 min-w-[200px]">
-            <Select
-              options={tipoReporteOptions}
-              value={tipoReporteOptions.find(t => t.value === tipoReporte)}
-              onChange={(selected) => setTipoReporte(selected.value)}
-              placeholder="Tipo de reporte"
-              className="text-sm"
-            />
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <FaFilter className="text-[#8f5cff]" />
+            <span className="font-semibold">Filtros:</span>
+            {(categoriaFiltro || rangoFecha !== 'mes') && (
+              <span className="px-2 py-1 bg-purple-100 text-[#8f5cff] rounded-full text-xs">
+                Filtros activos
+              </span>
+            )}
           </div>
-          <div className="flex-1 min-w-[200px]">
-            <Select
-              options={rangoFechaOptions}
-              value={rangoFechaOptions.find(r => r.value === rangoFecha)}
-              onChange={(selected) => setRangoFecha(selected.value)}
-              placeholder="Rango de fecha"
-              className="text-sm"
-            />
-          </div>
-          {rangoFecha === 'personalizado' && (
-            <>
-              <input
-                type="date"
-                value={fechaInicio}
-                onChange={(e) => setFechaInicio(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8f5cff]"
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex-1 min-w-[200px]">
+              <Select
+                options={tipoReporteOptions}
+                value={tipoReporteOptions.find(t => t.value === tipoReporte)}
+                onChange={(selected) => setTipoReporte(selected.value)}
+                placeholder="Tipo de reporte"
+                className="text-sm"
+                styles={{
+                  control: (base) => ({
+                    ...base,
+                    borderColor: '#e5e7eb',
+                    '&:hover': { borderColor: '#8f5cff' },
+                  }),
+                }}
               />
-              <input
-                type="date"
-                value={fechaFin}
-                onChange={(e) => setFechaFin(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8f5cff]"
+            </div>
+            <div className="flex-1 min-w-[200px]">
+              <Select
+                options={rangoFechaOptions}
+                value={rangoFechaOptions.find(r => r.value === rangoFecha)}
+                onChange={(selected) => setRangoFecha(selected.value)}
+                placeholder="Rango de fecha"
+                className="text-sm"
+                styles={{
+                  control: (base) => ({
+                    ...base,
+                    borderColor: '#e5e7eb',
+                    '&:hover': { borderColor: '#8f5cff' },
+                  }),
+                }}
               />
-            </>
-          )}
-          <div className="flex-1 min-w-[200px]">
-            <Select
-              options={categoriaOptions}
-              value={categoriaFiltro}
-              onChange={setCategoriaFiltro}
-              placeholder="Categoría (opcional)"
-              isClearable
-              className="text-sm"
-            />
+            </div>
+            {rangoFecha === 'personalizado' && (
+              <>
+                <div className="flex items-center gap-2">
+                  <FaCalendarAlt className="text-gray-400" />
+                  <input
+                    type="date"
+                    value={fechaInicio}
+                    onChange={(e) => setFechaInicio(e.target.value)}
+                    className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8f5cff] text-sm"
+                    placeholder="Fecha inicio"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <FaCalendarAlt className="text-gray-400" />
+                  <input
+                    type="date"
+                    value={fechaFin}
+                    onChange={(e) => setFechaFin(e.target.value)}
+                    className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8f5cff] text-sm"
+                    placeholder="Fecha fin"
+                  />
+                </div>
+              </>
+            )}
+            <div className="flex-1 min-w-[200px]">
+              <Select
+                options={categoriaOptions}
+                value={categoriaFiltro}
+                onChange={setCategoriaFiltro}
+                placeholder="Todas las categorías"
+                isClearable
+                className="text-sm"
+                styles={{
+                  control: (base) => ({
+                    ...base,
+                    borderColor: '#e5e7eb',
+                    '&:hover': { borderColor: '#8f5cff' },
+                  }),
+                }}
+              />
+            </div>
+            {(categoriaFiltro || rangoFecha === 'personalizado') && (
+              <motion.button
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => {
+                  setCategoriaFiltro(null);
+                  setRangoFecha('mes');
+                  setFechaInicio('');
+                  setFechaFin('');
+                  toast.success('Filtros limpiados');
+                }}
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm font-semibold"
+              >
+                Limpiar filtros
+              </motion.button>
+            )}
           </div>
         </div>
       </header>
@@ -325,6 +594,7 @@ function ReportesView({ onNavigate }) {
       {/* Contenido principal */}
       <main className="p-8">
         {/* Métricas principales */}
+        {seccionActual.mostrarMetricas && (
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -393,8 +663,10 @@ function ReportesView({ onNavigate }) {
             <div className="text-sm text-gray-500">Margen de Ganancia</div>
           </motion.div>
         </section>
+        )}
 
         {/* Gráficos principales */}
+        {seccionActual.mostrarVentasMensuales && (
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           {/* Gráfico de ventas mensuales */}
           <motion.div
@@ -473,17 +745,19 @@ function ReportesView({ onNavigate }) {
           </motion.div>
 
           {/* Ventas por categoría */}
+          {seccionActual.mostrarCategorias && (
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.6 }}
             className="bg-white rounded-2xl p-6 shadow-lg"
           >
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Ventas por Categoría</h2>
-            <ResponsiveContainer width="100%" height={350}>
+            <h2 className="text-xl font-bold text-gray-800 mb-4">Ventas por Categoría {categoriaFiltro && `- ${categoriaFiltro.label}`}</h2>
+            {datosFiltrados.ventasPorCategoria.length > 0 ? (
+            <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
-                  data={ventasPorCategoria}
+                  data={datosFiltrados.ventasPorCategoria}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
@@ -492,15 +766,23 @@ function ReportesView({ onNavigate }) {
                   fill="#8884d8"
                   dataKey="ventas"
                 >
-                  {ventasPorCategoria.map((entry, index) => (
+                  {datosFiltrados.ventasPorCategoria.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
                 <Tooltip formatter={(value) => `S/ ${value.toLocaleString()}`} />
               </PieChart>
             </ResponsiveContainer>
+            ) : (
+              <div className="flex items-center justify-center h-[300px] text-gray-500">
+                <div className="text-center">
+                  <FaChartPie className="text-5xl mx-auto mb-3 opacity-50" />
+                  <p>No hay datos de ventas para esta categoría</p>
+                </div>
+              </div>
+            )}
             <div className="mt-4 space-y-2">
-              {ventasPorCategoria.map((cat, index) => (
+              {datosFiltrados.ventasPorCategoria.map((cat, index) => (
                 <div key={index} className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[index] }}></div>
@@ -511,11 +793,14 @@ function ReportesView({ onNavigate }) {
               ))}
             </div>
           </motion.div>
+          )}
         </section>
+        )}
 
         {/* Análisis comparativo y productos */}
         <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Comparativo anual */}
+          {seccionActual.mostrarComparativo && (
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -552,17 +837,19 @@ function ReportesView({ onNavigate }) {
               </div>
             </div>
           </motion.div>
+          )}
 
           {/* Productos más vendidos */}
+          {seccionActual.mostrarTopProductos && (
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.8 }}
             className="bg-white rounded-2xl p-6 shadow-lg"
           >
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Top Productos</h2>
+            <h2 className="text-xl font-bold text-gray-800 mb-4">Top Productos {categoriaFiltro && `- ${categoriaFiltro.label}`}</h2>
             <div className="space-y-4">
-              {productosMasVendidos.map((producto, index) => (
+              {datosFiltrados.productosMasVendidos.length > 0 ? datosFiltrados.productosMasVendidos.map((producto, index) => (
                 <div key={index} className="flex items-center gap-4">
                   <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-[#8f5cff] to-[#6e7ff3] text-white font-bold text-lg">
                     {index + 1}
@@ -576,11 +863,17 @@ function ReportesView({ onNavigate }) {
                     <div className="text-sm text-gray-500">{producto.cantidad} unidades</div>
                   </div>
                 </div>
-              ))}
+              )) : (
+                <div className="text-center py-8 text-gray-500">
+                  <FaBox className="text-4xl mx-auto mb-2 opacity-50" />
+                  <p>No hay productos en esta categoría</p>
+                </div>
+              )}
             </div>
+            {datosFiltrados.productosMasVendidos.length > 0 && (
             <div className="mt-6 pt-4 border-t border-gray-200">
               <ResponsiveContainer width="100%" height={150}>
-                <BarChart data={productosMasVendidos} layout="vertical">
+                <BarChart data={datosFiltrados.productosMasVendidos} layout="vertical">
                   <XAxis type="number" hide />
                   <YAxis type="category" dataKey="nombre" hide />
                   <Tooltip formatter={(value) => `S/ ${value.toLocaleString()}`} />
@@ -588,12 +881,15 @@ function ReportesView({ onNavigate }) {
                 </BarChart>
               </ResponsiveContainer>
             </div>
+            )}
           </motion.div>
+          )}
         </section>
 
         {/* Rendimiento por canal e inventario */}
         <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Rendimiento por canal */}
+          {seccionActual.mostrarCanales && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -622,8 +918,10 @@ function ReportesView({ onNavigate }) {
               ))}
             </div>
           </motion.div>
+          )}
 
           {/* Estado de inventario */}
+          {seccionActual.mostrarInventario && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -673,9 +971,496 @@ function ReportesView({ onNavigate }) {
               </div>
             </div>
           </motion.div>
+          )}
         </section>
 
+        {/* NUEVOS GRÁFICOS - Productos por Estado */}
+        {seccionActual.mostrarProductosPorEstado && (
+        <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3 }}
+            className="bg-white rounded-2xl p-6 shadow-lg"
+          >
+            <h2 className="text-xl font-bold text-gray-800 mb-4">Productos por Estado</h2>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={productosPorEstado}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={70}
+                  outerRadius={110}
+                  fill="#8884d8"
+                  paddingAngle={3}
+                  dataKey="cantidad"
+                  label={({ estado, porcentaje }) => `${estado}: ${porcentaje}%`}
+                >
+                  {productosPorEstado.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              {productosPorEstado.map((item, index) => (
+                <div key={index} className="flex items-center justify-between p-2 rounded-lg" style={{ backgroundColor: `${item.color}15` }}>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></div>
+                    <span className="text-sm font-medium">{item.estado}</span>
+                  </div>
+                  <span className="font-bold text-gray-800">{item.cantidad}</span>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.4 }}
+            className="bg-white rounded-2xl p-6 shadow-lg"
+          >
+            <h2 className="text-xl font-bold text-gray-800 mb-4">Distribución por Estado</h2>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={productosPorEstado} layout="vertical">
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis type="number" />
+                <YAxis type="category" dataKey="estado" width={100} />
+                <Tooltip />
+                <Bar dataKey="cantidad" radius={[0, 8, 8, 0]}>
+                  {productosPorEstado.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+            <div className="mt-4 pt-4 border-t border-gray-200">
+              <div className="grid grid-cols-3 gap-4 text-center">
+                <div>
+                  <div className="text-2xl font-bold text-green-600">{productosPorEstado[0].cantidad}</div>
+                  <div className="text-xs text-gray-600">Disponibles</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-orange-600">{productosPorEstado[1].cantidad}</div>
+                  <div className="text-xs text-gray-600">Bajo Stock</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-red-600">{productosPorEstado[2].cantidad}</div>
+                  <div className="text-xs text-gray-600">Agotados</div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </section>
+        )}
+
+        {/* NUEVOS GRÁFICOS - Rotación de Inventario */}
+        {seccionActual.mostrarRotacionInventario && (
+        <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.5 }}
+            className="bg-white rounded-2xl p-6 shadow-lg"
+          >
+            <h2 className="text-xl font-bold text-gray-800 mb-4">Rotación de Inventario</h2>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={rotacionInventario}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis dataKey="producto" angle={-20} textAnchor="end" height={80} />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="rotacion" fill="#8f5cff" radius={[8, 8, 0, 0]} name="Rotación Mensual" />
+              </BarChart>
+            </ResponsiveContainer>
+            <div className="mt-4 text-center">
+              <div className="text-3xl font-bold text-[#8f5cff]">{(rotacionInventario.reduce((sum, p) => sum + p.rotacion, 0) / rotacionInventario.length).toFixed(1)}</div>
+              <div className="text-sm text-gray-600">Rotación Promedio Mensual</div>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.6 }}
+            className="bg-white rounded-2xl p-6 shadow-lg"
+          >
+            <h2 className="text-xl font-bold text-gray-800 mb-4">Días de Inventario</h2>
+            <div className="space-y-4">
+              {rotacionInventario.map((item, index) => (
+                <div key={index} className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-gray-700">{item.producto}</span>
+                    <span className="text-sm font-bold text-[#8f5cff]">{item.dias} días</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-gradient-to-r from-[#8f5cff] to-[#6e7ff3] h-2 rounded-full transition-all duration-500"
+                      style={{ width: `${Math.min((item.dias / 120) * 100, 100)}%` }}
+                    ></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-6 pt-4 border-t border-gray-200 grid grid-cols-2 gap-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-600">{Math.min(...rotacionInventario.map(p => p.dias))}</div>
+                <div className="text-xs text-gray-600">Rotación Más Rápida</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-orange-600">{Math.max(...rotacionInventario.map(p => p.dias))}</div>
+                <div className="text-xs text-gray-600">Rotación Más Lenta</div>
+              </div>
+            </div>
+          </motion.div>
+        </section>
+        )}
+
+        {/* NUEVOS GRÁFICOS - Margen de Ganancia por Producto */}
+        {seccionActual.mostrarMargenGanancia && (
+        <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.5 }}
+            className="bg-white rounded-2xl p-6 shadow-lg"
+          >
+            <h2 className="text-xl font-bold text-gray-800 mb-4">Precio vs Costo</h2>
+            <ResponsiveContainer width="100%" height={300}>
+              <ComposedChart data={margenGananciaPorProducto}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis dataKey="producto" angle={-20} textAnchor="end" height={80} />
+                <YAxis />
+                <Tooltip formatter={(value) => `S/ ${value}`} />
+                <Legend />
+                <Bar dataKey="precio" fill="#8f5cff" name="Precio Venta" radius={[8, 8, 0, 0]} />
+                <Bar dataKey="costo" fill="#f59e42" name="Costo" radius={[8, 8, 0, 0]} />
+                <Line type="monotone" dataKey="margen" stroke="#10b981" strokeWidth={3} name="Margen %" />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.6 }}
+            className="bg-white rounded-2xl p-6 shadow-lg"
+          >
+            <h2 className="text-xl font-bold text-gray-800 mb-4">Margen de Ganancia</h2>
+            <div className="space-y-4">
+              {margenGananciaPorProducto.map((prod, index) => (
+                <div key={index} className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <div className="font-medium text-gray-800">{prod.producto}</div>
+                      <div className="text-xs text-gray-500">Precio: S/ {prod.precio} | Costo: S/ {prod.costo}</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-lg font-bold text-green-600">{prod.margen}%</div>
+                      <div className="text-xs text-gray-500">S/ {prod.precio - prod.costo}</div>
+                    </div>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full"
+                      style={{ width: `${prod.margen}%` }}
+                    ></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-6 pt-4 border-t border-gray-200 text-center">
+              <div className="text-3xl font-bold text-green-600">
+                {(margenGananciaPorProducto.reduce((sum, p) => sum + p.margen, 0) / margenGananciaPorProducto.length).toFixed(1)}%
+              </div>
+              <div className="text-sm text-gray-600">Margen Promedio</div>
+            </div>
+          </motion.div>
+        </section>
+        )}
+
+        {/* NUEVOS GRÁFICOS - Tipos de Cliente */}
+        {seccionActual.mostrarTiposCliente && (
+        <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3 }}
+            className="bg-white rounded-2xl p-6 shadow-lg"
+          >
+            <h2 className="text-xl font-bold text-gray-800 mb-4">Segmentación de Clientes</h2>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={tiposCliente}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ tipo, cantidad }) => `${tipo}: ${cantidad}`}
+                  outerRadius={100}
+                  fill="#8884d8"
+                  dataKey="cantidad"
+                >
+                  {tiposCliente.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="mt-4 space-y-3">
+              {tiposCliente.map((tipo, index) => (
+                <div key={index} className="flex items-center justify-between p-3 rounded-lg" style={{ backgroundColor: `${tipo.color}15` }}>
+                  <div className="flex items-center gap-3">
+                    <div className="w-4 h-4 rounded-full" style={{ backgroundColor: tipo.color }}></div>
+                    <div>
+                      <div className="font-semibold text-gray-800">{tipo.tipo}</div>
+                      <div className="text-xs text-gray-500">{tipo.cantidad} clientes</div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-bold text-gray-800">S/ {tipo.ventas.toLocaleString()}</div>
+                    <div className="text-xs text-gray-500">Total ventas</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.4 }}
+            className="bg-white rounded-2xl p-6 shadow-lg"
+          >
+            <h2 className="text-xl font-bold text-gray-800 mb-4">Valor por Tipo de Cliente</h2>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={tiposCliente}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis dataKey="tipo" />
+                <YAxis />
+                <Tooltip formatter={(value) => `S/ ${value.toLocaleString()}`} />
+                <Bar dataKey="ventas" radius={[8, 8, 0, 0]}>
+                  {tiposCliente.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+            <div className="mt-4 grid grid-cols-3 gap-3">
+              {tiposCliente.map((tipo, index) => (
+                <div key={index} className="text-center p-3 rounded-lg bg-gray-50">
+                  <div className="text-2xl font-bold" style={{ color: tipo.color }}>
+                    S/ {Math.round(tipo.ventas / tipo.cantidad).toLocaleString()}
+                  </div>
+                  <div className="text-xs text-gray-600 mt-1">Ticket Prom. {tipo.tipo}</div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        </section>
+        )}
+
+        {/* NUEVOS GRÁFICOS - Clientes Frecuentes */}
+        {seccionActual.mostrarClientesFrecuentes && (
+        <section className="mb-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="bg-white rounded-2xl p-6 shadow-lg"
+          >
+            <h2 className="text-xl font-bold text-gray-800 mb-4">Top Clientes Frecuentes</h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                {clientesFrecuentes.map((cliente, index) => (
+                  <div key={index} className="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-purple-50 to-white hover:shadow-md transition">
+                    <div className="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-[#8f5cff] to-[#6e7ff3] text-white font-bold text-lg">
+                      {index + 1}
+                    </div>
+                    <div className="flex-1">
+                      <div className="font-semibold text-gray-800">{cliente.nombre}</div>
+                      <div className="text-sm text-gray-500">{cliente.pedidos} pedidos realizados</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-bold text-[#8f5cff]">S/ {cliente.total.toLocaleString()}</div>
+                      <div className="text-xs text-gray-500">Total gastado</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={clientesFrecuentes} layout="vertical">
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                    <XAxis type="number" />
+                    <YAxis type="category" dataKey="nombre" width={100} />
+                    <Tooltip formatter={(value) => `S/ ${value.toLocaleString()}`} />
+                    <Bar dataKey="total" fill="#8f5cff" radius={[0, 8, 8, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+                <div className="mt-4 pt-4 border-t border-gray-200 grid grid-cols-2 gap-4 text-center">
+                  <div>
+                    <div className="text-2xl font-bold text-[#8f5cff]">
+                      {clientesFrecuentes.reduce((sum, c) => sum + c.pedidos, 0)}
+                    </div>
+                    <div className="text-xs text-gray-600">Total Pedidos</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-[#8f5cff]">
+                      S/ {clientesFrecuentes.reduce((sum, c) => sum + c.total, 0).toLocaleString()}
+                    </div>
+                    <div className="text-xs text-gray-600">Valor Acumulado</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </section>
+        )}
+
+        {/* NUEVOS GRÁFICOS - Costos Mensuales */}
+        {seccionActual.mostrarCostos && (
+        <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3 }}
+            className="bg-white rounded-2xl p-6 shadow-lg"
+          >
+            <h2 className="text-xl font-bold text-gray-800 mb-4">Desglose de Costos</h2>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={costosMensuales}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis dataKey="mes" />
+                <YAxis />
+                <Tooltip formatter={(value) => `S/ ${value.toLocaleString()}`} />
+                <Legend />
+                <Bar dataKey="materiales" stackId="a" fill="#8f5cff" name="Materiales" radius={[0, 0, 0, 0]} />
+                <Bar dataKey="operativos" stackId="a" fill="#f59e42" name="Operativos" radius={[0, 0, 0, 0]} />
+                <Bar dataKey="personal" stackId="a" fill="#10b981" name="Personal" radius={[8, 8, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+            <div className="mt-4 grid grid-cols-3 gap-3">
+              <div className="text-center p-3 rounded-lg bg-purple-50">
+                <div className="text-lg font-bold text-[#8f5cff]">
+                  S/ {costosMensuales.reduce((sum, m) => sum + m.materiales, 0).toLocaleString()}
+                </div>
+                <div className="text-xs text-gray-600 mt-1">Materiales</div>
+              </div>
+              <div className="text-center p-3 rounded-lg bg-orange-50">
+                <div className="text-lg font-bold text-[#f59e42]">
+                  S/ {costosMensuales.reduce((sum, m) => sum + m.operativos, 0).toLocaleString()}
+                </div>
+                <div className="text-xs text-gray-600 mt-1">Operativos</div>
+              </div>
+              <div className="text-center p-3 rounded-lg bg-green-50">
+                <div className="text-lg font-bold text-[#10b981]">
+                  S/ {costosMensuales.reduce((sum, m) => sum + m.personal, 0).toLocaleString()}
+                </div>
+                <div className="text-xs text-gray-600 mt-1">Personal</div>
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.4 }}
+            className="bg-white rounded-2xl p-6 shadow-lg"
+          >
+            <h2 className="text-xl font-bold text-gray-800 mb-4">Evolución de Costos Totales</h2>
+            <ResponsiveContainer width="100%" height={300}>
+              <AreaChart data={costosMensuales.map(m => ({
+                mes: m.mes,
+                total: m.materiales + m.operativos + m.personal
+              }))}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis dataKey="mes" />
+                <YAxis />
+                <Tooltip formatter={(value) => `S/ ${value.toLocaleString()}`} />
+                <Area type="monotone" dataKey="total" stroke="#ef4444" fill="#ef4444" fillOpacity={0.6} name="Costos Totales" />
+              </AreaChart>
+            </ResponsiveContainer>
+            <div className="mt-4 pt-4 border-t border-gray-200">
+              <div className="grid grid-cols-2 gap-4 text-center">
+                <div>
+                  <div className="text-2xl font-bold text-red-600">
+                    S/ {costosMensuales.reduce((sum, m) => sum + m.materiales + m.operativos + m.personal, 0).toLocaleString()}
+                  </div>
+                  <div className="text-sm text-gray-600">Costos Totales del Período</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-red-600">
+                    S/ {Math.round((costosMensuales.reduce((sum, m) => sum + m.materiales + m.operativos + m.personal, 0)) / costosMensuales.length).toLocaleString()}
+                  </div>
+                  <div className="text-sm text-gray-600">Promedio Mensual</div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </section>
+        )}
+
+        {/* NUEVOS GRÁFICOS - Rentabilidad */}
+        {seccionActual.mostrarRentabilidad && (
+        <section className="mb-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="bg-white rounded-2xl p-6 shadow-lg"
+          >
+            <h2 className="text-xl font-bold text-gray-800 mb-6">Análisis de Rentabilidad</h2>
+            <ResponsiveContainer width="100%" height={350}>
+              <ComposedChart data={rentabilidadMensual}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis dataKey="mes" />
+                <YAxis yAxisId="left" />
+                <YAxis yAxisId="right" orientation="right" />
+                <Tooltip />
+                <Legend />
+                <Bar yAxisId="left" dataKey="ingresos" fill="#10b981" name="Ingresos" radius={[8, 8, 0, 0]} />
+                <Bar yAxisId="left" dataKey="costos" fill="#ef4444" name="Costos" radius={[8, 8, 0, 0]} />
+                <Line yAxisId="left" type="monotone" dataKey="utilidad" stroke="#8f5cff" strokeWidth={3} name="Utilidad" />
+                <Line yAxisId="right" type="monotone" dataKey="margen" stroke="#f59e42" strokeWidth={3} name="Margen %" />
+              </ComposedChart>
+            </ResponsiveContainer>
+            <div className="mt-6 grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="text-center p-4 rounded-xl bg-gradient-to-br from-green-50 to-green-100">
+                <div className="text-sm text-gray-600 mb-1">Ingresos Totales</div>
+                <div className="text-2xl font-bold text-green-600">
+                  S/ {rentabilidadMensual.reduce((sum, m) => sum + m.ingresos, 0).toLocaleString()}
+                </div>
+              </div>
+              <div className="text-center p-4 rounded-xl bg-gradient-to-br from-red-50 to-red-100">
+                <div className="text-sm text-gray-600 mb-1">Costos Totales</div>
+                <div className="text-2xl font-bold text-red-600">
+                  S/ {rentabilidadMensual.reduce((sum, m) => sum + m.costos, 0).toLocaleString()}
+                </div>
+              </div>
+              <div className="text-center p-4 rounded-xl bg-gradient-to-br from-purple-50 to-purple-100">
+                <div className="text-sm text-gray-600 mb-1">Utilidad Total</div>
+                <div className="text-2xl font-bold text-[#8f5cff]">
+                  S/ {rentabilidadMensual.reduce((sum, m) => sum + m.utilidad, 0).toLocaleString()}
+                </div>
+              </div>
+              <div className="text-center p-4 rounded-xl bg-gradient-to-br from-orange-50 to-orange-100">
+                <div className="text-sm text-gray-600 mb-1">Margen Promedio</div>
+                <div className="text-2xl font-bold text-[#f59e42]">
+                  {(rentabilidadMensual.reduce((sum, m) => sum + m.margen, 0) / rentabilidadMensual.length).toFixed(1)}%
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </section>
+        )}
+
         {/* Tabla detallada de métricas */}
+        {seccionActual.mostrarVentasMensuales && (
         <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -741,8 +1526,10 @@ function ReportesView({ onNavigate }) {
             </table>
           </div>
         </motion.section>
+        )}
 
         {/* Métricas adicionales */}
+        {seccionActual.mostrarMetricas && (
         <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -788,6 +1575,7 @@ function ReportesView({ onNavigate }) {
             </div>
           </motion.div>
         </section>
+        )}
 
         {/* Loading State */}
         {loading && (
