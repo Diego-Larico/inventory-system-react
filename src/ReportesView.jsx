@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaDownload, FaFilter, FaChartLine, FaChartBar, FaChartPie, FaCalendarAlt, FaBox, FaShoppingCart, FaDollarSign, FaArrowUp, FaArrowDown, FaFileExcel, FaFilePdf, FaPrint, FaSearch } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BarChart, Bar, LineChart, Line, AreaChart, Area, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ComposedChart } from 'recharts';
@@ -8,6 +8,9 @@ import { es } from 'date-fns/locale';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import toast, { Toaster } from 'react-hot-toast';
+import { obtenerReporteCompleto } from './services/reportesService';
+import Sidebar from './components/Sidebar';
 
 function ReportesView({ onNavigate }) {
   const [tipoReporte, setTipoReporte] = useState('ventas');
@@ -16,84 +19,55 @@ function ReportesView({ onNavigate }) {
   const [fechaFin, setFechaFin] = useState('');
   const [categoriaFiltro, setCategoriaFiltro] = useState(null);
   const [busqueda, setBusqueda] = useState('');
-  const [vistaGrafico, setVistaGrafico] = useState('lineas'); // lineas, barras, area, radar
+  const [vistaGrafico, setVistaGrafico] = useState('lineas');
+  
+  // Estados para datos de Supabase
+  const [loading, setLoading] = useState(true);
+  const [ventasMensuales, setVentasMensuales] = useState([]);
+  const [productosMasVendidos, setProductosMasVendidos] = useState([]);
+  const [ventasPorCategoria, setVentasPorCategoria] = useState([]);
+  const [comparativoAnual, setComparativoAnual] = useState([]);
+  const [estadoInventario, setEstadoInventario] = useState([]);
+  const [rendimientoPorCanal, setRendimientoPorCanal] = useState([]);
+  const [metricas, setMetricas] = useState({
+    ventasTotales: 0,
+    crecimiento: 0,
+    pedidosCompletados: 0,
+    ticketPromedio: 0,
+    margenGanancia: 0,
+    tasaConversion: 0,
+    clientesNuevos: 0,
+    clientesRecurrentes: 0,
+  });
+  const [añoActual, setAñoActual] = useState(new Date().getFullYear());
+  const [añoAnterior, setAñoAnterior] = useState(new Date().getFullYear() - 1);
 
-  // Datos de ejemplo para ventas mensuales
-  const ventasMensuales = [
-    { mes: 'Ene', ventas: 4500, costos: 2800, pedidos: 45, ganancias: 1700 },
-    { mes: 'Feb', ventas: 5200, costos: 3100, pedidos: 52, ganancias: 2100 },
-    { mes: 'Mar', ventas: 4800, costos: 2900, pedidos: 48, ganancias: 1900 },
-    { mes: 'Abr', ventas: 6100, costos: 3600, pedidos: 61, ganancias: 2500 },
-    { mes: 'May', ventas: 5700, costos: 3400, pedidos: 57, ganancias: 2300 },
-    { mes: 'Jun', ventas: 6800, costos: 4000, pedidos: 68, ganancias: 2800 },
-    { mes: 'Jul', ventas: 7200, costos: 4300, pedidos: 72, ganancias: 2900 },
-    { mes: 'Ago', ventas: 6900, costos: 4100, pedidos: 69, ganancias: 2800 },
-    { mes: 'Sep', ventas: 7500, costos: 4500, pedidos: 75, ganancias: 3000 },
-    { mes: 'Oct', ventas: 8200, costos: 4900, pedidos: 82, ganancias: 3300 },
-    { mes: 'Nov', ventas: 8800, costos: 5200, pedidos: 88, ganancias: 3600 },
-    { mes: 'Dic', ventas: 9500, costos: 5600, pedidos: 95, ganancias: 3900 },
-  ];
+  // Cargar datos completos desde Supabase
+  useEffect(() => {
+    cargarReporte();
+  }, []);
 
-  // Datos de productos más vendidos
-  const productosMasVendidos = [
-    { nombre: 'Polo básico blanco', cantidad: 450, ingresos: 11250, categoria: 'Polo' },
-    { nombre: 'Pantalón jean azul', cantidad: 320, ingresos: 12800, categoria: 'Pantalón' },
-    { nombre: 'Chaqueta denim', cantidad: 180, ingresos: 14400, categoria: 'Chaqueta' },
-    { nombre: 'Vestido floral', cantidad: 250, ingresos: 15000, categoria: 'Vestido' },
-    { nombre: 'Camisa formal', cantidad: 290, ingresos: 14500, categoria: 'Camisa' },
-  ];
-
-  // Datos de categorías
-  const ventasPorCategoria = [
-    { categoria: 'Polo', ventas: 25000, porcentaje: 28 },
-    { categoria: 'Pantalón', ventas: 22000, porcentaje: 25 },
-    { categoria: 'Chaqueta', ventas: 18000, porcentaje: 20 },
-    { categoria: 'Vestido', ventas: 15000, porcentaje: 17 },
-    { categoria: 'Camisa', ventas: 9000, porcentaje: 10 },
-  ];
-
-  // Datos de análisis comparativo
-  const comparativoAnual = [
-    { mes: 'Ene', '2024': 3800, '2025': 4500 },
-    { mes: 'Feb', '2024': 4200, '2025': 5200 },
-    { mes: 'Mar', '2024': 3900, '2025': 4800 },
-    { mes: 'Abr', '2024': 5100, '2025': 6100 },
-    { mes: 'May', '2024': 4800, '2025': 5700 },
-    { mes: 'Jun', '2024': 5900, '2025': 6800 },
-    { mes: 'Jul', '2024': 6200, '2025': 7200 },
-    { mes: 'Ago', '2024': 5800, '2025': 6900 },
-    { mes: 'Sep', '2024': 6500, '2025': 7500 },
-    { mes: 'Oct', '2024': 7100, '2025': 8200 },
-    { mes: 'Nov', '2024': 7600, '2025': 8800 },
-    { mes: 'Dic', '2024': 8200, '2025': 9500 },
-  ];
-
-  // Datos de inventario
-  const estadoInventario = [
-    { categoria: 'Stock disponible', valor: 120, color: '#8f5cff' },
-    { categoria: 'Bajo stock', valor: 25, color: '#f59e42' },
-    { categoria: 'Sin stock', valor: 8, color: '#f87171' },
-    { categoria: 'Sobre stock', valor: 15, color: '#6e7ff3' },
-  ];
-
-  // Datos de rendimiento por canal
-  const rendimientoPorCanal = [
-    { canal: 'Tienda física', ventas: 45000, pedidos: 320, ticketPromedio: 140 },
-    { canal: 'E-commerce', ventas: 32000, pedidos: 280, ticketPromedio: 114 },
-    { canal: 'WhatsApp', ventas: 18000, pedidos: 150, ticketPromedio: 120 },
-    { canal: 'Redes sociales', ventas: 12000, pedidos: 95, ticketPromedio: 126 },
-  ];
-
-  // Métricas clave
-  const metricas = {
-    ventasTotales: 89000,
-    crecimiento: 18.5,
-    pedidosCompletados: 845,
-    ticketPromedio: 105.32,
-    margenGanancia: 42.3,
-    tasaConversion: 3.8,
-    clientesNuevos: 124,
-    clientesRecurrentes: 356,
+  const cargarReporte = async () => {
+    setLoading(true);
+    const resultado = await obtenerReporteCompleto();
+    
+    if (resultado.success) {
+      const { data } = resultado;
+      setVentasMensuales(data.ventasMensuales || []);
+      setProductosMasVendidos(data.productosMasVendidos || []);
+      setVentasPorCategoria(data.ventasPorCategoria || []);
+      setComparativoAnual(data.comparativoAnual || []);
+      setEstadoInventario(data.estadoInventario || []);
+      setRendimientoPorCanal(data.rendimientoPorCanal || []);
+      setMetricas(data.metricasClave || metricas);
+      if (data.añoActual) setAñoActual(data.añoActual);
+      if (data.añoAnterior) setAñoAnterior(data.añoAnterior);
+      toast.success('Reporte cargado exitosamente');
+    } else {
+      toast.error('Error al cargar reporte: ' + resultado.error);
+    }
+    
+    setLoading(false);
   };
 
   const COLORS = ['#8f5cff', '#6e7ff3', '#b6aaff', '#a18fff', '#f59e42', '#f87171'];
@@ -126,25 +100,45 @@ function ReportesView({ onNavigate }) {
 
   // Funciones de exportación
   const exportarExcel = () => {
+    if (loading) {
+      toast.error('Espera a que se carguen los datos');
+      return;
+    }
+    
     const wb = XLSX.utils.book_new();
     
     // Hoja de ventas mensuales
-    const wsVentas = XLSX.utils.json_to_sheet(ventasMensuales);
-    XLSX.utils.book_append_sheet(wb, wsVentas, 'Ventas Mensuales');
+    if (ventasMensuales.length > 0) {
+      const wsVentas = XLSX.utils.json_to_sheet(ventasMensuales);
+      XLSX.utils.book_append_sheet(wb, wsVentas, 'Ventas Mensuales');
+    }
     
     // Hoja de productos
-    const wsProductos = XLSX.utils.json_to_sheet(productosMasVendidos);
-    XLSX.utils.book_append_sheet(wb, wsProductos, 'Productos');
+    if (productosMasVendidos.length > 0) {
+      const wsProductos = XLSX.utils.json_to_sheet(productosMasVendidos);
+      XLSX.utils.book_append_sheet(wb, wsProductos, 'Productos');
+    }
     
     // Hoja de categorías
-    const wsCategorias = XLSX.utils.json_to_sheet(ventasPorCategoria);
-    XLSX.utils.book_append_sheet(wb, wsCategorias, 'Categorías');
+    if (ventasPorCategoria.length > 0) {
+      const wsCategorias = XLSX.utils.json_to_sheet(ventasPorCategoria);
+      XLSX.utils.book_append_sheet(wb, wsCategorias, 'Categorías');
+    }
+    
+    // Hoja de métricas
+    const wsMetricas = XLSX.utils.json_to_sheet([metricas]);
+    XLSX.utils.book_append_sheet(wb, wsMetricas, 'Métricas');
     
     XLSX.writeFile(wb, `reporte-${tipoReporte}-${format(new Date(), 'yyyy-MM-dd')}.xlsx`);
     toast.success('✅ Reporte exportado a Excel exitosamente');
   };
 
   const exportarPDF = () => {
+    if (loading) {
+      toast.error('Espera a que se carguen los datos');
+      return;
+    }
+    
     const doc = new jsPDF();
     
     // Encabezado
@@ -166,6 +160,7 @@ function ReportesView({ onNavigate }) {
       ['Crecimiento', `${metricas.crecimiento}%`],
       ['Pedidos Completados', metricas.pedidosCompletados.toString()],
       ['Ticket Promedio', `S/ ${metricas.ticketPromedio.toFixed(2)}`],
+      ['Margen de Ganancia', `${metricas.margenGanancia}%`],
     ];
     
     doc.autoTable({
@@ -177,21 +172,44 @@ function ReportesView({ onNavigate }) {
     });
     
     // Productos más vendidos
-    doc.text('Productos Más Vendidos', 14, doc.lastAutoTable.finalY + 15);
+    if (productosMasVendidos.length > 0) {
+      doc.text('Productos Más Vendidos', 14, doc.lastAutoTable.finalY + 15);
+      
+      const productosData = productosMasVendidos.map(p => [
+        p.nombre,
+        p.cantidad.toString(),
+        `S/ ${p.ingresos.toLocaleString()}`,
+      ]);
+      
+      doc.autoTable({
+        startY: doc.lastAutoTable.finalY + 20,
+        head: [['Producto', 'Cantidad', 'Ingresos']],
+        body: productosData,
+        theme: 'striped',
+        headStyles: { fillColor: [110, 127, 243] },
+      });
+    }
     
-    const productosData = productosMasVendidos.map(p => [
-      p.nombre,
-      p.cantidad.toString(),
-      `S/ ${p.ingresos.toLocaleString()}`,
-    ]);
-    
-    doc.autoTable({
-      startY: doc.lastAutoTable.finalY + 20,
-      head: [['Producto', 'Cantidad', 'Ingresos']],
-      body: productosData,
-      theme: 'striped',
-      headStyles: { fillColor: [110, 127, 243] },
-    });
+    // Ventas por categoría
+    if (ventasPorCategoria.length > 0) {
+      doc.addPage();
+      doc.setFontSize(14);
+      doc.text('Ventas por Categoría', 14, 20);
+      
+      const categoriasData = ventasPorCategoria.map(c => [
+        c.categoria,
+        `S/ ${c.ventas.toLocaleString()}`,
+        `${c.porcentaje}%`
+      ]);
+      
+      doc.autoTable({
+        startY: 25,
+        head: [['Categoría', 'Ventas', 'Porcentaje']],
+        body: categoriasData,
+        theme: 'striped',
+        headStyles: { fillColor: [143, 92, 255] },
+      });
+    }
     
     doc.save(`reporte-${tipoReporte}-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
     toast.success('✅ Reporte exportado a PDF exitosamente');
@@ -213,9 +231,13 @@ function ReportesView({ onNavigate }) {
   const tendencia = calcularTendencia(ventasMensuales);
 
   return (
-    <div className="flex-1 bg-gray-50 min-h-screen overflow-y-auto">
-      {/* Topbar similar a otras vistas */}
-      <header className="bg-white border-b border-gray-200 px-8 py-6 sticky top-0 z-10 shadow-sm">
+    <div className="flex fixed inset-0 bg-gradient-to-br from-gray-50 to-gray-100">
+      <Toaster position="top-right" />
+      <Sidebar onNavigate={onNavigate} activeView={'reportes'} />
+      
+      <div className="flex-1 flex flex-col overflow-y-auto">
+      {/* Topbar */}
+      <header className="bg-white border-b border-gray-200 px-8 py-6 shadow-sm sticky top-0 z-10">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-4">
             <h1 className="text-3xl font-bold text-[#8f5cff]">📊 Reportes y Análisis</h1>
@@ -314,7 +336,7 @@ function ReportesView({ onNavigate }) {
               <FaDollarSign className="text-4xl opacity-80" />
               <span className={`flex items-center gap-1 text-sm font-semibold px-3 py-1 rounded-full ${tendencia >= 0 ? 'bg-green-500' : 'bg-red-500'}`}>
                 {tendencia >= 0 ? <FaArrowUp /> : <FaArrowDown />}
-                {Math.abs(tendencia)}%
+                {Math.abs(tendencia) === Infinity ? '∞' : Math.abs(tendencia)}%
               </span>
             </div>
             <div className="text-3xl font-bold mb-1">S/ {metricas.ventasTotales.toLocaleString()}</div>
@@ -329,8 +351,10 @@ function ReportesView({ onNavigate }) {
           >
             <div className="flex items-center justify-between mb-3">
               <FaShoppingCart className="text-4xl text-[#8f5cff]" />
-              <span className="text-sm font-semibold text-green-600 bg-green-100 px-3 py-1 rounded-full">
-                +{metricas.crecimiento}%
+              <span className={`text-sm font-semibold px-3 py-1 rounded-full ${
+                metricas.crecimiento >= 0 ? 'text-green-600 bg-green-100' : 'text-red-600 bg-red-100'
+              }`}>
+                {metricas.crecimiento >= 0 ? '+' : ''}{Math.abs(metricas.crecimiento) === Infinity ? '∞' : metricas.crecimiento}%
               </span>
             </div>
             <div className="text-3xl font-bold text-gray-800 mb-1">{metricas.pedidosCompletados}</div>
@@ -509,18 +533,22 @@ function ReportesView({ onNavigate }) {
                   formatter={(value) => `S/ ${value.toLocaleString()}`}
                 />
                 <Legend />
-                <Bar dataKey="2024" fill="#b6aaff" radius={[8, 8, 0, 0]} name="2024" />
-                <Line type="monotone" dataKey="2025" stroke="#8f5cff" strokeWidth={3} dot={{ r: 5 }} name="2025" />
+                <Bar dataKey={añoAnterior.toString()} fill="#b6aaff" radius={[8, 8, 0, 0]} name={añoAnterior.toString()} />
+                <Line type="monotone" dataKey={añoActual.toString()} stroke="#8f5cff" strokeWidth={3} dot={{ r: 5 }} name={añoActual.toString()} />
               </ComposedChart>
             </ResponsiveContainer>
             <div className="mt-4 grid grid-cols-2 gap-4">
               <div className="bg-purple-50 rounded-lg p-3">
-                <div className="text-sm text-gray-600 mb-1">Total 2024</div>
-                <div className="text-xl font-bold text-[#8f5cff]">S/ 65,200</div>
+                <div className="text-sm text-gray-600 mb-1">Total {añoAnterior}</div>
+                <div className="text-xl font-bold text-[#8f5cff]">
+                  S/ {comparativoAnual.reduce((sum, m) => sum + (m[añoAnterior.toString()] || 0), 0).toLocaleString()}
+                </div>
               </div>
               <div className="bg-purple-50 rounded-lg p-3">
-                <div className="text-sm text-gray-600 mb-1">Total 2025</div>
-                <div className="text-xl font-bold text-[#8f5cff]">S/ 81,200</div>
+                <div className="text-sm text-gray-600 mb-1">Total {añoActual}</div>
+                <div className="text-xl font-bold text-[#8f5cff]">
+                  S/ {comparativoAnual.reduce((sum, m) => sum + (m[añoActual.toString()] || 0), 0).toLocaleString()}
+                </div>
               </div>
             </div>
           </motion.div>
@@ -760,7 +788,18 @@ function ReportesView({ onNavigate }) {
             </div>
           </motion.div>
         </section>
+
+        {/* Loading State */}
+        {loading && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-2xl p-8 flex flex-col items-center gap-4">
+              <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-[#8f5cff]"></div>
+              <p className="text-gray-700 font-semibold">Cargando reportes...</p>
+            </div>
+          </div>
+        )}
       </main>
+      </div>
     </div>
   );
 }
