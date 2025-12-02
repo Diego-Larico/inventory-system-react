@@ -100,6 +100,38 @@
   border-radius: 10px;
 }
 
+/* Custom react-toastify notifications */
+.Toastify__toast {
+  min-height: 50px !important;
+  padding: 12px 16px !important;
+  border-radius: 8px !important;
+  font-size: 14px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.Toastify__toast-body {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.Toastify__progress-bar {
+  height: 4px !important;
+}
+
+.Toastify__close-button {
+  opacity: 0.5 !important;
+}
+
+.Toastify__close-button:hover {
+  opacity: 1 !important;
+}
+
+/* Limitar ancho máximo de los toasts */
+.Toastify__toast-container {
+  width: auto !important;
+  max-width: 400px !important;
+}
+
 .custom-scrollbar::-webkit-scrollbar-thumb {
   background: linear-gradient(180deg, #8f5cff, #6e7ff3);
   border-radius: 10px;

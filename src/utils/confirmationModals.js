@@ -90,26 +90,32 @@ export const confirmarEditar = async (nombre, tipo = 'elemento') => {
  */
 export const mostrarExito = async (mensaje, detalle = '') => {
   await Swal.fire({
-    title: '<i class="fas fa-check-circle" style="color: #10b981; margin-right: 12px;"></i>¡Éxito!',
+    title: '<i class="fas fa-check-circle" style="color: #ffffff; margin-right: 12px;"></i>¡Éxito!',
     html: `
       <div style="text-align: center; padding: 1.5rem 1rem;">
-        <div style="font-size: 4rem; margin-bottom: 1rem; animation: bounce 0.6s; color: #10b981;"><i class="fas fa-check-circle"></i></div>
-        <p style="color: #10b981; font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem;">
+        <div style="font-size: 4rem; margin-bottom: 1rem; animation: bounce 0.6s; color: #ffffff;"><i class="fas fa-check-circle"></i></div>
+        <p style="color: #ffffff; font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem;">
           ${mensaje}
         </p>
-        ${detalle ? `<p style="color: #6b7280; font-size: 0.95rem; line-height: 1.6;">${detalle}</p>` : ''}
+        ${detalle ? `<p style="color: #e0f2e9; font-size: 0.95rem; line-height: 1.6;">${detalle}</p>` : ''}
       </div>
       <style>
         @keyframes bounce {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-20px); }
         }
+        .swal2-popup {
+          background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+        }
+        .swal2-title {
+          color: #ffffff !important;
+        }
       </style>
     `,
     confirmButtonText: '<span style="display: flex; align-items: center; gap: 8px;"><i class="fas fa-thumbs-up"></i> Entendido</span>',
     customClass: {
       ...customStyles,
-      confirmButton: 'bg-gradient-to-r from-green-500 to-green-600 text-white font-bold py-3 px-10 rounded-xl hover:shadow-2xl transition-all duration-300 hover:scale-110 hover:-translate-y-1',
+      confirmButton: 'bg-white text-green-600 font-bold py-3 px-10 rounded-xl hover:shadow-2xl transition-all duration-300 hover:scale-110 hover:-translate-y-1',
     },
     buttonsStyling: false,
     timer: 3000,
@@ -124,20 +130,28 @@ export const mostrarExito = async (mensaje, detalle = '') => {
  */
 export const mostrarError = async (mensaje, detalle = '') => {
   await Swal.fire({
-    title: '<i class="fas fa-times-circle" style="color: #ef4444; margin-right: 12px;"></i>Error',
+    title: '<i class="fas fa-times-circle" style="color: #ffffff; margin-right: 12px;"></i>Error',
     html: `
       <div style="text-align: center; padding: 1.5rem 1rem;">
-        <div style="font-size: 4rem; margin-bottom: 1rem; color: #ef4444;"><i class="fas fa-times-circle"></i></div>
-        <p style="color: #ef4444; font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem;">
+        <div style="font-size: 4rem; margin-bottom: 1rem; color: #ffffff;"><i class="fas fa-times-circle"></i></div>
+        <p style="color: #ffffff; font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem;">
           ${mensaje}
         </p>
-        ${detalle ? `<p style="color: #6b7280; font-size: 0.95rem; line-height: 1.6; background: #f3f4f6; padding: 1rem; border-radius: 12px; margin-top: 1rem;">${detalle}</p>` : ''}
+        ${detalle ? `<p style="color: #fee2e2; font-size: 0.95rem; line-height: 1.6; background: rgba(255, 255, 255, 0.1); padding: 1rem; border-radius: 12px; margin-top: 1rem;">${detalle}</p>` : ''}
       </div>
+      <style>
+        .swal2-popup {
+          background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+        }
+        .swal2-title {
+          color: #ffffff !important;
+        }
+      </style>
     `,
     confirmButtonText: '<span style="display: flex; align-items: center; gap: 8px;"><i class="fas fa-thumbs-up"></i> Entendido</span>',
     customClass: {
       ...customStyles,
-      confirmButton: 'bg-gradient-to-r from-red-500 to-red-600 text-white font-bold py-3 px-10 rounded-xl hover:shadow-2xl transition-all duration-300 hover:scale-110 hover:-translate-y-1',
+      confirmButton: 'bg-white text-red-600 font-bold py-3 px-10 rounded-xl hover:shadow-2xl transition-all duration-300 hover:scale-110 hover:-translate-y-1',
     },
     buttonsStyling: false,
     backdrop: 'rgba(0, 0, 0, 0.5)',

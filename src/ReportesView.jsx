@@ -9,6 +9,7 @@ import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import toast, { Toaster } from 'react-hot-toast';
+import { notificaciones } from './utils/notifications';
 import { 
   obtenerReporteCompleto,
   obtenerProductosPorEstado,
@@ -69,7 +70,8 @@ function ReportesView({ onNavigate }) {
   // Reaccionar al cambio de tipo de reporte
   useEffect(() => {
     if (tipoReporte) {
-      toast.success(`Vista cambiada a: ${tipoReporteOptions.find(t => t.value === tipoReporte)?.label}`);
+      const label = tipoReporteOptions.find(t => t.value === tipoReporte)?.label;
+      notificaciones.informacion(`Vista: ${label}`);
     }
   }, [tipoReporte]);
 
@@ -136,21 +138,21 @@ function ReportesView({ onNavigate }) {
       if (resRentabilidad.success) setRentabilidadMensual(resRentabilidad.data);
 
       setUltimaActualizacion(new Date());
-      toast.success('Reporte cargado exitosamente');
+      notificaciones.operacionExitosa('Reporte cargado exitosamente');
     } catch (error) {
-      toast.error('Error al cargar reporte: ' + error.message);
+      notificaciones.error('Error al cargar reporte: ' + error.message);
     }
     
     setLoading(false);
   };
 
   const aplicarFiltros = () => {
-    toast.success('Filtros aplicados correctamente');
+    notificaciones.operacionExitosa('Filtros aplicados correctamente');
     // Los datos ya están cargados, solo aplicamos filtros visuales
   };
 
   const refrescarDatos = async () => {
-    toast.loading('Actualizando datos...');
+    notificaciones.informacion('Actualizando datos...');
     await cargarReporte();
   };
 
@@ -294,7 +296,7 @@ function ReportesView({ onNavigate }) {
   // Funciones de exportación
   const exportarExcel = () => {
     if (loading) {
-      toast.error('Espera a que se carguen los datos');
+      notificaciones.advertencia('Espera a que se carguen los datos');
       return;
     }
     
@@ -323,12 +325,12 @@ function ReportesView({ onNavigate }) {
     XLSX.utils.book_append_sheet(wb, wsMetricas, 'Métricas');
     
     XLSX.writeFile(wb, `reporte-${tipoReporte}-${format(new Date(), 'yyyy-MM-dd')}.xlsx`);
-    toast.success('✅ Reporte exportado a Excel exitosamente');
+    notificaciones.excelExportado(`Reporte de ${tipoReporteOptions.find(t => t.value === tipoReporte)?.label}`);
   };
 
   const exportarPDF = () => {
     if (loading) {
-      toast.error('Espera a que se carguen los datos');
+      notificaciones.advertencia('Espera a que se carguen los datos');
       return;
     }
     
@@ -406,7 +408,7 @@ function ReportesView({ onNavigate }) {
     }
     
     doc.save(`reporte-${tipoReporte}-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
-    toast.success('✅ Reporte exportado a PDF exitosamente');
+    notificaciones.pdfExportado(`Reporte de ${tipoReporteOptions.find(t => t.value === tipoReporte)?.label}`);
   };
 
   const imprimir = () => {
@@ -717,7 +719,7 @@ function ReportesView({ onNavigate }) {
       ventanaImpresion.focus();
       setTimeout(() => {
         ventanaImpresion.print();
-        toast.success('📄 Documento preparado para impresión');
+        notificaciones.documentoImpreso();
       }, 250);
     };
   };
@@ -895,7 +897,7 @@ function ReportesView({ onNavigate }) {
                   setRangoFecha('mes');
                   setFechaInicio('');
                   setFechaFin('');
-                  toast.success('Filtros limpiados');
+                  notificaciones.operacionExitosa('Filtros limpiados');
                 }}
                 className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm font-semibold"
               >

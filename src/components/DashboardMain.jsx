@@ -12,13 +12,14 @@ import { LineChart, Line, AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
          Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from 'recharts';
 import { Tooltip as ReactTooltip } from 'react-tooltip';
 import 'react-tooltip/dist/react-tooltip.css';
-import { toast } from 'react-hot-toast';
 import { obtenerDashboardCompleto } from '../services/dashboardService';
+import { mostrarNotificacionesInicio, notificaciones } from '../utils/notifications';
 
 function DashboardMain() {
   const [selectedPeriod, setSelectedPeriod] = useState('mes');
   const [animateCards, setAnimateCards] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [notificacionesMostradas, setNotificacionesMostradas] = useState(false);
   
   // Estados para datos de Supabase
   const [estadisticas, setEstadisticas] = useState({
@@ -41,6 +42,11 @@ function DashboardMain() {
   useEffect(() => {
     setAnimateCards(true);
     cargarDashboard();
+    
+    // Notificación de prueba al cargar el dashboard
+    setTimeout(() => {
+      notificaciones.informacion('Dashboard cargado correctamente');
+    }, 1500);
   }, []);
 
   const cargarDashboard = async () => {
@@ -60,12 +66,21 @@ function DashboardMain() {
         if (data.topProductos) setTopProductos(data.topProductos);
         if (data.alertas) setAlertas(data.alertas);
         if (data.actividadReciente) setActividadReciente(data.actividadReciente);
+        
+        // Mostrar notificaciones de inicio (solo una vez)
+        if (data.alertas && data.alertas.length > 0 && !notificacionesMostradas) {
+          // Pequeño delay para que se cargue completamente la vista
+          setTimeout(() => {
+            mostrarNotificacionesInicio(data.alertas);
+            setNotificacionesMostradas(true);
+          }, 1000);
+        }
       } else {
-        toast.error('Error al cargar el dashboard');
+        notificaciones.error('Error al cargar el dashboard');
         console.error('Error:', resultado.error);
       }
     } catch (error) {
-      toast.error('Error al cargar datos: ' + error.message);
+      notificaciones.error('Error al cargar datos: ' + error.message);
       console.error('Error al cargar dashboard:', error);
     }
     
@@ -81,13 +96,6 @@ function DashboardMain() {
     { metric: 'Rapidez', value: 88 },
     { metric: 'Satisfacción', value: 90 },
   ];
-
-  // Mapear alertas con iconos
-  const alertasConIconos = alertas.map(alerta => ({
-    ...alerta,
-    icon: alerta.color === 'orange' ? FaExclamationTriangle :
-          alerta.color === 'blue' ? FaClock : FaCheckCircle
-  }));
 
   // Mapear actividad con iconos
   const actividadConIconos = actividadReciente.map(actividad => ({
@@ -260,46 +268,6 @@ function DashboardMain() {
 
       {/* Contenido Principal */}
       <div className="p-8">
-        {/* Alertas Importantes */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="mb-8"
-        >
-          <div className="flex items-center gap-2 mb-4">
-            <FaBell className="text-2xl text-[#8f5cff]" />
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Notificaciones</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {alertasConIconos.map((alerta, index) => (
-              <motion.div
-                key={alerta.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.6 + index * 0.1 }}
-                className={`bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-lg border-l-4 hover:shadow-xl transition-all cursor-pointer ${
-                  alerta.color === 'orange' ? 'border-orange-500' :
-                  alerta.color === 'blue' ? 'border-blue-500' : 'border-green-500'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <div className={`p-3 rounded-xl ${
-                    alerta.color === 'orange' ? 'bg-orange-100 dark:bg-orange-900/30' :
-                    alerta.color === 'blue' ? 'bg-blue-100 dark:bg-blue-900/30' : 'bg-green-100 dark:bg-green-900/30'
-                  }`}>
-                    <alerta.icon className={`text-xl ${
-                      alerta.color === 'orange' ? 'text-orange-600 dark:text-orange-400' :
-                      alerta.color === 'blue' ? 'text-blue-600 dark:text-blue-400' : 'text-green-600 dark:text-green-400'
-                    }`} />
-                  </div>
-                  <p className="font-semibold text-gray-700 dark:text-gray-300">{alerta.mensaje}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-
         {/* Gráficos Principales */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           {/* Ventas Mensuales - Área Chart */}
