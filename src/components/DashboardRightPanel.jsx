@@ -1,19 +1,55 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import TodoListWidget from './TodoListWidget';
+import { obtenerEstadisticasDashboard } from '../services/estadisticasService';
 import { 
   FaCalendarAlt, 
   FaLightbulb,
   FaChartLine,
   FaUsers,
   FaBox,
-  FaRocket
+  FaRocket,
+  FaSpinner
 } from 'react-icons/fa';
 
 function DashboardRightPanel() {
   const [date, setDate] = useState(new Date());
+  const [stats, setStats] = useState({
+    clientes: 0,
+    productos: 0,
+    crecimiento: 0,
+    rendimiento: 0
+  });
+  const [loadingStats, setLoadingStats] = useState(true);
+
+  // Cargar estadísticas al montar
+  useEffect(() => {
+    cargarEstadisticas();
+    
+    // Actualizar estadísticas cuando cambian productos o clientes
+    window.addEventListener('productosActualizados', cargarEstadisticas);
+    window.addEventListener('clientesActualizados', cargarEstadisticas);
+    
+    // Actualizar cada 30 segundos
+    const interval = setInterval(cargarEstadisticas, 30000);
+    
+    return () => {
+      window.removeEventListener('productosActualizados', cargarEstadisticas);
+      window.removeEventListener('clientesActualizados', cargarEstadisticas);
+      clearInterval(interval);
+    };
+  }, []);
+
+  async function cargarEstadisticas() {
+    setLoadingStats(true);
+    const resultado = await obtenerEstadisticasDashboard();
+    if (resultado.success) {
+      setStats(resultado.data);
+    }
+    setLoadingStats(false);
+  }
 
   return (
     <aside className="w-96 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 border-l border-gray-200 dark:border-gray-700 overflow-y-auto custom-scrollbar">
@@ -82,25 +118,58 @@ function DashboardRightPanel() {
           transition={{ delay: 0.5 }}
           className="grid grid-cols-2 gap-3"
         >
-          {[
-            { icon: FaUsers, value: '45', label: 'Clientes', color: 'from-blue-500 to-blue-600' },
-            { icon: FaBox, value: '310', label: 'Productos', color: 'from-green-500 to-green-600' },
-            { icon: FaChartLine, value: '+23%', label: 'Crecimiento', color: 'from-purple-500 to-purple-600' },
-            { icon: FaRocket, value: '95%', label: 'Rendimiento', color: 'from-orange-500 to-orange-600' },
-          ].map((stat, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.6 + index * 0.1 }}
-              whileHover={{ scale: 1.05 }}
-              className={`bg-gradient-to-br ${stat.color} rounded-xl p-4 text-white shadow-lg cursor-pointer`}
-            >
-              <stat.icon className="text-2xl mb-2" />
-              <p className="text-2xl font-bold">{stat.value}</p>
-              <p className="text-xs opacity-75">{stat.label}</p>
-            </motion.div>
-          ))}
+          {loadingStats ? (
+            <div className="col-span-2 flex items-center justify-center py-8">
+              <FaSpinner className="text-3xl text-[#8f5cff] animate-spin" />
+            </div>
+          ) : (
+            [
+              { 
+                icon: FaUsers, 
+                value: stats.clientes, 
+                label: 'Clientes', 
+                color: 'from-blue-500 to-blue-600' 
+              },
+              { 
+                icon: FaBox, 
+                value: stats.productos, 
+                label: 'Productos', 
+                color: 'from-green-500 to-green-600' 
+              },
+              { 
+                icon: FaChartLine, 
+                value: `+${stats.crecimiento}%`, 
+                label: 'Crecimiento', 
+                color: 'from-purple-500 to-purple-600' 
+              },
+              { 
+                icon: FaRocket, 
+                value: `${stats.rendimiento}%`, 
+                label: 'Rendimiento', 
+                color: 'from-orange-500 to-orange-600' 
+              },
+            ].map((stat, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.6 + index * 0.1 }}
+                whileHover={{ scale: 1.05 }}
+                className={`bg-gradient-to-br ${stat.color} rounded-xl p-4 text-white shadow-lg cursor-pointer`}
+              >
+                <stat.icon className="text-2xl mb-2" />
+                <motion.p 
+                  key={stat.value}
+                  initial={{ scale: 1.2, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="text-2xl font-bold"
+                >
+                  {stat.value}
+                </motion.p>
+                <p className="text-xs opacity-75">{stat.label}</p>
+              </motion.div>
+            ))
+          )}
         </motion.div>
       </div>
     </aside>

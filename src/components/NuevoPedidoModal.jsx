@@ -269,6 +269,9 @@ function NuevoPedidoModal({ isOpen, onClose, onSubmit }) {
         }
 
         clienteId = nuevoClienteRes.data.id;
+        
+        // Notificar que se creó un cliente
+        window.dispatchEvent(new Event('clientesActualizados'));
       }
 
       // Calcular totales

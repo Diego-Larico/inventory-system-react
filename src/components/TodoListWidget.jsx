@@ -1,56 +1,137 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import { FaPlus, FaTrash } from 'react-icons/fa';
-
-const initialTasks = [
-  { id: '1', text: 'Revisar inventario de hilos', completed: false },
-  { id: '2', text: 'Llamar a proveedor de telas', completed: false },
-  { id: '3', text: 'Preparar pedido #1023', completed: false },
-  { id: '4', text: 'Actualizar precios de productos', completed: false },
-  { id: '5', text: 'Revisar máquinas de coser', completed: false },
-  { id: '6', text: 'Confirmar entrega del día', completed: false },
-];
+import { FaPlus, FaTrash, FaSpinner } from 'react-icons/fa';
+import { motion } from 'framer-motion';
+import { 
+  obtenerTareas, 
+  crearTarea, 
+  actualizarTarea, 
+  eliminarTarea,
+  actualizarOrdenTareas 
+} from '../services/tareasService';
+import toast from 'react-hot-toast';
 
 function TodoListWidget() {
-  const [tasks, setTasks] = useState(initialTasks);
+  const [tasks, setTasks] = useState([]);
   const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(true);
 
-  function handleAddTask(e) {
+  // Cargar tareas al montar el componente
+  useEffect(() => {
+    cargarTareas();
+    
+    // Escuchar evento de actualización
+    window.addEventListener('tareasActualizadas', cargarTareas);
+    return () => window.removeEventListener('tareasActualizadas', cargarTareas);
+  }, []);
+
+  async function cargarTareas() {
+    setLoading(true);
+    const resultado = await obtenerTareas();
+    if (resultado.success) {
+      setTasks(resultado.data.map(t => ({
+        id: t.id,
+        text: t.titulo,
+        completed: t.completada,
+        descripcion: t.descripcion,
+        prioridad: t.prioridad,
+        orden: t.orden
+      })));
+    }
+    setLoading(false);
+  }
+
+  async function handleAddTask(e) {
     e.preventDefault();
     if (input.trim()) {
-      setTasks([...tasks, { id: Date.now().toString(), text: input, completed: false }]);
-      setInput('');
+      const resultado = await crearTarea({
+        titulo: input,
+        descripcion: '',
+        prioridad: 'media'
+      });
+
+      if (resultado.success) {
+        toast.success('Tarea agregada');
+        await cargarTareas();
+        setInput('');
+        window.dispatchEvent(new Event('tareasActualizadas'));
+      } else {
+        toast.error('Error al agregar tarea');
+      }
     }
   }
 
-  function handleDeleteTask(id) {
-    setTasks(tasks.filter(task => task.id !== id));
+  async function handleDeleteTask(id) {
+    const resultado = await eliminarTarea(id);
+    if (resultado.success) {
+      toast.success('Tarea eliminada');
+      await cargarTareas();
+      window.dispatchEvent(new Event('tareasActualizadas'));
+    } else {
+      toast.error('Error al eliminar tarea');
+    }
   }
 
-  function handleToggleComplete(id) {
-    setTasks(tasks.map(task =>
-      task.id === id ? { ...task, completed: !task.completed } : task
-    ));
+  async function handleToggleComplete(id) {
+    const task = tasks.find(t => t.id === id);
+    if (task) {
+      const resultado = await actualizarTarea(id, {
+        completada: !task.completed
+      });
+
+      if (resultado.success) {
+        await cargarTareas();
+        window.dispatchEvent(new Event('tareasActualizadas'));
+      }
+    }
   }
 
-  function handleDragEnd(result) {
+  async function handleDragEnd(result) {
     if (!result.destination) return;
+    
     const reordered = Array.from(tasks);
     const [removed] = reordered.splice(result.source.index, 1);
     reordered.splice(result.destination.index, 0, removed);
+    
     setTasks(reordered);
+    
+    // Actualizar orden en la base de datos
+    await actualizarOrdenTareas(reordered.map((t, index) => ({
+      id: t.id,
+      orden: index
+    })));
+  }
+
+  if (loading) {
+    return (
+      <div className="w-full p-5 flex items-center justify-center h-64">
+        <div className="text-center">
+          <FaSpinner className="text-4xl text-[#8f5cff] animate-spin mx-auto mb-2" />
+          <p className="text-sm text-gray-500 dark:text-gray-400">Cargando tareas...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="w-full p-5">
       <div className="flex items-center gap-2 mb-4">
-        <div className="w-8 h-8 bg-gradient-to-br from-[#8f5cff] to-[#6e7ff3] rounded-lg flex items-center justify-center">
+        <motion.div 
+          className="w-8 h-8 bg-gradient-to-br from-[#8f5cff] to-[#6e7ff3] rounded-lg flex items-center justify-center"
+          whileHover={{ rotate: 360 }}
+          transition={{ duration: 0.5 }}
+        >
           <FaPlus className="text-white text-sm" />
-        </div>
+        </motion.div>
         <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">Tareas Pendientes</h3>
-        <span className="ml-auto bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 text-xs font-bold px-2.5 py-1 rounded-full">
+        <motion.span 
+          key={tasks.filter(t => !t.completed).length}
+          initial={{ scale: 1.3 }}
+          animate={{ scale: 1 }}
+          className="ml-auto bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 text-xs font-bold px-2.5 py-1 rounded-full"
+        >
           {tasks.filter(t => !t.completed).length}
-        </span>
+        </motion.span>
       </div>
       
       <form onSubmit={handleAddTask} className="flex w-full mb-4 gap-2">
