@@ -14,6 +14,7 @@ import ProductosView from './ProductosView';
 import PedidosView from './PedidosView';
 import ReportesView from './ReportesView';
 import ConfiguracionView from './ConfiguracionView';
+import AyudaView from './AyudaView';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -47,6 +48,7 @@ function App() {
                 <Route path="/pedidos" element={<PedidosView onNavigate={handleSidebarNav} />} />
                 <Route path="/reportes" element={<ReportesView onNavigate={handleSidebarNav} />} />
                 <Route path="/configuracion" element={<ConfiguracionView />} />
+                <Route path="/ayuda" element={<AyudaView />} />
                 {/* Puedes agregar más rutas aquí */}
                 <Route path="*" element={<Navigate to="/" />} />
               </Routes>

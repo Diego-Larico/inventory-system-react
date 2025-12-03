@@ -123,8 +123,8 @@ function Sidebar({ onNavigate, activeView }) {
   ];
 
   const secondaryItems = [
-    { id: 'config', label: 'Configuración', icon: FaCog },
-    { id: 'help', label: 'Ayuda', icon: FaQuestionCircle },
+    { id: 'configuracion', label: 'Configuración', icon: FaCog },
+    { id: 'ayuda', label: 'Ayuda', icon: FaQuestionCircle },
     { id: 'logout', label: 'Cerrar sesión', icon: FaSignOutAlt },
   ];
 
@@ -200,11 +200,7 @@ function Sidebar({ onNavigate, activeView }) {
       return;
     }
     
-    if (['config', 'help'].includes(itemId)) {
-      console.log(`${itemId} clicked`);
-      return;
-    }
-    
+    // Manejar navegación a Configuración y Ayuda
     onNavigate(itemId);
   };
 
