@@ -145,8 +145,32 @@ function ProductosView({ onNavigate }) {
       ...base,
       borderRadius: '12px',
       borderColor: state.isFocused ? '#8f5cff' : '#e5e7eb',
+      backgroundColor: document.documentElement.classList.contains('dark') ? '#1f2937' : 'white',
       boxShadow: state.isFocused ? '0 0 0 3px rgba(143, 92, 255, 0.1)' : 'none',
       '&:hover': { borderColor: '#8f5cff' },
+    }),
+    menu: (base) => ({
+      ...base,
+      backgroundColor: document.documentElement.classList.contains('dark') ? '#1f2937' : 'white',
+      borderRadius: '12px',
+    }),
+    option: (base, state) => ({
+      ...base,
+      backgroundColor: state.isFocused 
+        ? (document.documentElement.classList.contains('dark') ? '#374151' : '#f3f4f6')
+        : 'transparent',
+      color: document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#1f2937',
+      '&:hover': {
+        backgroundColor: document.documentElement.classList.contains('dark') ? '#374151' : '#f3f4f6',
+      },
+    }),
+    singleValue: (base) => ({
+      ...base,
+      color: document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#1f2937',
+    }),
+    input: (base) => ({
+      ...base,
+      color: document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#1f2937',
     }),
   };
 
@@ -302,14 +326,14 @@ function ProductosView({ onNavigate }) {
           {/* Filtros y Búsqueda */}
           <div className="px-8 pb-6">
             <div className="flex flex-wrap items-center gap-4">
-              <div className="flex-1 min-w-[300px] relative">
-                <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <div className="flex items-center gap-2">
+                <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500" />
                 <input
                   type="text"
                   value={busqueda}
                   onChange={(e) => setBusqueda(e.target.value)}
                   placeholder="Buscar por nombre o código..."
-                  className="w-full pl-12 pr-4 py-3 rounded-xl border-2 border-gray-200 focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition"
+                  className="w-full pl-12 pr-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition"
                 />
               </div>
 
@@ -336,7 +360,7 @@ function ProductosView({ onNavigate }) {
               <select
                 value={ordenamiento}
                 onChange={(e) => setOrdenamiento(e.target.value)}
-                className="px-4 py-3 rounded-xl border-2 border-gray-200 focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] bg-white font-semibold text-gray-700"
+                className="px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] bg-white dark:bg-gray-800 font-semibold text-gray-700 dark:text-gray-300"
               >
                 <option value="nombre-asc">A-Z</option>
                 <option value="nombre-desc">Z-A</option>
@@ -347,22 +371,22 @@ function ProductosView({ onNavigate }) {
                 <option value="ventas-desc">Más vendidos</option>
               </select>
 
-              <div className="flex gap-2 border-2 border-gray-200 rounded-xl p-1 bg-white">
+              <div className="flex gap-2 border-2 border-gray-200 dark:border-gray-700 rounded-xl p-1 bg-white dark:bg-gray-800">
                 <button
                   onClick={() => setVistaActual('grid')}
-                  className={`p-2.5 rounded-lg transition ${vistaActual === 'grid' ? 'bg-[#8f5cff] text-white' : 'text-gray-600 hover:bg-gray-100'}`}
+                  className={`p-2.5 rounded-lg transition ${vistaActual === 'grid' ? 'bg-[#8f5cff] text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
                 >
                   <FaTh />
                 </button>
                 <button
                   onClick={() => setVistaActual('galeria')}
-                  className={`p-2.5 rounded-lg transition ${vistaActual === 'galeria' ? 'bg-[#8f5cff] text-white' : 'text-gray-600 hover:bg-gray-100'}`}
+                  className={`p-2.5 rounded-lg transition ${vistaActual === 'galeria' ? 'bg-[#8f5cff] text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
                 >
                   <FaImage />
                 </button>
                 <button
                   onClick={() => setVistaActual('tabla')}
-                  className={`p-2.5 rounded-lg transition ${vistaActual === 'tabla' ? 'bg-[#8f5cff] text-white' : 'text-gray-600 hover:bg-gray-100'}`}
+                  className={`p-2.5 rounded-lg transition ${vistaActual === 'tabla' ? 'bg-[#8f5cff] text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
                 >
                   <FaList />
                 </button>
@@ -389,7 +413,7 @@ function ProductosView({ onNavigate }) {
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: index * 0.05 }}
                     whileHover={{ y: -8, transition: { duration: 0.2 } }}
-                    className="bg-white rounded-2xl shadow-lg overflow-hidden border-2 border-gray-100 hover:border-[#8f5cff] hover:shadow-2xl transition-all duration-300"
+                    className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden border-2 border-gray-100 dark:border-gray-700 hover:border-[#8f5cff] hover:shadow-2xl transition-all duration-300"
                   >
                     {/* Imagen del producto */}
                     <div className="relative h-56 bg-gray-200 overflow-hidden group">
@@ -419,7 +443,7 @@ function ProductosView({ onNavigate }) {
                     {/* Contenido */}
                     <div className="p-5">
                       <div className="flex items-center justify-between mb-2">
-                        <h3 className="text-lg font-bold text-gray-800">{producto.nombre}</h3>
+                        <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">{producto.nombre}</h3>
                         <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded-lg text-xs font-semibold">
                           {producto.categoria}
                         </span>
@@ -429,15 +453,15 @@ function ProductosView({ onNavigate }) {
                       <div className="flex items-center gap-2 mb-4">
                         <div className="flex gap-1">
                           {(producto.tallas || []).slice(0, 3).map((talla, i) => (
-                            <span key={i} className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs font-semibold">
+                            <span key={i} className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded text-xs font-semibold">
                               {talla}
                             </span>
                           ))}
                         </div>
-                        <span className="text-gray-400">•</span>
+                        <span className="text-gray-400 dark:text-gray-500">•</span>
                         <div className="flex gap-1">
                           {(producto.colores || []).slice(0, 2).map((color, i) => (
-                            <span key={i} className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-semibold">
+                            <span key={i} className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded text-xs font-semibold">
                               {color}
                             </span>
                           ))}
@@ -526,7 +550,7 @@ function ProductosView({ onNavigate }) {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                className="bg-white rounded-2xl shadow-lg overflow-hidden"
+                className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden"
               >
                 <div className="overflow-x-auto">
                   <table className="w-full">
@@ -549,7 +573,7 @@ function ProductosView({ onNavigate }) {
                           initial={{ opacity: 0, x: -20 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: index * 0.05 }}
-                          className="border-b border-gray-100 hover:bg-purple-50 transition"
+                          className="border-b border-gray-100 dark:border-gray-700 hover:bg-purple-50 dark:hover:bg-gray-700 transition"
                         >
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-3">
@@ -559,8 +583,8 @@ function ProductosView({ onNavigate }) {
                                 className="w-16 h-16 rounded-lg object-cover"
                               />
                               <div>
-                                <p className="font-semibold text-gray-800">{producto.nombre}</p>
-                                <p className="text-sm text-gray-500">{producto.codigo}</p>
+                                <p className="font-semibold text-gray-800 dark:text-gray-100">{producto.nombre}</p>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">{producto.codigo}</p>
                               </div>
                             </div>
                           </td>
@@ -669,7 +693,7 @@ function ProductosView({ onNavigate }) {
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-white rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+              className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
             >
               <div className="grid grid-cols-1 md:grid-cols-2">
                 {/* Imagen */}
@@ -690,7 +714,7 @@ function ProductosView({ onNavigate }) {
                 {/* Información */}
                 <div className="p-8">
                   <div className="flex items-center justify-between mb-4">
-                    <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-lg text-sm font-semibold">
+                    <span className="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 rounded-lg text-sm font-semibold">
                       {productoSeleccionado.categoria}
                     </span>
                     <div className="flex items-center gap-2 bg-yellow-100 px-3 py-1 rounded-lg">
@@ -699,8 +723,8 @@ function ProductosView({ onNavigate }) {
                     </div>
                   </div>
 
-                  <h2 className="text-3xl font-bold text-gray-800 mb-2">{productoSeleccionado.nombre}</h2>
-                  <p className="text-gray-500 mb-6">{productoSeleccionado.codigo}</p>
+                  <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">{productoSeleccionado.nombre}</h2>
+                  <p className="text-gray-500 dark:text-gray-400 mb-6">{productoSeleccionado.codigo}</p>
 
                   <div className="mb-6">
                     <p className="text-4xl font-bold text-[#8f5cff]">S/ {productoSeleccionado.precio}</p>
@@ -709,10 +733,10 @@ function ProductosView({ onNavigate }) {
 
                   <div className="space-y-4 mb-6">
                     <div>
-                      <p className="text-sm font-semibold text-gray-600 mb-2">Tallas disponibles:</p>
+                      <p className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2">Tallas disponibles:</p>
                       <div className="flex gap-2">
                         {(productoSeleccionado.tallas || []).map((talla, i) => (
-                          <span key={i} className="px-4 py-2 bg-gray-100 text-gray-800 rounded-lg font-semibold">
+                          <span key={i} className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-lg font-semibold">
                             {talla}
                           </span>
                         ))}
@@ -720,10 +744,10 @@ function ProductosView({ onNavigate }) {
                     </div>
 
                     <div>
-                      <p className="text-sm font-semibold text-gray-600 mb-2">Colores disponibles:</p>
+                      <p className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2">Colores disponibles:</p>
                       <div className="flex gap-2">
                         {(productoSeleccionado.colores || []).map((color, i) => (
-                          <span key={i} className="px-4 py-2 bg-blue-100 text-blue-800 rounded-lg font-semibold">
+                          <span key={i} className="px-4 py-2 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300 rounded-lg font-semibold">
                             {color}
                           </span>
                         ))}
@@ -731,10 +755,10 @@ function ProductosView({ onNavigate }) {
                     </div>
 
                     <div>
-                      <p className="text-sm font-semibold text-gray-600 mb-2">Materiales:</p>
+                      <p className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2">Materiales:</p>
                       <div className="flex gap-2">
                         {(productoSeleccionado.materiales || []).map((material, i) => (
-                          <span key={i} className="px-4 py-2 bg-green-100 text-green-800 rounded-lg font-semibold">
+                          <span key={i} className="px-4 py-2 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300 rounded-lg font-semibold">
                             {material}
                           </span>
                         ))}

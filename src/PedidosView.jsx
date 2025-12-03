@@ -399,10 +399,10 @@ function PedidosView({ onNavigate }) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="bg-white rounded-2xl p-6 shadow-lg flex flex-col items-center text-center"
+              className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg flex flex-col items-center text-center"
             >
               <FaClock className="text-orange-500 text-3xl mb-2" />
-              <span className="text-lg font-semibold text-gray-700">Pendientes</span>
+              <span className="text-lg font-semibold text-gray-700 dark:text-gray-300">Pendientes</span>
               <span className="text-3xl font-bold text-orange-500">{pendientes}</span>
             </motion.div>
             
@@ -453,7 +453,7 @@ function PedidosView({ onNavigate }) {
           {/* Gráficos de análisis */}
           <section className="mb-8 grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Gráfico de distribución por estado */}
-            <div className="bg-white rounded-2xl p-6 shadow-lg">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
               <h3 className="text-lg font-semibold mb-4 text-[#8f5cff]">Distribución por Estado</h3>
               <div className="w-full h-64">
                 <ResponsiveContainer width="100%" height="100%">
@@ -511,20 +511,20 @@ function PedidosView({ onNavigate }) {
           </section>
 
           {/* Filtros y búsqueda */}
-          <section className="mb-6 bg-white rounded-2xl p-6 shadow-lg">
+          <section className="mb-6 bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
             <div className="flex items-center gap-2 mb-4">
               <FaFilter className="text-[#8f5cff]" />
               <h3 className="text-lg font-semibold text-[#8f5cff]">Filtros de Búsqueda</h3>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
               <div className="flex items-center gap-2">
-                <FaSearch className="text-gray-400" />
+                <FaSearch className="text-gray-400 dark:text-gray-500" />
                 <input
                   type="text"
                   value={busqueda}
                   onChange={e => setBusqueda(e.target.value)}
                   placeholder="Buscar por ID o cliente..."
-                  className="flex-1 px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#8f5cff]"
+                  className="flex-1 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#8f5cff]"
                 />
               </div>
               <Select
@@ -547,14 +547,14 @@ function PedidosView({ onNavigate }) {
                 type="date"
                 value={fechaInicio}
                 onChange={e => setFechaInicio(e.target.value)}
-                className="px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#8f5cff]"
+                className="px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-[#8f5cff]"
                 placeholder="Fecha inicio"
               />
               <input
                 type="date"
                 value={fechaFin}
                 onChange={e => setFechaFin(e.target.value)}
-                className="px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#8f5cff]"
+                className="px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-[#8f5cff]"
                 placeholder="Fecha fin"
               />
             </div>
@@ -586,14 +586,14 @@ function PedidosView({ onNavigate }) {
 
           {/* Vista de Lista */}
           {vistaActual === 'lista' && (
-            <section className="bg-white rounded-2xl shadow-lg p-6">
+            <section className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
               <h2 className="text-xl font-semibold text-[#8f5cff] mb-4">
                 Lista de Pedidos ({pedidosFiltrados.length})
               </h2>
               <div className="overflow-x-auto">
                 <table className="w-full text-center">
                   <thead>
-                    <tr className="border-b-2 border-gray-200">
+                    <tr className="border-b-2 border-gray-200 dark:border-gray-700">
                       <th className="pb-3 text-center">ID</th>
                       <th className="pb-3 text-center">Cliente</th>
                       <th className="pb-3 text-center">Fecha</th>
@@ -641,9 +641,9 @@ function PedidosView({ onNavigate }) {
                             </td>
                             <td className="py-4">
                               <div className="flex flex-col items-center">
-                                <span className="font-medium text-gray-700">{pedido.cliente_nombre}</span>
+                                <span className="font-medium text-gray-700 dark:text-gray-300">{pedido.cliente_nombre}</span>
                                 {pedido.cliente_telefono && (
-                                  <span className="text-xs text-gray-400">{pedido.cliente_telefono}</span>
+                                  <span className="text-xs text-gray-400 dark:text-gray-500">{pedido.cliente_telefono}</span>
                                 )}
                               </div>
                             </td>
@@ -709,9 +709,9 @@ function PedidosView({ onNavigate }) {
               {estadoOptions.map(estado => {
                 const pedidosEstado = pedidosFiltrados.filter(p => p.estado === estado.value);
                 return (
-                  <div key={estado.value} className="bg-gray-100 rounded-2xl p-4">
+                  <div key={estado.value} className="bg-gray-100 dark:bg-gray-700 rounded-2xl p-4">
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-semibold text-gray-700">{estado.label}</h3>
+                      <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">{estado.label}</h3>
                       <span className="bg-[#8f5cff] text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">
                         {pedidosEstado.length}
                       </span>
@@ -722,7 +722,7 @@ function PedidosView({ onNavigate }) {
                           key={pedido.id}
                           initial={{ opacity: 0, scale: 0.9 }}
                           animate={{ opacity: 1, scale: 1 }}
-                          className="bg-white rounded-xl p-4 shadow hover:shadow-lg transition cursor-pointer"
+                          className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow hover:shadow-lg transition cursor-pointer"
                           onClick={() => handleVerDetalle(pedido)}
                         >
                           <div className="flex items-center justify-between mb-2">
@@ -731,9 +731,9 @@ function PedidosView({ onNavigate }) {
                               {pedido.prioridad}
                             </span>
                           </div>
-                          <p className="text-sm font-semibold text-gray-700 mb-1">{pedido.cliente_nombre}</p>
+                          <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{pedido.cliente_nombre}</p>
                           {pedido.cliente_telefono && (
-                            <p className="text-xs text-gray-500 mb-2">{pedido.cliente_telefono}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">{pedido.cliente_telefono}</p>
                           )}
                           <div className="flex items-center justify-between text-xs text-gray-400">
                             <span>📅 {pedido.fecha_entrega ? new Date(pedido.fecha_entrega).toLocaleDateString('es-ES') : '-'}</span>
@@ -809,27 +809,27 @@ function PedidosView({ onNavigate }) {
                 <h3 className="text-lg font-semibold text-[#8f5cff] mb-3 flex items-center gap-2">
                   <FaUser /> Información del Cliente
                 </h3>
-                <div className="bg-gray-50 rounded-xl p-4 space-y-2">
+                <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 space-y-2">
                   <div className="flex items-center gap-2">
-                    <FaUser className="text-gray-400" />
-                    <span className="font-semibold">{selectedPedido.cliente_nombre}</span>
+                    <FaUser className="text-gray-400 dark:text-gray-500" />
+                    <span className="font-semibold text-gray-900 dark:text-gray-100">{selectedPedido.cliente_nombre}</span>
                   </div>
                   {selectedPedido.cliente_telefono && (
                     <div className="flex items-center gap-2">
-                      <FaPhone className="text-gray-400" />
-                      <span className="text-gray-700">{selectedPedido.cliente_telefono}</span>
+                      <FaPhone className="text-gray-400 dark:text-gray-500" />
+                      <span className="text-gray-700 dark:text-gray-300">{selectedPedido.cliente_telefono}</span>
                     </div>
                   )}
                   {selectedPedido.cliente_direccion && (
                     <div className="flex items-center gap-2">
-                      <FaMapMarkerAlt className="text-gray-400" />
-                      <span className="text-gray-700">{selectedPedido.cliente_direccion}</span>
+                      <FaMapMarkerAlt className="text-gray-400 dark:text-gray-500" />
+                      <span className="text-gray-700 dark:text-gray-300">{selectedPedido.cliente_direccion}</span>
                     </div>
                   )}
                   {selectedPedido.cliente_email && (
                     <div className="flex items-center gap-2">
-                      <FaEnvelope className="text-gray-400" />
-                      <span className="text-gray-700">{selectedPedido.cliente_email}</span>
+                      <FaEnvelope className="text-gray-400 dark:text-gray-500" />
+                      <span className="text-gray-700 dark:text-gray-300">{selectedPedido.cliente_email}</span>
                     </div>
                   )}
                 </div>
@@ -837,17 +837,17 @@ function PedidosView({ onNavigate }) {
 
               {/* Fechas */}
               <div className="mb-6 grid grid-cols-2 gap-4">
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <div className="flex items-center gap-2 text-gray-600 mb-1">
+                <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4">
+                  <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 mb-1">
                     <FaCalendarAlt />
                     <span className="text-sm">Fecha de Pedido</span>
                   </div>
-                  <span className="font-bold text-lg text-gray-700">
+                  <span className="font-bold text-lg text-gray-700 dark:text-gray-300">
                     {selectedPedido.fecha_pedido ? new Date(selectedPedido.fecha_pedido).toLocaleDateString('es-ES') : '-'}
                   </span>
                 </div>
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <div className="flex items-center gap-2 text-gray-600 mb-1">
+                <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4">
+                  <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 mb-1">
                     <FaShippingFast />
                     <span className="text-sm">Fecha de Entrega</span>
                   </div>
@@ -873,11 +873,11 @@ function PedidosView({ onNavigate }) {
                   <FaBoxOpen /> Productos
                 </h3>
                 <div className="space-y-2">
-                  {(selectedPedido.detalles || []).map((detalle, index) => (
-                    <div key={detalle.id || index} className="bg-gray-50 rounded-xl p-4 flex items-center justify-between">
+                  {(selectedPedido.detalles || []).map((detalle, idx) => (
+                    <div key={idx} className="flex items-start justify-between bg-white dark:bg-gray-700 p-3 rounded-lg">
                       <div>
-                        <p className="font-semibold text-gray-700">{detalle.producto_nombre}</p>
-                        <p className="text-sm text-gray-500">Cantidad: {detalle.cantidad}</p>
+                        <p className="font-semibold text-gray-700 dark:text-gray-300">{detalle.producto_nombre}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">Cantidad: {detalle.cantidad}</p>
                         {(detalle.talla || detalle.color) && (
                           <p className="text-xs text-gray-400">
                             {detalle.talla && `Talla: ${detalle.talla}`}

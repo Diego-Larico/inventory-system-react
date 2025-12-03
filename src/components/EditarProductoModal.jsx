@@ -177,9 +177,15 @@ function EditarProductoModal({ isOpen, onClose, onSubmit, producto }) {
       borderRadius: '12px',
       borderColor: state.isFocused ? '#8f5cff' : '#e5e7eb',
       borderWidth: '2px',
+      backgroundColor: document.documentElement.classList.contains('dark') ? '#1f2937' : 'white',
       boxShadow: state.isFocused ? '0 0 0 4px rgba(143, 92, 255, 0.1)' : 'none',
       '&:hover': { borderColor: '#8f5cff' },
       transition: 'all 0.2s',
+    }),
+    menu: (base) => ({
+      ...base,
+      backgroundColor: document.documentElement.classList.contains('dark') ? '#1f2937' : 'white',
+      borderRadius: '12px',
     }),
     multiValue: (base) => ({
       ...base,
@@ -201,10 +207,22 @@ function EditarProductoModal({ isOpen, onClose, onSubmit, producto }) {
     }),
     option: (base, state) => ({
       ...base,
-      backgroundColor: state.isSelected ? '#8f5cff' : state.isFocused ? '#f3f4f6' : 'white',
-      color: state.isSelected ? 'white' : '#374151',
+      backgroundColor: state.isSelected 
+        ? '#8f5cff' 
+        : state.isFocused 
+          ? (document.documentElement.classList.contains('dark') ? '#374151' : '#f3f4f6')
+          : 'transparent',
+      color: state.isSelected ? 'white' : (document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#374151'),
       cursor: 'pointer',
       transition: 'all 0.2s',
+    }),
+    singleValue: (base) => ({
+      ...base,
+      color: document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#1f2937',
+    }),
+    input: (base) => ({
+      ...base,
+      color: document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#1f2937',
     }),
   };
 
@@ -348,7 +366,7 @@ function EditarProductoModal({ isOpen, onClose, onSubmit, producto }) {
                     value={formData.nombre}
                     onChange={(e) => handleChange('nombre', e.target.value)}
                     placeholder="Ej: Polo básico cuello redondo"
-                    className="w-full px-5 py-4 border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#f59e42] focus:ring-opacity-20 focus:border-[#f59e42] transition-all duration-200 group-hover:border-gray-300"
+                    className="w-full px-5 py-4 border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#f59e42] focus:ring-opacity-20 focus:border-[#f59e42] transition-all duration-200 group-hover:border-gray-300 dark:group-hover:border-gray-600"
                   />
                 </div>
               </div>

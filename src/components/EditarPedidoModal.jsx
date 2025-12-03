@@ -110,16 +110,34 @@ function EditarPedidoModal({ isOpen, onClose, onSubmit, pedido }) {
       borderRadius: '12px',
       borderColor: state.isFocused ? '#8f5cff' : '#e5e7eb',
       borderWidth: '2px',
+      backgroundColor: document.documentElement.classList.contains('dark') ? '#1f2937' : 'white',
       boxShadow: state.isFocused ? '0 0 0 4px rgba(143, 92, 255, 0.1)' : 'none',
       '&:hover': { borderColor: '#8f5cff' },
       transition: 'all 0.2s',
     }),
+    menu: (base) => ({
+      ...base,
+      backgroundColor: document.documentElement.classList.contains('dark') ? '#1f2937' : 'white',
+      borderRadius: '12px',
+    }),
     option: (base, state) => ({
       ...base,
-      backgroundColor: state.isSelected ? '#8f5cff' : state.isFocused ? '#f3f4f6' : 'white',
-      color: state.isSelected ? 'white' : '#374151',
+      backgroundColor: state.isSelected 
+        ? '#8f5cff' 
+        : state.isFocused 
+          ? (document.documentElement.classList.contains('dark') ? '#374151' : '#f3f4f6')
+          : 'transparent',
+      color: state.isSelected ? 'white' : (document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#374151'),
       cursor: 'pointer',
       transition: 'all 0.2s',
+    }),
+    singleValue: (base) => ({
+      ...base,
+      color: document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#1f2937',
+    }),
+    input: (base) => ({
+      ...base,
+      color: document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#1f2937',
     }),
   };
 
@@ -128,7 +146,7 @@ function EditarPedidoModal({ isOpen, onClose, onSubmit, pedido }) {
       isOpen={isOpen}
       onRequestClose={handleClose}
       className="fixed inset-0 flex items-center justify-center p-4 z-50"
-      overlayClassName="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm z-40"
+      overlayClassName="fixed inset-0 bg-black dark:bg-gray-950 bg-opacity-60 dark:bg-opacity-80 backdrop-blur-sm z-40"
       closeTimeoutMS={300}
     >
       <motion.div

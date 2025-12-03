@@ -171,16 +171,34 @@ function NuevoMaterialModal({ isOpen, onClose, onSubmit }) {
       borderRadius: '12px',
       borderColor: state.isFocused ? '#8f5cff' : '#e5e7eb',
       borderWidth: '2px',
+      backgroundColor: document.documentElement.classList.contains('dark') ? '#1f2937' : 'white',
       boxShadow: state.isFocused ? '0 0 0 4px rgba(143, 92, 255, 0.1)' : 'none',
       '&:hover': { borderColor: '#8f5cff' },
       transition: 'all 0.2s',
     }),
+    menu: (base) => ({
+      ...base,
+      backgroundColor: document.documentElement.classList.contains('dark') ? '#1f2937' : 'white',
+      borderRadius: '12px',
+    }),
     option: (base, state) => ({
       ...base,
-      backgroundColor: state.isSelected ? '#8f5cff' : state.isFocused ? '#f3f4f6' : 'white',
-      color: state.isSelected ? 'white' : '#374151',
+      backgroundColor: state.isSelected 
+        ? '#8f5cff' 
+        : state.isFocused 
+          ? (document.documentElement.classList.contains('dark') ? '#374151' : '#f3f4f6')
+          : 'transparent',
+      color: state.isSelected ? 'white' : (document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#374151'),
       cursor: 'pointer',
       transition: 'all 0.2s',
+    }),
+    singleValue: (base) => ({
+      ...base,
+      color: document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#1f2937',
+    }),
+    input: (base) => ({
+      ...base,
+      color: document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#1f2937',
     }),
   };
 
@@ -189,7 +207,7 @@ function NuevoMaterialModal({ isOpen, onClose, onSubmit }) {
       isOpen={isOpen}
       onRequestClose={handleClose}
       className="fixed inset-0 flex items-center justify-center p-4 z-50"
-      overlayClassName="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm z-40"
+      overlayClassName="fixed inset-0 bg-black dark:bg-gray-950 bg-opacity-60 dark:bg-opacity-80 backdrop-blur-sm z-40"
       closeTimeoutMS={300}
     >
       <motion.div
@@ -262,7 +280,7 @@ function NuevoMaterialModal({ isOpen, onClose, onSubmit }) {
                     value={formData.nombre}
                     onChange={(e) => handleChange('nombre', e.target.value)}
                     placeholder="Ej: Hilo blanco premium"
-                    className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 group-hover:border-gray-300"
+                    className="w-full px-5 py-4 border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 group-hover:border-gray-300 dark:group-hover:border-gray-600"
                     disabled={loading}
                   />
                 </div>
@@ -302,7 +320,7 @@ function NuevoMaterialModal({ isOpen, onClose, onSubmit }) {
                   />
                 </div>
                 <div className="group">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                     <FaBox className="text-[#8f5cff]" />
                     Tipo de material *
                   </label>
@@ -311,7 +329,7 @@ function NuevoMaterialModal({ isOpen, onClose, onSubmit }) {
                     value={formData.tipo}
                     onChange={(e) => handleChange('tipo', e.target.value)}
                     placeholder="Ej: Premium, Estándar, Económico"
-                    className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 group-hover:border-gray-300"
+                    className="w-full px-5 py-4 border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 group-hover:border-gray-300 dark:group-hover:border-gray-600"
                     disabled={loading}
                   />
                 </div>
@@ -350,7 +368,7 @@ function NuevoMaterialModal({ isOpen, onClose, onSubmit }) {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="group">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                     <FaBoxes className="text-[#8f5cff]" />
                     Cantidad *
                   </label>
@@ -361,7 +379,7 @@ function NuevoMaterialModal({ isOpen, onClose, onSubmit }) {
                     placeholder="0"
                     min="0"
                     step="0.01"
-                    className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 group-hover:border-gray-300"
+                    className="w-full px-5 py-4 border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 group-hover:border-gray-300 dark:group-hover:border-gray-600"
                     disabled={loading}
                   />
                 </div>
@@ -460,7 +478,7 @@ function NuevoMaterialModal({ isOpen, onClose, onSubmit }) {
               </div>
 
               <div className="group mt-6">
-                <label className="text-sm font-semibold text-gray-700 mb-3 block">
+                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 block">
                   Notas adicionales
                 </label>
                 <textarea
@@ -468,7 +486,7 @@ function NuevoMaterialModal({ isOpen, onClose, onSubmit }) {
                   onChange={(e) => handleChange('notas', e.target.value)}
                   placeholder="Información adicional sobre el material"
                   rows={3}
-                  className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 resize-none group-hover:border-gray-300"
+                  className="w-full px-5 py-4 border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 resize-none group-hover:border-gray-300 dark:group-hover:border-gray-600"
                   disabled={loading}
                 />
               </div>

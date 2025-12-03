@@ -849,17 +849,17 @@ function ReportesView({ onNavigate }) {
                     type="date"
                     value={fechaInicio}
                     onChange={(e) => setFechaInicio(e.target.value)}
-                    className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8f5cff] text-sm"
+                    className="px-4 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8f5cff] text-sm"
                     placeholder="Fecha inicio"
                   />
                 </div>
                 <div className="flex items-center gap-2">
-                  <FaCalendarAlt className="text-gray-400" />
+                  <FaCalendarAlt className="text-gray-400 dark:text-gray-500" />
                   <input
                     type="date"
                     value={fechaFin}
                     onChange={(e) => setFechaFin(e.target.value)}
-                    className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8f5cff] text-sm"
+                    className="px-4 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8f5cff] text-sm"
                     placeholder="Fecha fin"
                   />
                 </div>
@@ -930,7 +930,7 @@ function ReportesView({ onNavigate }) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100"
+            className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700"
           >
             <div className="flex items-center justify-between mb-3">
               <FaShoppingCart className="text-4xl text-[#8f5cff]" />
@@ -940,8 +940,8 @@ function ReportesView({ onNavigate }) {
                 {metricas.crecimiento >= 0 ? '+' : ''}{Math.abs(metricas.crecimiento) === Infinity ? '∞' : metricas.crecimiento}%
               </span>
             </div>
-            <div className="text-3xl font-bold text-gray-800 mb-1">{metricas.pedidosCompletados}</div>
-            <div className="text-sm text-gray-500">Pedidos Completados</div>
+            <div className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-1">{metricas.pedidosCompletados}</div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">Pedidos Completados</div>
           </motion.div>
 
           <motion.div
@@ -993,19 +993,19 @@ function ReportesView({ onNavigate }) {
               <div className="flex gap-2">
                 <button
                   onClick={() => setVistaGrafico('lineas')}
-                  className={`p-2 rounded-lg ${vistaGrafico === 'lineas' ? 'bg-[#8f5cff] text-white' : 'bg-gray-100 text-gray-600'}`}
+                  className={`p-2 rounded-lg ${vistaGrafico === 'lineas' ? 'bg-[#8f5cff] text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'}`}
                 >
                   <FaChartLine />
                 </button>
                 <button
                   onClick={() => setVistaGrafico('barras')}
-                  className={`p-2 rounded-lg ${vistaGrafico === 'barras' ? 'bg-[#8f5cff] text-white' : 'bg-gray-100 text-gray-600'}`}
+                  className={`p-2 rounded-lg ${vistaGrafico === 'barras' ? 'bg-[#8f5cff] text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'}`}
                 >
                   <FaChartBar />
                 </button>
                 <button
                   onClick={() => setVistaGrafico('area')}
-                  className={`p-2 rounded-lg ${vistaGrafico === 'area' ? 'bg-[#8f5cff] text-white' : 'bg-gray-100 text-gray-600'}`}
+                  className={`p-2 rounded-lg ${vistaGrafico === 'area' ? 'bg-[#8f5cff] text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'}`}
                 >
                   <FaChartPie />
                 </button>
@@ -1778,20 +1778,20 @@ function ReportesView({ onNavigate }) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.1 }}
-          className="bg-white rounded-2xl p-6 shadow-lg"
+          className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg"
         >
-          <h2 className="text-xl font-bold text-gray-800 mb-4">Desglose Mensual Detallado</h2>
+          <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Desglose Mensual Detallado</h2>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="bg-gray-50 border-b border-gray-200">
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700">Mes</th>
-                  <th className="text-right py-3 px-4 font-semibold text-gray-700">Ventas</th>
-                  <th className="text-right py-3 px-4 font-semibold text-gray-700">Costos</th>
-                  <th className="text-right py-3 px-4 font-semibold text-gray-700">Ganancias</th>
-                  <th className="text-right py-3 px-4 font-semibold text-gray-700">Pedidos</th>
-                  <th className="text-right py-3 px-4 font-semibold text-gray-700">Margen %</th>
-                  <th className="text-center py-3 px-4 font-semibold text-gray-700">Tendencia</th>
+                <tr className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-700">
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">Mes</th>
+                  <th className="text-right py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">Ventas</th>
+                  <th className="text-right py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">Costos</th>
+                  <th className="text-right py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">Ganancias</th>
+                  <th className="text-right py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">Pedidos</th>
+                  <th className="text-right py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">Margen %</th>
+                  <th className="text-center py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">Tendencia</th>
                 </tr>
               </thead>
               <tbody>
@@ -1799,10 +1799,10 @@ function ReportesView({ onNavigate }) {
                   const margen = ((mes.ganancias / mes.ventas) * 100).toFixed(1);
                   const tendenciaMes = index > 0 ? ((mes.ventas - ventasMensuales[index - 1].ventas) / ventasMensuales[index - 1].ventas * 100).toFixed(1) : 0;
                   return (
-                    <tr key={index} className="border-b border-gray-100 hover:bg-gray-50 transition">
-                      <td className="py-3 px-4 font-medium text-gray-800">{mes.mes}</td>
-                      <td className="py-3 px-4 text-right text-gray-700">S/ {mes.ventas.toLocaleString()}</td>
-                      <td className="py-3 px-4 text-right text-gray-700">S/ {mes.costos.toLocaleString()}</td>
+                    <tr key={index} className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                      <td className="py-3 px-4 font-medium text-gray-800 dark:text-gray-100">{mes.mes}</td>
+                      <td className="py-3 px-4 text-right text-gray-700 dark:text-gray-300">S/ {mes.ventas.toLocaleString()}</td>
+                      <td className="py-3 px-4 text-right text-gray-700 dark:text-gray-300">S/ {mes.costos.toLocaleString()}</td>
                       <td className="py-3 px-4 text-right font-semibold text-green-600">S/ {mes.ganancias.toLocaleString()}</td>
                       <td className="py-3 px-4 text-right text-gray-700">{mes.pedidos}</td>
                       <td className="py-3 px-4 text-right font-semibold text-[#8f5cff]">{margen}%</td>
@@ -1824,7 +1824,7 @@ function ReportesView({ onNavigate }) {
                 })}
               </tbody>
               <tfoot>
-                <tr className="bg-purple-50 font-bold text-gray-800">
+                <tr className="bg-purple-50 dark:bg-purple-900 font-bold text-gray-800 dark:text-gray-100">
                   <td className="py-3 px-4">TOTAL</td>
                   <td className="py-3 px-4 text-right">S/ {ventasMensuales.reduce((acc, m) => acc + m.ventas, 0).toLocaleString()}</td>
                   <td className="py-3 px-4 text-right">S/ {ventasMensuales.reduce((acc, m) => acc + m.costos, 0).toLocaleString()}</td>

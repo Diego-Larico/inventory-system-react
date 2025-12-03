@@ -203,8 +203,32 @@ function MaterialesView({ onNavigate }) {
       ...base,
       borderRadius: '12px',
       borderColor: state.isFocused ? '#8f5cff' : '#e5e7eb',
+      backgroundColor: document.documentElement.classList.contains('dark') ? '#1f2937' : 'white',
       boxShadow: state.isFocused ? '0 0 0 3px rgba(143, 92, 255, 0.1)' : 'none',
       '&:hover': { borderColor: '#8f5cff' },
+    }),
+    menu: (base) => ({
+      ...base,
+      backgroundColor: document.documentElement.classList.contains('dark') ? '#1f2937' : 'white',
+      borderRadius: '12px',
+    }),
+    option: (base, state) => ({
+      ...base,
+      backgroundColor: state.isFocused 
+        ? (document.documentElement.classList.contains('dark') ? '#374151' : '#f3f4f6')
+        : 'transparent',
+      color: document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#1f2937',
+      '&:hover': {
+        backgroundColor: document.documentElement.classList.contains('dark') ? '#374151' : '#f3f4f6',
+      },
+    }),
+    singleValue: (base) => ({
+      ...base,
+      color: document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#1f2937',
+    }),
+    input: (base) => ({
+      ...base,
+      color: document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#1f2937',
     }),
   };
 
@@ -339,7 +363,7 @@ function MaterialesView({ onNavigate }) {
                   value={busqueda}
                   onChange={(e) => setBusqueda(e.target.value)}
                   placeholder="Buscar por nombre o código..."
-                  className="w-full pl-12 pr-4 py-3 rounded-xl border-2 border-gray-200 focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition"
+                  className="w-full pl-12 pr-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition"
                 />
               </div>
 
@@ -366,7 +390,7 @@ function MaterialesView({ onNavigate }) {
               <select
                 value={ordenamiento}
                 onChange={(e) => setOrdenamiento(e.target.value)}
-                className="px-4 py-3 rounded-xl border-2 border-gray-200 focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] bg-white font-semibold text-gray-700"
+                className="px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] bg-white dark:bg-gray-800 font-semibold text-gray-700 dark:text-gray-300"
               >
                 <option value="nombre-asc">A-Z</option>
                 <option value="nombre-desc">Z-A</option>
@@ -376,16 +400,16 @@ function MaterialesView({ onNavigate }) {
                 <option value="precio-desc">Precio ↓</option>
               </select>
 
-              <div className="flex gap-2 border-2 border-gray-200 rounded-xl p-1 bg-white">
+              <div className="flex gap-2 border-2 border-gray-200 dark:border-gray-700 rounded-xl p-1 bg-white dark:bg-gray-800">
                 <button
                   onClick={() => setVistaActual('grid')}
-                  className={`p-2.5 rounded-lg transition ${vistaActual === 'grid' ? 'bg-[#8f5cff] text-white' : 'text-gray-600 hover:bg-gray-100'}`}
+                  className={`p-2.5 rounded-lg transition ${vistaActual === 'grid' ? 'bg-[#8f5cff] text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
                 >
                   <FaTh />
                 </button>
                 <button
                   onClick={() => setVistaActual('tabla')}
-                  className={`p-2.5 rounded-lg transition ${vistaActual === 'tabla' ? 'bg-[#8f5cff] text-white' : 'text-gray-600 hover:bg-gray-100'}`}
+                  className={`p-2.5 rounded-lg transition ${vistaActual === 'tabla' ? 'bg-[#8f5cff] text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
                 >
                   <FaList />
                 </button>
@@ -412,7 +436,7 @@ function MaterialesView({ onNavigate }) {
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: index * 0.05 }}
                     whileHover={{ y: -8, transition: { duration: 0.2 } }}
-                    className="bg-white rounded-2xl shadow-lg overflow-hidden border-2 border-gray-100 hover:border-[#8f5cff] hover:shadow-2xl transition-all duration-300"
+                    className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden border-2 border-gray-100 dark:border-gray-700 hover:border-[#8f5cff] hover:shadow-2xl transition-all duration-300"
                   >
                     {/* Header con color */}
                     <div 
@@ -437,22 +461,22 @@ function MaterialesView({ onNavigate }) {
 
                     {/* Contenido */}
                     <div className="p-5">
-                      <h3 className="text-lg font-bold text-gray-800 mb-1">{material.nombre}</h3>
-                      <p className="text-sm text-gray-500 mb-4">{material.codigo}</p>
+                      <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-1">{material.nombre}</h3>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">{material.codigo}</p>
 
                       <div className="grid grid-cols-2 gap-3 mb-4">
-                        <div className="bg-gray-50 rounded-xl p-3 text-center">
+                        <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-3 text-center">
                           <p className="text-xs text-gray-500 mb-1">Stock</p>
                           <p className="text-xl font-bold text-[#8f5cff]">{parseFloat(material.cantidad || 0).toFixed(2)}</p>
-                          <p className="text-xs text-gray-400">{material.unidad || 'unidades'}</p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500">{material.unidad || 'unidades'}</p>
                         </div>
-                        <div className="bg-gray-50 rounded-xl p-3 text-center">
-                          <p className="text-xs text-gray-500 mb-1">Precio</p>
+                        <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-3 text-center">
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Precio</p>
                           <p className="text-xl font-bold text-green-600">S/ {parseFloat(material.precio_unitario || 0).toFixed(2)}</p>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2 mb-4 text-sm text-gray-600">
+                      <div className="flex items-center gap-2 mb-4 text-sm text-gray-600 dark:text-gray-400">
                         <FaWarehouse className="text-[#8f5cff]" />
                         <span>{material.ubicacion || 'Sin ubicación'}</span>
                         <span className="mx-2">•</span>
@@ -462,11 +486,11 @@ function MaterialesView({ onNavigate }) {
 
                       {/* Barra de progreso */}
                       <div className="mb-4">
-                        <div className="flex justify-between text-xs text-gray-500 mb-2">
+                        <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-2">
                           <span>Stock vs Mínimo</span>
                           <span>{material.stock_minimo > 0 ? Math.round((parseFloat(material.cantidad || 0) / parseFloat(material.stock_minimo)) * 100) : 100}%</span>
                         </div>
-                        <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                           <motion.div
                             initial={{ width: 0 }}
                             animate={{ width: `${material.stock_minimo > 0 ? Math.min((parseFloat(material.cantidad || 0) / parseFloat(material.stock_minimo)) * 100, 100) : 100}%` }}
@@ -500,7 +524,7 @@ function MaterialesView({ onNavigate }) {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                className="bg-white rounded-2xl shadow-lg overflow-hidden"
+                className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden"
               >
                 <div className="overflow-x-auto">
                   <table className="w-full">
@@ -523,7 +547,7 @@ function MaterialesView({ onNavigate }) {
                           initial={{ opacity: 0, x: -20 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: index * 0.05 }}
-                          className="border-b border-gray-100 hover:bg-purple-50 transition"
+                          className="border-b border-gray-100 dark:border-gray-700 hover:bg-purple-50 dark:hover:bg-gray-700 transition"
                         >
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-3">
@@ -534,8 +558,8 @@ function MaterialesView({ onNavigate }) {
                                 {material.categoria?.icono || '📦'}
                               </div>
                               <div>
-                                <p className="font-semibold text-gray-800">{material.nombre}</p>
-                                <p className="text-sm text-gray-500">{material.codigo}</p>
+                                <p className="font-semibold text-gray-800 dark:text-gray-100">{material.nombre}</p>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">{material.codigo}</p>
                               </div>
                             </div>
                           </td>
@@ -550,12 +574,12 @@ function MaterialesView({ onNavigate }) {
                               <p className="text-xs text-gray-400">{material.unidad || 'unidades'}</p>
                             </div>
                           </td>
-                          <td className="px-6 py-4 text-center text-gray-600">{parseFloat(material.stock_minimo || 0).toFixed(2)}</td>
+                          <td className="px-6 py-4 text-center text-gray-600 dark:text-gray-400">{parseFloat(material.stock_minimo || 0).toFixed(2)}</td>
                           <td className="px-6 py-4 text-center">
-                            <span className="font-semibold text-green-600">S/ {parseFloat(material.precio_unitario || 0).toFixed(2)}</span>
+                            <span className="font-semibold text-green-600 dark:text-green-400">S/ {parseFloat(material.precio_unitario || 0).toFixed(2)}</span>
                           </td>
                           <td className="px-6 py-4 text-center">
-                            <div className="flex items-center justify-center gap-1 text-gray-600">
+                            <div className="flex items-center justify-center gap-1 text-gray-600 dark:text-gray-400">
                               <FaWarehouse className="text-[#8f5cff]" />
                               {material.ubicacion}
                             </div>

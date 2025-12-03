@@ -316,19 +316,19 @@ function AyudaView() {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.5 + index * 0.05 }}
-                className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden border-2 border-gray-100 dark:border-gray-700"
+                className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden border-2 border-gray-200 dark:border-gray-700"
               >
                 <button
                   onClick={() => setExpandedFaq(expandedFaq === faq.id ? null : faq.id)}
-                  className="w-full p-6 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
+                  className="w-full p-6 flex items-center justify-between hover:bg-purple-50 dark:hover:bg-gray-700 transition-all"
                 >
                   <div className="flex items-center gap-4 flex-1 text-left">
                     <span className="text-3xl">{faq.icon}</span>
                     <div className="flex-1">
-                      <h3 className="font-bold text-lg text-gray-800 dark:text-gray-100">
+                      <h3 className="font-bold text-lg text-gray-900 dark:text-white">
                         {faq.pregunta}
                       </h3>
-                      <span className="text-sm text-purple-600 font-semibold">
+                      <span className="text-sm text-purple-600 dark:text-purple-300 font-semibold">
                         {faq.categoria}
                       </span>
                     </div>
@@ -355,7 +355,7 @@ function AyudaView() {
                     >
                       <div className="px-6 pb-6 pt-2">
                         <div className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-gray-700 dark:to-gray-600 rounded-xl p-6 border-l-4 border-purple-500">
-                          <p className="text-gray-700 dark:text-gray-200 leading-relaxed">
+                          <p className="text-gray-900 dark:text-white leading-relaxed font-semibold">
                             {faq.respuesta}
                           </p>
                         </div>
@@ -406,48 +406,6 @@ function AyudaView() {
                 </p>
               </motion.div>
             ))}
-          </div>
-        </motion.div>
-
-        {/* Banner de Inicio Rápido */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.8 }}
-          className="bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 rounded-3xl shadow-2xl overflow-hidden"
-        >
-          <div className="p-8 md:p-12 flex flex-col md:flex-row items-center gap-8">
-            <motion.div
-              animate={{ 
-                rotate: [0, 10, -10, 10, 0],
-                scale: [1, 1.1, 1, 1.1, 1]
-              }}
-              transition={{ 
-                duration: 2, 
-                repeat: Infinity,
-                repeatDelay: 3
-              }}
-              className="text-8xl"
-            >
-              🚀
-            </motion.div>
-            <div className="flex-1">
-              <h2 className="text-4xl font-extrabold text-white mb-4">
-                ¿Necesitas Ayuda Inmediata?
-              </h2>
-              <p className="text-white text-lg opacity-90 mb-6">
-                Nuestro equipo de soporte está disponible 24/7 para resolver todas tus dudas y ayudarte a sacar el máximo provecho de tu sistema de inventario.
-              </p>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => toast.success('Iniciando chat con soporte...', { icon: '💬' })}
-                className="bg-white text-purple-600 px-8 py-4 rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all flex items-center gap-3"
-              >
-                <FaHeadset className="text-2xl" />
-                Iniciar Chat en Vivo
-              </motion.button>
-            </div>
           </div>
         </motion.div>
       </div>

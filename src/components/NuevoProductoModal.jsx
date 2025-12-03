@@ -223,9 +223,15 @@ function NuevoProductoModal({ isOpen, onClose, onSuccess }) {
       borderRadius: '12px',
       borderColor: state.isFocused ? '#8f5cff' : '#e5e7eb',
       borderWidth: '2px',
+      backgroundColor: document.documentElement.classList.contains('dark') ? '#1f2937' : 'white',
       boxShadow: state.isFocused ? '0 0 0 4px rgba(143, 92, 255, 0.1)' : 'none',
       '&:hover': { borderColor: '#8f5cff' },
       transition: 'all 0.2s',
+    }),
+    menu: (base) => ({
+      ...base,
+      backgroundColor: document.documentElement.classList.contains('dark') ? '#1f2937' : 'white',
+      borderRadius: '12px',
     }),
     multiValue: (base) => ({
       ...base,
@@ -247,10 +253,22 @@ function NuevoProductoModal({ isOpen, onClose, onSuccess }) {
     }),
     option: (base, state) => ({
       ...base,
-      backgroundColor: state.isSelected ? '#8f5cff' : state.isFocused ? '#f3f4f6' : 'white',
-      color: state.isSelected ? 'white' : '#374151',
+      backgroundColor: state.isSelected 
+        ? '#8f5cff' 
+        : state.isFocused 
+          ? (document.documentElement.classList.contains('dark') ? '#374151' : '#f3f4f6')
+          : 'transparent',
+      color: state.isSelected ? 'white' : (document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#374151'),
       cursor: 'pointer',
       transition: 'all 0.2s',
+    }),
+    singleValue: (base) => ({
+      ...base,
+      color: document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#1f2937',
+    }),
+    input: (base) => ({
+      ...base,
+      color: document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#1f2937',
     }),
   };
 
@@ -267,7 +285,7 @@ function NuevoProductoModal({ isOpen, onClose, onSuccess }) {
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
         transition={{ duration: 0.3, type: 'spring', stiffness: 300, damping: 30 }}
-        className="bg-white rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
+        className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
       >
         {/* Header Premium */}
         <div className="sticky top-0 bg-gradient-to-br from-[#8f5cff] via-[#7d4eea] to-[#6e7ff3] text-white p-8 relative overflow-hidden z-10">
@@ -301,7 +319,7 @@ function NuevoProductoModal({ isOpen, onClose, onSuccess }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Nombre */}
             <div className="md:col-span-2">
-              <label className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+              <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
                 <FaTshirt className="text-[#8f5cff]" />
                 Nombre del Producto *
               </label>
@@ -309,14 +327,14 @@ function NuevoProductoModal({ isOpen, onClose, onSuccess }) {
                 type="text"
                 value={formData.nombre}
                 onChange={(e) => handleChange('nombre', e.target.value)}
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#8f5cff] focus:ring-4 focus:ring-purple-100 outline-none transition-all"
+                className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl focus:border-[#8f5cff] focus:ring-4 focus:ring-purple-100 outline-none transition-all"
                 placeholder="Ej: Camisa Casual Azul"
               />
             </div>
 
             {/* Categoría */}
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+              <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
                 <FaTag className="text-[#8f5cff]" />
                 Categoría *
               </label>
@@ -341,7 +359,7 @@ function NuevoProductoModal({ isOpen, onClose, onSuccess }) {
 
             {/* Precio */}
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+              <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
                 <FaDollarSign className="text-[#8f5cff]" />
                 Precio de Venta (S/) *
               </label>
@@ -350,14 +368,14 @@ function NuevoProductoModal({ isOpen, onClose, onSuccess }) {
                 step="0.01"
                 value={formData.precio}
                 onChange={(e) => handleChange('precio', e.target.value)}
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#8f5cff] focus:ring-4 focus:ring-purple-100 outline-none transition-all"
+                className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl focus:border-[#8f5cff] focus:ring-4 focus:ring-purple-100 outline-none transition-all"
                 placeholder="0.00"
               />
             </div>
 
             {/* Costo */}
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+              <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
                 <FaDollarSign className="text-orange-500" />
                 Costo (S/)
               </label>
@@ -366,14 +384,14 @@ function NuevoProductoModal({ isOpen, onClose, onSuccess }) {
                 step="0.01"
                 value={formData.costo}
                 onChange={(e) => handleChange('costo', e.target.value)}
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#8f5cff] focus:ring-4 focus:ring-purple-100 outline-none transition-all"
+                className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl focus:border-[#8f5cff] focus:ring-4 focus:ring-purple-100 outline-none transition-all"
                 placeholder="0.00"
               />
             </div>
 
             {/* Stock */}
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+              <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
                 <FaBox className="text-[#8f5cff]" />
                 Stock Inicial *
               </label>
@@ -381,7 +399,7 @@ function NuevoProductoModal({ isOpen, onClose, onSuccess }) {
                 type="number"
                 value={formData.stock}
                 onChange={(e) => handleChange('stock', e.target.value)}
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#8f5cff] focus:ring-4 focus:ring-purple-100 outline-none transition-all"
+                className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl focus:border-[#8f5cff] focus:ring-4 focus:ring-purple-100 outline-none transition-all"
                 placeholder="0"
                 min="0"
               />
@@ -389,7 +407,7 @@ function NuevoProductoModal({ isOpen, onClose, onSuccess }) {
 
             {/* Stock Mínimo */}
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+              <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
                 <FaBox className="text-red-500" />
                 Stock Mínimo
               </label>
@@ -397,7 +415,7 @@ function NuevoProductoModal({ isOpen, onClose, onSuccess }) {
                 type="number"
                 value={formData.stock_minimo}
                 onChange={(e) => handleChange('stock_minimo', e.target.value)}
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#8f5cff] focus:ring-4 focus:ring-purple-100 outline-none transition-all"
+                className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl focus:border-[#8f5cff] focus:ring-4 focus:ring-purple-100 outline-none transition-all"
                 placeholder="5"
                 min="0"
               />
@@ -405,7 +423,7 @@ function NuevoProductoModal({ isOpen, onClose, onSuccess }) {
 
             {/* Tallas */}
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+              <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
                 <FaRuler className="text-[#8f5cff]" />
                 Tallas Disponibles
               </label>
@@ -422,7 +440,7 @@ function NuevoProductoModal({ isOpen, onClose, onSuccess }) {
 
             {/* Colores */}
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+              <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
                 <FaPalette className="text-[#8f5cff]" />
                 Colores Disponibles
               </label>
@@ -445,7 +463,7 @@ function NuevoProductoModal({ isOpen, onClose, onSuccess }) {
               <textarea
                 value={formData.descripcion}
                 onChange={(e) => handleChange('descripcion', e.target.value)}
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#8f5cff] focus:ring-4 focus:ring-purple-100 outline-none transition-all resize-none"
+                className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl focus:border-[#8f5cff] focus:ring-4 focus:ring-purple-100 outline-none transition-all resize-none"
                 rows="3"
                 placeholder="Descripción detallada del producto..."
               />

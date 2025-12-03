@@ -158,16 +158,34 @@ function EditarMaterialModal({ isOpen, onClose, onSubmit, material }) {
       borderRadius: '12px',
       borderColor: state.isFocused ? '#8f5cff' : '#e5e7eb',
       borderWidth: '2px',
+      backgroundColor: document.documentElement.classList.contains('dark') ? '#1f2937' : 'white',
       boxShadow: state.isFocused ? '0 0 0 4px rgba(143, 92, 255, 0.1)' : 'none',
       '&:hover': { borderColor: '#8f5cff' },
       transition: 'all 0.2s',
     }),
+    menu: (base) => ({
+      ...base,
+      backgroundColor: document.documentElement.classList.contains('dark') ? '#1f2937' : 'white',
+      borderRadius: '12px',
+    }),
     option: (base, state) => ({
       ...base,
-      backgroundColor: state.isSelected ? '#8f5cff' : state.isFocused ? '#f3f4f6' : 'white',
-      color: state.isSelected ? 'white' : '#374151',
+      backgroundColor: state.isSelected 
+        ? '#8f5cff' 
+        : state.isFocused 
+          ? (document.documentElement.classList.contains('dark') ? '#374151' : '#f3f4f6')
+          : 'transparent',
+      color: state.isSelected ? 'white' : (document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#374151'),
       cursor: 'pointer',
       transition: 'all 0.2s',
+    }),
+    singleValue: (base) => ({
+      ...base,
+      color: document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#1f2937',
+    }),
+    input: (base) => ({
+      ...base,
+      color: document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#1f2937',
     }),
   };
 
@@ -233,13 +251,13 @@ function EditarMaterialModal({ isOpen, onClose, onSubmit, material }) {
                   <FaCube className="text-white text-xl" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold text-gray-800">Información Básica</h3>
-                  <p className="text-sm text-gray-500">Datos principales del material</p>
+                  <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Información Básica</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Datos principales del material</p>
                 </div>
               </div>
 
               <div className="group">
-                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                   <FaCube className="text-[#f59e42]" />
                   Nombre del material *
                 </label>
@@ -249,7 +267,7 @@ function EditarMaterialModal({ isOpen, onClose, onSubmit, material }) {
                   onChange={(e) => handleChange('nombre', e.target.value)}
                   placeholder="Ej: Hilo blanco premium"
                   disabled={loading}
-                  className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#f59e42] focus:ring-opacity-20 focus:border-[#f59e42] transition-all duration-200 group-hover:border-gray-300 disabled:opacity-50"
+                  className="w-full px-5 py-4 border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#f59e42] focus:ring-opacity-20 focus:border-[#f59e42] transition-all duration-200 group-hover:border-gray-300 dark:group-hover:border-gray-600 disabled:opacity-50"
                 />
               </div>
             </motion.div>
@@ -265,14 +283,14 @@ function EditarMaterialModal({ isOpen, onClose, onSubmit, material }) {
                   <FaTag className="text-white text-xl" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold text-gray-800">Clasificación</h3>
-                  <p className="text-sm text-gray-500">Categoría y tipo</p>
+                  <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Clasificación</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Categoría y tipo</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                     <FaTag className="text-[#f59e42]" />
                     Categoría *
                   </label>
@@ -289,7 +307,7 @@ function EditarMaterialModal({ isOpen, onClose, onSubmit, material }) {
                   />
                 </div>
                 <div className="group">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                     <FaTag className="text-[#f59e42]" />
                     Tipo *
                   </label>
@@ -299,13 +317,13 @@ function EditarMaterialModal({ isOpen, onClose, onSubmit, material }) {
                     onChange={(e) => handleChange('tipo', e.target.value)}
                     placeholder="Ej: Premium, Estándar, Especial"
                     disabled={loading}
-                    className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#f59e42] focus:ring-opacity-20 focus:border-[#f59e42] transition-all duration-200 group-hover:border-gray-300 disabled:opacity-50"
+                    className="w-full px-5 py-4 border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#f59e42] focus:ring-opacity-20 focus:border-[#f59e42] transition-all duration-200 group-hover:border-gray-300 dark:group-hover:border-gray-600 disabled:opacity-50"
                   />
                 </div>
               </div>
 
               <div className="group mt-6">
-                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                   <FaTag className="text-[#f59e42]" />
                   Color
                 </label>
@@ -315,7 +333,7 @@ function EditarMaterialModal({ isOpen, onClose, onSubmit, material }) {
                   onChange={(e) => handleChange('color', e.target.value)}
                   placeholder="Ej: Blanco, Negro, Azul"
                   disabled={loading}
-                  className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#f59e42] focus:ring-opacity-20 focus:border-[#f59e42] transition-all duration-200 group-hover:border-gray-300 disabled:opacity-50"
+                  className="w-full px-5 py-4 border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#f59e42] focus:ring-opacity-20 focus:border-[#f59e42] transition-all duration-200 group-hover:border-gray-300 dark:group-hover:border-gray-600 disabled:opacity-50"
                 />
               </div>
             </motion.div>
@@ -331,14 +349,14 @@ function EditarMaterialModal({ isOpen, onClose, onSubmit, material }) {
                   <FaBoxes className="text-white text-xl" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold text-gray-800">Cantidades</h3>
-                  <p className="text-sm text-gray-500">Stock y niveles mínimos</p>
+                  <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Cantidades</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Stock y niveles mínimos</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="group">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                     <FaBoxes className="text-[#f59e42]" />
                     Cantidad actual *
                   </label>
@@ -350,11 +368,11 @@ function EditarMaterialModal({ isOpen, onClose, onSubmit, material }) {
                     min="0"
                     step="0.01"
                     disabled={loading}
-                    className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#f59e42] focus:ring-opacity-20 focus:border-[#f59e42] transition-all duration-200 group-hover:border-gray-300 disabled:opacity-50"
+                    className="w-full px-5 py-4 border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#f59e42] focus:ring-opacity-20 focus:border-[#f59e42] transition-all duration-200 group-hover:border-gray-300 dark:group-hover:border-gray-600 disabled:opacity-50"
                   />
                 </div>
                 <div>
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                     <FaBoxes className="text-[#f59e42]" />
                     Unidad
                   </label>
@@ -368,7 +386,7 @@ function EditarMaterialModal({ isOpen, onClose, onSubmit, material }) {
                   />
                 </div>
                 <div className="group">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                     <FaBoxes className="text-[#f59e42]" />
                     Stock mínimo
                   </label>
@@ -380,11 +398,11 @@ function EditarMaterialModal({ isOpen, onClose, onSubmit, material }) {
                     min="0"
                     step="0.01"
                     disabled={loading}
-                    className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#f59e42] focus:ring-opacity-20 focus:border-[#f59e42] transition-all duration-200 group-hover:border-gray-300 disabled:opacity-50"
+                    className="w-full px-5 py-4 border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#f59e42] focus:ring-opacity-20 focus:border-[#f59e42] transition-all duration-200 group-hover:border-gray-300 dark:group-hover:border-gray-600 disabled:opacity-50"
                   />
                 </div>
                 <div className="group">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                     <FaTag className="text-[#f59e42]" />
                     Precio unitario
                   </label>
@@ -396,7 +414,7 @@ function EditarMaterialModal({ isOpen, onClose, onSubmit, material }) {
                     min="0"
                     step="0.01"
                     disabled={loading}
-                    className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#f59e42] focus:ring-opacity-20 focus:border-[#f59e42] transition-all duration-200 group-hover:border-gray-300 disabled:opacity-50"
+                    className="w-full px-5 py-4 border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#f59e42] focus:ring-opacity-20 focus:border-[#f59e42] transition-all duration-200 group-hover:border-gray-300 dark:group-hover:border-gray-600 disabled:opacity-50"
                   />
                 </div>
               </div>
@@ -413,14 +431,14 @@ function EditarMaterialModal({ isOpen, onClose, onSubmit, material }) {
                   <FaWarehouse className="text-white text-xl" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold text-gray-800">Almacenamiento</h3>
-                  <p className="text-sm text-gray-500">Ubicación y proveedor</p>
+                  <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Almacenamiento</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Ubicación y proveedor</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="group">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                     <FaWarehouse className="text-[#f59e42]" />
                     Ubicación en almacén
                   </label>
@@ -429,11 +447,11 @@ function EditarMaterialModal({ isOpen, onClose, onSubmit, material }) {
                     value={formData.ubicacion}
                     onChange={(e) => handleChange('ubicacion', e.target.value)}
                     placeholder="Ej: Estante A-3"
-                    className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#f59e42] focus:ring-opacity-20 focus:border-[#f59e42] transition-all duration-200 group-hover:border-gray-300"
+                    className="w-full px-5 py-4 border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#f59e42] focus:ring-opacity-20 focus:border-[#f59e42] transition-all duration-200 group-hover:border-gray-300 dark:group-hover:border-gray-600"
                   />
                 </div>
                 <div className="group">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                     <FaTag className="text-[#f59e42]" />
                     Proveedor
                   </label>
@@ -442,13 +460,13 @@ function EditarMaterialModal({ isOpen, onClose, onSubmit, material }) {
                     value={formData.proveedor}
                     onChange={(e) => handleChange('proveedor', e.target.value)}
                     placeholder="Ej: Textiles SA"
-                    className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#f59e42] focus:ring-opacity-20 focus:border-[#f59e42] transition-all duration-200 group-hover:border-gray-300"
+                    className="w-full px-5 py-4 border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#f59e42] focus:ring-opacity-20 focus:border-[#f59e42] transition-all duration-200 group-hover:border-gray-300 dark:group-hover:border-gray-600"
                   />
                 </div>
               </div>
 
               <div className="group mt-6">
-                <label className="text-sm font-semibold text-gray-700 mb-3 block">
+                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 block">
                   Notas adicionales
                 </label>
                 <textarea
@@ -456,13 +474,13 @@ function EditarMaterialModal({ isOpen, onClose, onSubmit, material }) {
                   onChange={(e) => handleChange('notas', e.target.value)}
                   placeholder="Observaciones, instrucciones especiales, etc."
                   rows={3}
-                  className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#f59e42] focus:ring-opacity-20 focus:border-[#f59e42] transition-all duration-200 resize-none group-hover:border-gray-300"
+                  className="w-full px-5 py-4 border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#f59e42] focus:ring-opacity-20 focus:border-[#f59e42] transition-all duration-200 resize-none group-hover:border-gray-300 dark:group-hover:border-gray-600"
                 />
               </div>
             </motion.div>
 
             {/* Buttons */}
-            <div className="flex gap-4 pt-6 border-t-2 border-gray-100">
+            <div className="flex gap-4 pt-6 border-t-2 border-gray-100 dark:border-gray-700">
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
