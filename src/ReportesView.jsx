@@ -20,7 +20,6 @@ import {
   obtenerCostosMensuales,
   obtenerRentabilidadMensual
 } from './services/reportesService';
-import Sidebar from './components/Sidebar';
 
 function ReportesView({ onNavigate }) {
   const [tipoReporte, setTipoReporte] = useState('ventas');
@@ -735,11 +734,8 @@ function ReportesView({ onNavigate }) {
   const tendencia = calcularTendencia(ventasMensuales);
 
   return (
-    <div className="flex fixed inset-0 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+    <div className="flex-1 flex flex-col overflow-y-auto bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <Toaster position="top-right" />
-      <Sidebar onNavigate={onNavigate} activeView={'reportes'} />
-      
-      <div className="flex-1 flex flex-col overflow-y-auto">
       {/* Topbar */}
       <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-8 py-6 shadow-sm sticky top-0 z-10">
         <div className="flex items-center justify-between mb-4">
@@ -1904,7 +1900,6 @@ function ReportesView({ onNavigate }) {
           </div>
         )}
       </main>
-      </div>
     </div>
   );
 }

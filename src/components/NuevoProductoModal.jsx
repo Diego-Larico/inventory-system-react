@@ -177,6 +177,9 @@ function NuevoProductoModal({ isOpen, onClose, onSuccess }) {
           `Código: ${resultado.data?.codigo || formData.codigo}`
         );
         
+        // Notificar al Sidebar para actualizar el badge
+        window.dispatchEvent(new Event('productosActualizados'));
+        
         handleClose();
         if (onSuccess) onSuccess(resultado.data);
       } else {

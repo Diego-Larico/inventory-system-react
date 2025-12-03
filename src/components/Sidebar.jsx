@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FaHome, 
@@ -16,10 +16,72 @@ import {
   FaBolt
 } from 'react-icons/fa';
 import WeatherWidget from './WeatherWidget';
+import { obtenerMateriales } from '../services/materialesService';
+import { obtenerProductos } from '../services/productosService';
+import { obtenerPedidos } from '../services/pedidosService';
 
 function Sidebar({ onNavigate, activeView }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [hoveredItem, setHoveredItem] = useState(null);
+  const [counts, setCounts] = useState({
+    materiales: 0,
+    productos: 0,
+    pedidos: 0
+  });
+
+  // Cargar conteos desde la base de datos
+  useEffect(() => {
+    const cargarConteos = async () => {
+      try {
+        const [materialesResponse, productosData, pedidosResponse] = await Promise.all([
+          obtenerMateriales(),
+          obtenerProductos(),
+          obtenerPedidos()
+        ]);
+
+        // Extraer datos correctamente según el formato de respuesta
+        const materialesCount = materialesResponse?.success ? materialesResponse.data.length : 0;
+        const productosCount = Array.isArray(productosData) ? productosData.length : 0;
+        const pedidosCount = pedidosResponse?.success ? pedidosResponse.data.length : 0;
+
+        setCounts({
+          materiales: materialesCount,
+          productos: productosCount,
+          pedidos: pedidosCount
+        });
+
+        console.log('📊 Conteos actualizados:', { 
+          materiales: materialesCount, 
+          productos: productosCount, 
+          pedidos: pedidosCount 
+        });
+      } catch (error) {
+        console.error('Error al cargar conteos:', error);
+      }
+    };
+
+    cargarConteos();
+    
+    // Escuchar eventos personalizados de actualización
+    const handleActualizacion = () => {
+      console.log('🔄 Evento de actualización detectado, recargando conteos...');
+      cargarConteos();
+    };
+
+    window.addEventListener('materialesActualizados', handleActualizacion);
+    window.addEventListener('productosActualizados', handleActualizacion);
+    window.addEventListener('pedidosActualizados', handleActualizacion);
+    
+    // Recargar cada 30 segundos (backup)
+    const interval = setInterval(cargarConteos, 30000);
+    
+    return () => {
+      window.removeEventListener('materialesActualizados', handleActualizacion);
+      window.removeEventListener('productosActualizados', handleActualizacion);
+      window.removeEventListener('pedidosActualizados', handleActualizacion);
+      clearInterval(interval);
+    };
+  }, []);
 
   const menuItems = [
     { 
@@ -34,22 +96,22 @@ function Sidebar({ onNavigate, activeView }) {
       label: 'Materiales', 
       icon: FaBox, 
       color: 'from-blue-500 to-cyan-500',
-      badge: '120'
+      badge: counts.materiales > 0 ? counts.materiales.toString() : null
     },
     { 
       id: 'productos', 
       label: 'Productos', 
       icon: FaTshirt, 
       color: 'from-green-500 to-emerald-500',
-      badge: '310'
+      badge: counts.productos > 0 ? counts.productos.toString() : null
     },
     { 
       id: 'pedidos', 
       label: 'Pedidos', 
       icon: FaShoppingCart, 
       color: 'from-orange-500 to-red-500',
-      badge: '8',
-      notification: true
+      badge: counts.pedidos > 0 ? counts.pedidos.toString() : null,
+      notification: counts.pedidos > 0
     },
     { 
       id: 'reportes', 
@@ -154,20 +216,65 @@ function Sidebar({ onNavigate, activeView }) {
       className="bg-gradient-to-b from-[#1e1e2e] to-[#2d2d44] h-screen flex flex-col shadow-2xl relative overflow-hidden"
     >
       {/* Animated Background Pattern */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute top-0 left-0 w-40 h-40 bg-purple-500 rounded-full filter blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-0 right-0 w-40 h-40 bg-blue-500 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+      <div className="absolute inset-0 opacity-5 overflow-hidden">
+        <motion.div 
+          className="absolute top-0 left-0 w-40 h-40 bg-purple-500 rounded-full filter blur-3xl"
+          animate={{ 
+            scale: [1, 1.2, 1],
+            opacity: [0.3, 0.5, 0.3],
+            x: [0, 20, 0],
+            y: [0, -20, 0]
+          }}
+          transition={{ 
+            duration: 8,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+        <motion.div 
+          className="absolute bottom-0 right-0 w-40 h-40 bg-blue-500 rounded-full filter blur-3xl"
+          animate={{ 
+            scale: [1, 1.3, 1],
+            opacity: [0.3, 0.6, 0.3],
+            x: [0, -20, 0],
+            y: [0, 20, 0]
+          }}
+          transition={{ 
+            duration: 10,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 1
+          }}
+        />
+        <motion.div 
+          className="absolute top-1/2 left-1/2 w-32 h-32 bg-pink-500 rounded-full filter blur-3xl"
+          animate={{ 
+            scale: [1, 1.5, 1],
+            opacity: [0.2, 0.4, 0.2],
+            rotate: [0, 180, 360]
+          }}
+          transition={{ 
+            duration: 15,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+        />
       </div>
 
       {/* Header with Logo */}
       <div className="relative z-10 p-6 flex items-center justify-between border-b border-gray-700/50">
         <motion.div 
           className="flex items-center gap-3"
-          whileHover={{ scale: 1.02 }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
         >
-          <div className="w-10 h-10 bg-gradient-to-br from-[#8f5cff] to-[#6e7ff3] rounded-xl flex items-center justify-center shadow-lg">
+          <motion.div 
+            className="w-10 h-10 bg-gradient-to-br from-[#8f5cff] to-[#6e7ff3] rounded-xl flex items-center justify-center shadow-lg"
+            whileHover={{ rotate: 360 }}
+            transition={{ duration: 0.6 }}
+          >
             <FaBolt className="text-white text-xl" />
-          </div>
+          </motion.div>
           <AnimatePresence>
             {!isCollapsed && (
               <motion.div
@@ -184,12 +291,17 @@ function Sidebar({ onNavigate, activeView }) {
         </motion.div>
         
         <motion.button
-          whileHover={{ scale: 1.1, rotate: 180 }}
-          whileTap={{ scale: 0.9 }}
+          whileHover={{ scale: 1.15, rotate: 90 }}
+          whileTap={{ scale: 0.85, rotate: -90 }}
           onClick={() => setIsCollapsed(!isCollapsed)}
           className="text-gray-400 hover:text-white transition-colors p-2 rounded-lg hover:bg-white/10"
         >
-          {isCollapsed ? <FaBars size={20} /> : <FaTimes size={20} />}
+          <motion.div
+            animate={{ rotate: isCollapsed ? 0 : 180 }}
+            transition={{ duration: 0.3 }}
+          >
+            {isCollapsed ? <FaBars size={20} /> : <FaTimes size={20} />}
+          </motion.div>
         </motion.button>
       </div>
 
@@ -210,8 +322,8 @@ function Sidebar({ onNavigate, activeView }) {
                 onMouseLeave={() => setHoveredItem(null)}
               >
                 <motion.button
-                  whileHover={{ x: 5 }}
-                  whileTap={{ scale: 0.98 }}
+                  whileHover={{ x: 5, scale: 1.02 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={() => handleItemClick(item.id)}
                   className={`w-full group relative flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-300 ${
                     isActive 
@@ -223,14 +335,19 @@ function Sidebar({ onNavigate, activeView }) {
                   {isActive && (
                     <motion.div
                       layoutId="activeTab"
-                      className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-white rounded-r-full"
+                      initial={{ opacity: 1, scale: 1 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="absolute left-0 top-1/5 -translate-y-1/2 w-1 h-8 bg-white rounded-r-full"
                       transition={{ type: "spring", stiffness: 300, damping: 30 }}
                     />
                   )}
 
                   {/* Icon with gradient on hover */}
-                  <div className={`relative z-10 ${isActive ? 'text-white' : ''}`}>
-                    <Icon className={`text-xl transition-transform group-hover:scale-110 ${
+                  <motion.div 
+                    className={`relative z-10 ${isActive ? 'text-white' : ''}`}
+                    whileHover={{ rotate: [0, -10, 10, -10, 0], transition: { duration: 0.5 } }}
+                  >
+                    <Icon className={`text-xl transition-all duration-300 group-hover:scale-125 ${
                       isActive ? 'drop-shadow-lg' : ''
                     }`} />
                     {item.notification && !isCollapsed && (
@@ -242,7 +359,7 @@ function Sidebar({ onNavigate, activeView }) {
                         <span className="absolute inset-0 bg-red-500 rounded-full animate-ping"></span>
                       </motion.div>
                     )}
-                  </div>
+                  </motion.div>
 
                   {/* Label */}
                   <AnimatePresence>
@@ -263,9 +380,16 @@ function Sidebar({ onNavigate, activeView }) {
                   {/* Badge */}
                   {!isCollapsed && item.badge && (
                     <motion.span
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                      key={item.badge}
+                      initial={{ scale: 0, rotate: -180 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{ 
+                        type: "spring", 
+                        stiffness: 400, 
+                        damping: 15 
+                      }}
+                      whileHover={{ scale: 1.15 }}
+                      className={`px-2.5 py-0.5 rounded-full text-xs font-bold shadow-lg ${
                         isActive 
                           ? 'bg-white/20 text-white' 
                           : 'bg-purple-500/20 text-purple-300 group-hover:bg-purple-500/30'
@@ -366,14 +490,29 @@ function Sidebar({ onNavigate, activeView }) {
         className="relative z-10 p-4 border-t border-gray-700/50"
       >
         <motion.div
-          whileHover={{ scale: 1.02 }}
+          whileHover={{ scale: 1.03, y: -2 }}
+          whileTap={{ scale: 0.98 }}
           className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-all cursor-pointer group"
         >
           <div className="relative">
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold shadow-lg">
+            <motion.div 
+              className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold shadow-lg"
+              whileHover={{ rotate: [0, -5, 5, -5, 0] }}
+              transition={{ duration: 0.5 }}
+            >
               DL
-            </div>
-            <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-[#1e1e2e]"></div>
+            </motion.div>
+            <motion.div 
+              className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-[#1e1e2e]"
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              <motion.span 
+                className="absolute inset-0 bg-green-500 rounded-full"
+                animate={{ scale: [1, 1.5, 2], opacity: [0.8, 0.4, 0] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              />
+            </motion.div>
           </div>
           
           <AnimatePresence>

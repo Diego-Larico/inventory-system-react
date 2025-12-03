@@ -1,6 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Sidebar from './components/Sidebar';
 import { 
   obtenerMateriales, 
   eliminarMaterial, 
@@ -170,6 +169,8 @@ function MaterialesView({ onNavigate }) {
       toast.success('Material eliminado exitosamente');
       await cargarMateriales();
       await cargarEstadisticas();
+      // Notificar al Sidebar para actualizar el badge
+      window.dispatchEvent(new Event('materialesActualizados'));
     } else {
       toast.error('Error al eliminar: ' + resultado.error);
     }
@@ -185,6 +186,8 @@ function MaterialesView({ onNavigate }) {
     setMaterialSeleccionado(null);
     await cargarMateriales();
     await cargarEstadisticas();
+    // Notificar al Sidebar para actualizar el badge
+    window.dispatchEvent(new Event('materialesActualizados'));
   };
 
   const exportarExcel = () => {
@@ -206,11 +209,8 @@ function MaterialesView({ onNavigate }) {
   };
 
   return (
-    <div className="flex fixed inset-0 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+    <div className="flex-1 flex flex-col min-h-0 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <Toaster position="top-right" />
-      <Sidebar onNavigate={onNavigate} activeView={'materiales'} />
-      
-      <div className="flex-1 flex flex-col min-h-0">
         {/* Header Premium */}
         <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
           <div className="px-8 py-6">
@@ -612,7 +612,6 @@ function MaterialesView({ onNavigate }) {
             </motion.div>
           )}
         </main>
-      </div>
 
       {/* Modales */}
       <NuevoMaterialModal

@@ -313,6 +313,9 @@ function NuevoPedidoModal({ isOpen, onClose, onSubmit }) {
           `Pedido registrado con éxito en el sistema`
         );
         
+        // Notificar al Sidebar para actualizar el badge
+        window.dispatchEvent(new Event('pedidosActualizados'));
+        
         if (onSubmit) {
           onSubmit(resultado.data);
         }

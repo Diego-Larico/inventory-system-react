@@ -1,6 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Sidebar from './components/Sidebar';
 import { 
   FaPlus, FaEdit, FaSearch, FaShoppingBag, FaTshirt, FaBox, 
   FaFilter, FaDownload, FaTh, FaList, FaImage, FaStar, FaTag,
@@ -153,25 +152,20 @@ function ProductosView({ onNavigate }) {
 
   if (loading) {
     return (
-      <div className="flex fixed inset-0 bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
         <Toaster position="top-right" />
-        <Sidebar onNavigate={onNavigate} activeView={'productos'} />
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <div className="w-16 h-16 border-4 border-[#8f5cff] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-gray-600 font-semibold">Cargando productos...</p>
-          </div>
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-[#8f5cff] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600 font-semibold">Cargando productos...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex fixed inset-0 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      <Toaster position="top-right" />
-      <Sidebar onNavigate={onNavigate} activeView={'productos'} />
-      
-      <div className="flex-1 flex flex-col min-h-0">
+    <>
+      <div className="flex-1 flex flex-col min-h-0 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+        <Toaster position="top-right" />
         {/* Header Premium */}
         <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
           <div className="px-8 py-6">
@@ -776,7 +770,7 @@ function ProductosView({ onNavigate }) {
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </>
   );
 }
 

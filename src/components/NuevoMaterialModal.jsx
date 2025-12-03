@@ -122,6 +122,9 @@ function NuevoMaterialModal({ isOpen, onClose, onSubmit }) {
           `Material "${formData.nombre}" registrado en el inventario`
         );
         
+        // Notificar al Sidebar para actualizar el badge
+        window.dispatchEvent(new Event('materialesActualizados'));
+        
         if (onSubmit) {
           onSubmit(resultado.data);
         }
