@@ -205,6 +205,22 @@ export async function buscarProductos(termino) {
   }
 }
 
+// Obtener categorías de productos
+export async function obtenerCategoriasProductos() {
+  try {
+    const { data, error } = await supabase
+      .from('categorias_productos')
+      .select('*')
+      .order('nombre');
+
+    if (error) throw error;
+    return { success: true, data: data || [] };
+  } catch (error) {
+    console.error('Error al obtener categorías de productos:', error);
+    return { success: false, data: [], error: error.message };
+  }
+}
+
 // Subir imagen a Supabase Storage (opcional)
 export async function subirImagenProducto(file, productoId) {
   try {

@@ -5,7 +5,7 @@ import Select from 'react-select';
 import Dropzone from 'react-dropzone';
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
-import { actualizarProducto } from '../services/productosService';
+import { actualizarProducto, obtenerCategoriasProductos } from '../services/productosService';
 import { confirmarGuardar, confirmarDescartarCambios, mostrarExito, mostrarError } from '../utils/confirmationModals';
 
 Modal.setAppElement('#root');
@@ -27,17 +27,65 @@ function EditarProductoModal({ isOpen, onClose, onSubmit, producto }) {
 
   const [loading, setLoading] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
+  const [categorias, setCategorias] = useState([]);
+  const [loadingCategorias, setLoadingCategorias] = useState(true);
 
+  // Cargar categorías al abrir el modal
+  useEffect(() => {
+    const cargarCategorias = async () => {
+      setLoadingCategorias(true);
+      const resultado = await obtenerCategoriasProductos();
+      if (resultado.success) {
+        setCategorias(resultado.data);
+      } else {
+        toast.error('Error al cargar categorías');
+      }
+      setLoadingCategorias(false);
+    };
+
+    if (isOpen) {
+      cargarCategorias();
+    }
+  }, [isOpen]);
+
+  // Cargar datos del producto
   useEffect(() => {
     if (producto && isOpen) {
+      // Convertir arrays de tallas y colores a formato react-select
+      const tallasFormateadas = Array.isArray(producto.tallas) 
+        ? producto.tallas.map(t => ({ value: t, label: t }))
+        : [];
+      
+      const coloresFormateados = Array.isArray(producto.colores)
+        ? producto.colores.map(c => ({ value: c, label: c }))
+        : [];
+
+      // Manejar la categoría usando categoria_id
+      let categoriaFormateada = null;
+      if (producto.categoria_id) {
+        // Si tenemos el objeto categoria del join
+        if (producto.categoria && typeof producto.categoria === 'object') {
+          categoriaFormateada = { 
+            value: producto.categoria_id, 
+            label: producto.categoria.nombre 
+          };
+        } else {
+          // Solo tenemos el ID, buscar en categorías cargadas
+          const catEncontrada = categorias.find(c => c.id === producto.categoria_id);
+          if (catEncontrada) {
+            categoriaFormateada = { value: catEncontrada.id, label: catEncontrada.nombre };
+          }
+        }
+      }
+
       setFormData({
         nombre: producto.nombre || '',
-        categoria: producto.categoria ? { value: producto.categoria, label: `👕 ${producto.categoria}` } : null,
+        categoria: categoriaFormateada,
         precio: producto.precio?.toString() || '',
         costo: producto.costo?.toString() || '',
         stock: producto.stock?.toString() || '',
-        tallas: producto.tallas || [],
-        colores: producto.colores || [],
+        tallas: tallasFormateadas,
+        colores: coloresFormateados,
         materiales: producto.materiales || [],
         descripcion: producto.descripcion || '',
         imagen: null,
@@ -47,16 +95,11 @@ function EditarProductoModal({ isOpen, onClose, onSubmit, producto }) {
     }
   }, [producto, isOpen]);
 
-  const categoriaOptions = [
-    { value: 'Polo', label: '👕 Polo' },
-    { value: 'Pantalón', label: '👖 Pantalón' },
-    { value: 'Vestido', label: '👗 Vestido' },
-    { value: 'Chaqueta', label: '🧥 Chaqueta' },
-    { value: 'Falda', label: '👗 Falda' },
-    { value: 'Camisa', label: '👔 Camisa' },
-    { value: 'Short', label: '🩳 Short' },
-    { value: 'Accesorio', label: '👜 Accesorio' },
-  ];
+  // Convertir categorías de base de datos a opciones de react-select
+  const categoriaOptions = categorias.map(cat => ({
+    value: cat.id, // Usar el ID como value
+    label: cat.nombre // Usar el nombre como label
+  }));
 
   const tallasOptions = [
     { value: 'XS', label: 'XS' },
@@ -130,13 +173,12 @@ function EditarProductoModal({ isOpen, onClose, onSubmit, producto }) {
     // Preparar datos para Supabase
     const productoData = {
       nombre: formData.nombre,
-      categoria: formData.categoria.value,
+      categoria_id: formData.categoria.value, // Usar categoria_id, no categoria
       precio: parseFloat(formData.precio),
       costo: parseFloat(formData.costo) || 0,
       stock: parseInt(formData.stock) || 0,
       tallas: formData.tallas.map(t => t.value),
       colores: formData.colores.map(c => c.value),
-      materiales: formData.materiales.map(m => m.value),
       descripcion: formData.descripcion,
       // La imagen se manejará después si es necesario
     };
