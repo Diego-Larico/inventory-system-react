@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FaPlus, FaEdit, FaSearch, FaShoppingBag, FaTshirt, FaBox, 
-  FaFilter, FaDownload, FaTh, FaList, FaImage, FaStar, FaTag,
+  FaFilter, FaDownload, FaTh, FaList, FaImage, FaTag,
   FaHeart, FaEye, FaChartLine, FaLayerGroup, FaCubes, FaBoxes, FaTrash
 } from 'react-icons/fa';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
@@ -581,7 +581,6 @@ function ProductosView({ onNavigate }) {
                         <th className="px-6 py-4 text-center font-semibold">Precio</th>
                         <th className="px-6 py-4 text-center font-semibold">Stock</th>
                         <th className="px-6 py-4 text-center font-semibold">Ventas</th>
-                        <th className="px-6 py-4 text-center font-semibold">Rating</th>
                         <th className="px-6 py-4 text-center font-semibold">Estado</th>
                         <th className="px-6 py-4 text-center font-semibold">Acciones</th>
                       </tr>
@@ -619,13 +618,7 @@ function ProductosView({ onNavigate }) {
                           <td className="px-6 py-4 text-center">
                             <span className="text-lg font-bold text-[#8f5cff]">{producto.stock}</span>
                           </td>
-                          <td className="px-6 py-4 text-center text-gray-600">{producto.ventas || 0}</td>
-                          <td className="px-6 py-4 text-center">
-                            <div className="flex items-center justify-center gap-1">
-                              <FaStar className="text-yellow-400" />
-                              <span className="font-semibold">{producto.rating || 'N/A'}</span>
-                            </div>
-                          </td>
+                          <td className="px-6 py-4 text-center text-gray-600 dark:text-gray-400">{producto.ventas || 0}</td>
                           <td className="px-6 py-4 text-center">
                             {producto.estado === 'Disponible' ? (
                               <span className="px-3 py-1 bg-green-100 text-green-700 rounded-lg text-sm font-semibold">
