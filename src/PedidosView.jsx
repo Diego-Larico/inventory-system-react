@@ -21,6 +21,7 @@ import {
   obtenerPedidosPorSemana,
   obtenerIngresosMensuales,
 } from './services/pedidosService';
+import { confirmarEliminar, mostrarExito } from './utils/confirmationModals';
 
 function PedidosView({ onNavigate }) {
   const [busqueda, setBusqueda] = useState('');
@@ -284,14 +285,18 @@ function PedidosView({ onNavigate }) {
   }
 
   async function handleEliminarPedido(pedidoId) {
-    if (!window.confirm('¿Estás seguro de eliminar este pedido?')) {
-      return;
-    }
+    // Buscar el pedido para obtener su número/nombre
+    const pedido = pedidos.find(p => p.id === pedidoId);
+    const nombrePedido = pedido ? pedido.numero_pedido : 'este pedido';
+
+    // Mostrar modal de confirmación
+    const confirmado = await confirmarEliminar(nombrePedido, 'Pedido');
+    if (!confirmado) return;
 
     try {
       const resultado = await eliminarPedido(pedidoId);
       if (resultado.success) {
-        toast.success('Pedido eliminado correctamente');
+        await mostrarExito('Pedido eliminado', `El pedido ${nombrePedido} ha sido eliminado correctamente`);
         await cargarPedidos();
         await cargarEstadisticas();
         // Notificar al Sidebar para actualizar el badge
@@ -300,7 +305,7 @@ function PedidosView({ onNavigate }) {
           handleCerrarModal();
         }
       } else {
-        toast.error('Error al eliminar pedido');
+        toast.error('Error al eliminar pedido: ' + resultado.error);
       }
     } catch (error) {
       console.error('Error al eliminar pedido:', error);

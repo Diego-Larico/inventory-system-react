@@ -19,7 +19,7 @@ import * as XLSX from 'xlsx';
 import NuevoMaterialModal from './components/NuevoMaterialModal';
 import EditarMaterialModal from './components/EditarMaterialModal';
 import toast, { Toaster } from 'react-hot-toast';
-import { confirmarEliminar } from './utils/confirmationModals';
+import { confirmarEliminar, mostrarExito } from './utils/confirmationModals';
 
 function MaterialesView({ onNavigate }) {
   const [showNuevoMaterialModal, setShowNuevoMaterialModal] = useState(false);
@@ -166,7 +166,7 @@ function MaterialesView({ onNavigate }) {
     
     const resultado = await eliminarMaterial(material.id);
     if (resultado.success) {
-      toast.success('Material eliminado exitosamente');
+      await mostrarExito('Material eliminado', `El material "${material.nombre}" ha sido eliminado correctamente`);
       await cargarMateriales();
       await cargarEstadisticas();
       // Notificar al Sidebar para actualizar el badge
