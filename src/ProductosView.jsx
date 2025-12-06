@@ -451,9 +451,6 @@ function ProductosView({ onNavigate }) {
                           <FaEye className="text-lg" />
                         </button>
                       </div>
-                      <div className="absolute bottom-3 right-3 bg-yellow-400 text-gray-800 px-2 py-1 rounded-lg flex items-center gap-1 font-bold text-sm">
-                        <FaStar /> {producto.rating || 'N/A'}
-                      </div>
                     </div>
 
                     {/* Contenido */}
@@ -560,8 +557,6 @@ function ProductosView({ onNavigate }) {
                         <h3 className="text-lg font-bold mb-1">{producto.nombre}</h3>
                         <p className="text-sm mb-2">S/ {producto.precio}</p>
                         <div className="flex items-center gap-2">
-                          <FaStar className="text-yellow-400" />
-                          <span className="text-sm">{producto.rating || 'N/A'}</span>
                           <span className="text-sm opacity-75">• Stock: {producto.stock}</span>
                         </div>
                       </div>
@@ -748,10 +743,6 @@ function ProductosView({ onNavigate }) {
                     <span className="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 rounded-lg text-sm font-semibold">
                       {productoSeleccionado.categoria}
                     </span>
-                    <div className="flex items-center gap-2 bg-yellow-100 px-3 py-1 rounded-lg">
-                      <FaStar className="text-yellow-500" />
-                      <span className="font-bold text-gray-800">{productoSeleccionado.rating || 'N/A'}</span>
-                    </div>
                   </div>
 
                   <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">{productoSeleccionado.nombre}</h2>

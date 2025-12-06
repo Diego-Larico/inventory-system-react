@@ -415,10 +415,10 @@ function PedidosView({ onNavigate }) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="bg-white rounded-2xl p-6 shadow-lg flex flex-col items-center text-center"
+              className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg flex flex-col items-center text-center"
             >
               <FaShippingFast className="text-blue-500 text-3xl mb-2" />
-              <span className="text-lg font-semibold text-gray-700">En Proceso</span>
+              <span className="text-lg font-semibold text-gray-700 dark:text-gray-300">En Proceso</span>
               <span className="text-3xl font-bold text-blue-500">{enProceso}</span>
             </motion.div>
             
@@ -426,10 +426,10 @@ function PedidosView({ onNavigate }) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="bg-white rounded-2xl p-6 shadow-lg flex flex-col items-center text-center"
+              className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg flex flex-col items-center text-center"
             >
               <FaCheckCircle className="text-green-500 text-3xl mb-2" />
-              <span className="text-lg font-semibold text-gray-700">Completados</span>
+              <span className="text-lg font-semibold text-gray-700 dark:text-gray-300">Completados</span>
               <span className="text-3xl font-bold text-green-500">{completados}</span>
             </motion.div>
             
@@ -437,10 +437,10 @@ function PedidosView({ onNavigate }) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="bg-white rounded-2xl p-6 shadow-lg flex flex-col items-center text-center"
+              className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg flex flex-col items-center text-center"
             >
               <FaTimesCircle className="text-red-500 text-3xl mb-2" />
-              <span className="text-lg font-semibold text-gray-700">Cancelados</span>
+              <span className="text-lg font-semibold text-gray-700 dark:text-gray-300">Cancelados</span>
               <span className="text-3xl font-bold text-red-500">{cancelados}</span>
             </motion.div>
             
@@ -459,7 +459,7 @@ function PedidosView({ onNavigate }) {
           <section className="mb-8 grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Gráfico de distribución por estado */}
             <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
-              <h3 className="text-lg font-semibold mb-4 text-[#8f5cff]">Distribución por Estado</h3>
+              <h3 className="text-lg font-semibold mb-4 text-[#8f5cff] dark:text-[#a78bfa]">Distribución por Estado</h3>
               <div className="w-full h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
@@ -483,8 +483,8 @@ function PedidosView({ onNavigate }) {
             </div>
 
             {/* Gráfico de pedidos por semana */}
-            <div className="bg-white rounded-2xl p-6 shadow-lg">
-              <h3 className="text-lg font-semibold mb-4 text-[#8f5cff]">Pedidos esta Semana</h3>
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+              <h3 className="text-lg font-semibold mb-4 text-[#8f5cff] dark:text-[#a78bfa]">Pedidos esta Semana</h3>
               <div className="w-full h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={dataPorSemana}>
@@ -499,8 +499,8 @@ function PedidosView({ onNavigate }) {
             </div>
 
             {/* Gráfico de ingresos */}
-            <div className="bg-white rounded-2xl p-6 shadow-lg">
-              <h3 className="text-lg font-semibold mb-4 text-[#8f5cff]">Ingresos Mensuales</h3>
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+              <h3 className="text-lg font-semibold mb-4 text-[#8f5cff] dark:text-[#a78bfa]">Ingresos Mensuales</h3>
               <div className="w-full h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={dataIngresos}>
@@ -518,8 +518,8 @@ function PedidosView({ onNavigate }) {
           {/* Filtros y búsqueda */}
           <section className="mb-6 bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
             <div className="flex items-center gap-2 mb-4">
-              <FaFilter className="text-[#8f5cff]" />
-              <h3 className="text-lg font-semibold text-[#8f5cff]">Filtros de Búsqueda</h3>
+              <FaFilter className="text-[#8f5cff] dark:text-[#a78bfa]" />
+              <h3 className="text-lg font-semibold text-[#8f5cff] dark:text-[#a78bfa]">Filtros de Búsqueda</h3>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
               <div className="flex items-center gap-2">
@@ -572,7 +572,7 @@ function PedidosView({ onNavigate }) {
               className={`px-4 py-2 rounded-lg font-semibold transition ${
                 vistaActual === 'lista' 
                   ? 'bg-[#8f5cff] text-white' 
-                  : 'bg-white text-[#8f5cff] border border-[#8f5cff]'
+                  : 'bg-white dark:bg-gray-800 text-[#8f5cff] dark:text-[#a78bfa] border border-[#8f5cff] dark:border-[#a78bfa]'
               }`}
             >
               Vista Lista
@@ -582,7 +582,7 @@ function PedidosView({ onNavigate }) {
               className={`px-4 py-2 rounded-lg font-semibold transition ${
                 vistaActual === 'kanban' 
                   ? 'bg-[#8f5cff] text-white' 
-                  : 'bg-white text-[#8f5cff] border border-[#8f5cff]'
+                  : 'bg-white dark:bg-gray-800 text-[#8f5cff] dark:text-[#a78bfa] border border-[#8f5cff] dark:border-[#a78bfa]'
               }`}
             >
               Vista Kanban
@@ -592,21 +592,21 @@ function PedidosView({ onNavigate }) {
           {/* Vista de Lista */}
           {vistaActual === 'lista' && (
             <section className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
-              <h2 className="text-xl font-semibold text-[#8f5cff] mb-4">
+              <h2 className="text-xl font-semibold text-[#8f5cff] dark:text-[#a78bfa] mb-4">
                 Lista de Pedidos ({pedidosFiltrados.length})
               </h2>
               <div className="overflow-x-auto">
                 <table className="w-full text-center">
                   <thead>
                     <tr className="border-b-2 border-gray-200 dark:border-gray-700">
-                      <th className="pb-3 text-center">ID</th>
-                      <th className="pb-3 text-center">Cliente</th>
-                      <th className="pb-3 text-center">Fecha</th>
-                      <th className="pb-3 text-center">Entrega</th>
-                      <th className="pb-3 text-center">Estado</th>
-                      <th className="pb-3 text-center">Prioridad</th>
-                      <th className="pb-3 text-center">Total</th>
-                      <th className="pb-3 text-center">Acciones</th>
+                      <th className="pb-3 text-center text-gray-700 dark:text-gray-300">ID</th>
+                      <th className="pb-3 text-center text-gray-700 dark:text-gray-300">Cliente</th>
+                      <th className="pb-3 text-center text-gray-700 dark:text-gray-300">Fecha</th>
+                      <th className="pb-3 text-center text-gray-700 dark:text-gray-300">Entrega</th>
+                      <th className="pb-3 text-center text-gray-700 dark:text-gray-300">Estado</th>
+                      <th className="pb-3 text-center text-gray-700 dark:text-gray-300">Prioridad</th>
+                      <th className="pb-3 text-center text-gray-700 dark:text-gray-300">Total</th>
+                      <th className="pb-3 text-center text-gray-700 dark:text-gray-300">Acciones</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -616,13 +616,13 @@ function PedidosView({ onNavigate }) {
                           <td colSpan="8" className="py-8 text-center">
                             <div className="flex items-center justify-center gap-2">
                               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#8f5cff]"></div>
-                              <span className="text-gray-500">Cargando pedidos...</span>
+                              <span className="text-gray-500 dark:text-gray-400">Cargando pedidos...</span>
                             </div>
                           </td>
                         </tr>
                       ) : pedidosFiltrados.length === 0 ? (
                         <tr>
-                          <td colSpan="8" className="py-8 text-center text-gray-500">
+                          <td colSpan="8" className="py-8 text-center text-gray-500 dark:text-gray-400">
                             No se encontraron pedidos
                           </td>
                         </tr>
@@ -634,7 +634,7 @@ function PedidosView({ onNavigate }) {
                             animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0, x: 20 }}
                             transition={{ duration: 0.3, delay: index * 0.05 }}
-                            className="border-b border-gray-100 hover:bg-gray-50 transition"
+                            className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition"
                           >
                             <td className="py-4">
                               <div className="flex flex-col items-center">
@@ -652,10 +652,10 @@ function PedidosView({ onNavigate }) {
                                 )}
                               </div>
                             </td>
-                            <td className="py-4 text-gray-600 text-sm">
+                            <td className="py-4 text-gray-600 dark:text-gray-400 text-sm">
                               {pedido.fecha_pedido ? new Date(pedido.fecha_pedido).toLocaleDateString('es-ES') : '-'}
                             </td>
-                            <td className="py-4 text-gray-600 text-sm font-semibold">
+                            <td className="py-4 text-gray-600 dark:text-gray-400 text-sm font-semibold">
                               {pedido.fecha_entrega ? new Date(pedido.fecha_entrega).toLocaleDateString('es-ES') : '-'}
                             </td>
                             <td className="py-4">
@@ -779,7 +779,7 @@ function PedidosView({ onNavigate }) {
         }}
       >
         {selectedPedido && (
-          <div className="flex flex-col h-full">
+          <div className="flex flex-col h-full bg-white dark:bg-gray-800">
             {/* Header del Modal */}
             <div className="bg-gradient-to-br from-[#8f5cff] to-[#6e7ff3] text-white p-6 rounded-t-2xl">
               <div className="flex items-center justify-between mb-4">
@@ -811,7 +811,7 @@ function PedidosView({ onNavigate }) {
             <div className="flex-1 overflow-y-auto p-6">
               {/* Información del Cliente */}
               <div className="mb-6">
-                <h3 className="text-lg font-semibold text-[#8f5cff] mb-3 flex items-center gap-2">
+                <h3 className="text-lg font-semibold text-[#8f5cff] dark:text-[#a78bfa] mb-3 flex items-center gap-2">
                   <FaUser /> Información del Cliente
                 </h3>
                 <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 space-y-2">
@@ -864,8 +864,8 @@ function PedidosView({ onNavigate }) {
 
               {/* Prioridad */}
               <div className="mb-6">
-                <div className="flex items-center justify-between bg-gray-50 rounded-xl p-4">
-                  <span className="font-semibold text-gray-700">Prioridad:</span>
+                <div className="flex items-center justify-between bg-gray-50 dark:bg-gray-700 rounded-xl p-4">
+                  <span className="font-semibold text-gray-700 dark:text-gray-300">Prioridad:</span>
                   <span className={`text-xl font-bold ${getPrioridadColor(selectedPedido.prioridad)}`}>
                     {selectedPedido.prioridad}
                   </span>
@@ -874,7 +874,7 @@ function PedidosView({ onNavigate }) {
 
               {/* Productos */}
               <div className="mb-6">
-                <h3 className="text-lg font-semibold text-[#8f5cff] mb-3 flex items-center gap-2">
+                <h3 className="text-lg font-semibold text-[#8f5cff] dark:text-[#a78bfa] mb-3 flex items-center gap-2">
                   <FaBoxOpen /> Productos
                 </h3>
                 <div className="space-y-2">
@@ -901,36 +901,36 @@ function PedidosView({ onNavigate }) {
               </div>
 
               {/* Desglose de Totales */}
-              <div className="mb-6 bg-gray-50 rounded-xl p-4 space-y-2">
-                <div className="flex items-center justify-between text-gray-700">
+              <div className="mb-6 bg-gray-50 dark:bg-gray-700 rounded-xl p-4 space-y-2">
+                <div className="flex items-center justify-between text-gray-700 dark:text-gray-300">
                   <span>Subtotal:</span>
                   <span className="font-semibold">S/ {parseFloat(selectedPedido.subtotal || 0).toFixed(2)}</span>
                 </div>
                 {parseFloat(selectedPedido.descuento || 0) > 0 && (
-                  <div className="flex items-center justify-between text-gray-700">
+                  <div className="flex items-center justify-between text-gray-700 dark:text-gray-300">
                     <span>Descuento:</span>
-                    <span className="font-semibold text-red-600">- S/ {parseFloat(selectedPedido.descuento).toFixed(2)}</span>
+                    <span className="font-semibold text-red-600 dark:text-red-400">- S/ {parseFloat(selectedPedido.descuento).toFixed(2)}</span>
                   </div>
                 )}
                 {parseFloat(selectedPedido.impuestos || 0) > 0 && (
-                  <div className="flex items-center justify-between text-gray-700">
+                  <div className="flex items-center justify-between text-gray-700 dark:text-gray-300">
                     <span>Impuestos:</span>
                     <span className="font-semibold">S/ {parseFloat(selectedPedido.impuestos).toFixed(2)}</span>
                   </div>
                 )}
-                <div className="border-t pt-2 flex items-center justify-between text-lg font-bold text-gray-800">
+                <div className="border-t dark:border-gray-600 pt-2 flex items-center justify-between text-lg font-bold text-gray-800 dark:text-gray-100">
                   <span>Total:</span>
-                  <span className="text-green-600">S/ {parseFloat(selectedPedido.total || 0).toFixed(2)}</span>
+                  <span className="text-green-600 dark:text-green-400">S/ {parseFloat(selectedPedido.total || 0).toFixed(2)}</span>
                 </div>
                 {parseFloat(selectedPedido.anticipo || 0) > 0 && (
                   <>
-                    <div className="flex items-center justify-between text-gray-700">
+                    <div className="flex items-center justify-between text-gray-700 dark:text-gray-300">
                       <span>Anticipo:</span>
-                      <span className="font-semibold text-blue-600">S/ {parseFloat(selectedPedido.anticipo).toFixed(2)}</span>
+                      <span className="font-semibold text-blue-600 dark:text-blue-400">S/ {parseFloat(selectedPedido.anticipo).toFixed(2)}</span>
                     </div>
-                    <div className="flex items-center justify-between text-lg font-bold">
+                    <div className="flex items-center justify-between text-lg font-bold text-gray-800 dark:text-gray-100">
                       <span>Saldo Pendiente:</span>
-                      <span className="text-orange-600">S/ {parseFloat(selectedPedido.saldo || 0).toFixed(2)}</span>
+                      <span className="text-orange-600 dark:text-orange-400">S/ {parseFloat(selectedPedido.saldo || 0).toFixed(2)}</span>
                     </div>
                   </>
                 )}
@@ -938,28 +938,28 @@ function PedidosView({ onNavigate }) {
 
               {/* Método de Pago */}
               {selectedPedido.metodo_pago && (
-                <div className="mb-6 bg-blue-50 rounded-xl p-4">
+                <div className="mb-6 bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-700 font-semibold">Método de Pago:</span>
-                    <span className="text-blue-700 font-bold">{selectedPedido.metodo_pago}</span>
+                    <span className="text-gray-700 dark:text-gray-300 font-semibold">Método de Pago:</span>
+                    <span className="text-blue-700 dark:text-blue-400 font-bold">{selectedPedido.metodo_pago}</span>
                   </div>
                 </div>
               )}
 
               {/* Notas */}
               {selectedPedido.notas && (
-                <div className="bg-yellow-50 border-l-4 border-yellow-400 rounded-xl p-4">
-                  <h3 className="text-lg font-semibold text-yellow-700 mb-2">Notas:</h3>
-                  <p className="text-gray-700">{selectedPedido.notas}</p>
+                <div className="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 dark:border-yellow-600 rounded-xl p-4">
+                  <h3 className="text-lg font-semibold text-yellow-700 dark:text-yellow-400 mb-2">Notas:</h3>
+                  <p className="text-gray-700 dark:text-gray-300">{selectedPedido.notas}</p>
                 </div>
               )}
             </div>
 
             {/* Footer del Modal */}
-            <div className="border-t border-gray-200 p-6 flex gap-3">
+            <div className="border-t border-gray-200 dark:border-gray-700 p-6 flex gap-3 bg-white dark:bg-gray-800">
               <button
                 onClick={handleCerrarModal}
-                className="flex-1 bg-gray-200 text-gray-700 px-4 py-3 rounded-lg font-semibold hover:bg-gray-300 transition"
+                className="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-3 rounded-lg font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition"
               >
                 Cerrar
               </button>

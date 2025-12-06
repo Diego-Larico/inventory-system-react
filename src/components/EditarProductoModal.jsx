@@ -281,7 +281,7 @@ function EditarProductoModal({ isOpen, onClose, onSubmit, producto }) {
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
         transition={{ duration: 0.3, type: 'spring', stiffness: 300, damping: 30 }}
-        className="bg-white rounded-3xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden"
+        className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden"
       >
         {/* Header Premium */}
         <div className="sticky top-0 bg-gradient-to-br from-[#f59e42] via-[#ff8c42] to-[#ff7a42] text-white p-8 relative overflow-hidden z-10">
@@ -330,8 +330,8 @@ function EditarProductoModal({ isOpen, onClose, onSubmit, producto }) {
                   <FaImage className="text-white text-xl" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold text-gray-800">Imagen del Producto</h3>
-                  <p className="text-sm text-gray-500">Actualiza la foto del producto</p>
+                  <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Imagen del Producto</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Actualiza la foto del producto</p>
                 </div>
               </div>
 
@@ -340,7 +340,7 @@ function EditarProductoModal({ isOpen, onClose, onSubmit, producto }) {
                   <div
                     {...getRootProps()}
                     className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all duration-200 ${
-                      isDragActive ? 'border-[#f59e42] bg-orange-50 scale-105' : 'border-gray-300 hover:border-[#f59e42] hover:bg-gray-50'
+                      isDragActive ? 'border-[#f59e42] bg-orange-50 dark:bg-orange-900/20 scale-105' : 'border-gray-300 dark:border-gray-600 hover:border-[#f59e42] hover:bg-gray-50 dark:hover:bg-gray-700'
                     }`}
                   >
                     <input {...getInputProps()} />
@@ -355,10 +355,10 @@ function EditarProductoModal({ isOpen, onClose, onSubmit, producto }) {
                           alt="Preview"
                           className="w-40 h-40 object-cover rounded-2xl shadow-lg"
                         />
-                        <p className="text-sm text-gray-600 font-semibold">
+                        <p className="text-sm text-gray-600 dark:text-gray-300 font-semibold">
                           {formData.imagen ? formData.imagen.name : 'Imagen actual'}
                         </p>
-                        <p className="text-xs text-gray-400">Haz clic para cambiar la imagen</p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500">Haz clic para cambiar la imagen</p>
                       </motion.div>
                     ) : (
                       <div className="flex flex-col items-center gap-3">
@@ -369,10 +369,10 @@ function EditarProductoModal({ isOpen, onClose, onSubmit, producto }) {
                           <FaImage className="text-5xl text-gray-400" />
                         </motion.div>
                         <div>
-                          <p className="text-gray-600 font-semibold">
+                          <p className="text-gray-600 dark:text-gray-300 font-semibold">
                             {isDragActive ? '¡Suelta la imagen aquí!' : 'Arrastra una imagen o haz clic para seleccionar'}
                           </p>
-                          <p className="text-xs text-gray-400 mt-1">PNG, JPG, GIF hasta 10MB</p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">PNG, JPG, GIF hasta 10MB</p>
                         </div>
                       </div>
                     )}
@@ -392,8 +392,8 @@ function EditarProductoModal({ isOpen, onClose, onSubmit, producto }) {
                   <FaTshirt className="text-white text-xl" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold text-gray-800">Información Básica</h3>
-                  <p className="text-sm text-gray-500">Identificación del producto</p>
+                  <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Información Básica</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Identificación del producto</p>
                 </div>
               </div>
 
@@ -439,14 +439,14 @@ function EditarProductoModal({ isOpen, onClose, onSubmit, producto }) {
                   <FaDollarSign className="text-white text-xl" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold text-gray-800">Precios y Stock</h3>
-                  <p className="text-sm text-gray-500">Valoración e inventario</p>
+                  <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Precios y Stock</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Valoración e inventario</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="group">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                     <FaDollarSign className="text-[#f59e42]" />
                     Precio de venta (S/) *
                   </label>
@@ -457,11 +457,11 @@ function EditarProductoModal({ isOpen, onClose, onSubmit, producto }) {
                     placeholder="0.00"
                     min="0"
                     step="0.01"
-                    className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#f59e42] focus:ring-opacity-20 focus:border-[#f59e42] transition-all duration-200 group-hover:border-gray-300"
+                    className="w-full px-5 py-4 border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#f59e42] focus:ring-opacity-20 focus:border-[#f59e42] transition-all duration-200 group-hover:border-gray-300 dark:group-hover:border-gray-600"
                   />
                 </div>
                 <div className="group">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                     <FaDollarSign className="text-[#f59e42]" />
                     Costo de producción (S/)
                   </label>
@@ -472,11 +472,11 @@ function EditarProductoModal({ isOpen, onClose, onSubmit, producto }) {
                     placeholder="0.00"
                     min="0"
                     step="0.01"
-                    className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#f59e42] focus:ring-opacity-20 focus:border-[#f59e42] transition-all duration-200 group-hover:border-gray-300"
+                    className="w-full px-5 py-4 border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#f59e42] focus:ring-opacity-20 focus:border-[#f59e42] transition-all duration-200 group-hover:border-gray-300 dark:group-hover:border-gray-600"
                   />
                 </div>
                 <div className="group">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                     <FaBoxes className="text-[#f59e42]" />
                     Stock actual *
                   </label>
@@ -486,7 +486,7 @@ function EditarProductoModal({ isOpen, onClose, onSubmit, producto }) {
                     onChange={(e) => handleChange('stock', e.target.value)}
                     placeholder="0"
                     min="0"
-                    className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#f59e42] focus:ring-opacity-20 focus:border-[#f59e42] transition-all duration-200 group-hover:border-gray-300"
+                    className="w-full px-5 py-4 border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#f59e42] focus:ring-opacity-20 focus:border-[#f59e42] transition-all duration-200 group-hover:border-gray-300 dark:group-hover:border-gray-600"
                   />
                 </div>
               </div>
@@ -503,14 +503,14 @@ function EditarProductoModal({ isOpen, onClose, onSubmit, producto }) {
                   <FaPalette className="text-white text-xl" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold text-gray-800">Variantes</h3>
-                  <p className="text-sm text-gray-500">Tallas y colores disponibles</p>
+                  <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Variantes</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Tallas y colores disponibles</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                     <FaRuler className="text-[#f59e42]" />
                     Tallas disponibles
                   </label>
@@ -524,7 +524,7 @@ function EditarProductoModal({ isOpen, onClose, onSubmit, producto }) {
                   />
                 </div>
                 <div>
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                     <FaPalette className="text-[#f59e42]" />
                     Colores disponibles
                   </label>
@@ -540,7 +540,7 @@ function EditarProductoModal({ isOpen, onClose, onSubmit, producto }) {
               </div>
 
               <div className="mt-6">
-                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                   <FaTshirt className="text-[#f59e42]" />
                   Materiales utilizados
                 </label>
@@ -555,7 +555,7 @@ function EditarProductoModal({ isOpen, onClose, onSubmit, producto }) {
               </div>
 
               <div className="group mt-6">
-                <label className="text-sm font-semibold text-gray-700 mb-3 block">
+                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 block">
                   Descripción del producto
                 </label>
                 <textarea
@@ -563,19 +563,19 @@ function EditarProductoModal({ isOpen, onClose, onSubmit, producto }) {
                   onChange={(e) => handleChange('descripcion', e.target.value)}
                   placeholder="Características, detalles de diseño, cuidados, etc."
                   rows={4}
-                  className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#f59e42] focus:ring-opacity-20 focus:border-[#f59e42] transition-all duration-200 resize-none group-hover:border-gray-300"
+                  className="w-full px-5 py-4 border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#f59e42] focus:ring-opacity-20 focus:border-[#f59e42] transition-all duration-200 resize-none group-hover:border-gray-300 dark:group-hover:border-gray-600"
                 />
               </div>
             </motion.div>
 
             {/* Buttons */}
-            <div className="flex gap-4 pt-6 border-t-2 border-gray-100">
+            <div className="flex gap-4 pt-6 border-t-2 border-gray-100 dark:border-gray-700">
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 type="button"
                 onClick={handleClose}
-                className="flex-1 px-6 py-4 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-all duration-200 shadow-sm"
+                className="flex-1 px-6 py-4 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 shadow-sm"
               >
                 Cancelar
               </motion.button>

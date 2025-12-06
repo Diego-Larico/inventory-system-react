@@ -215,7 +215,7 @@ function NuevoMaterialModal({ isOpen, onClose, onSubmit }) {
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
         transition={{ duration: 0.3, type: 'spring', stiffness: 300, damping: 30 }}
-        className="bg-white rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
+        className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
       >
         {/* Header Premium */}
         <div className="sticky top-0 bg-gradient-to-br from-[#8f5cff] via-[#7d4eea] to-[#6e7ff3] text-white p-8 relative overflow-hidden z-10">
@@ -264,14 +264,14 @@ function NuevoMaterialModal({ isOpen, onClose, onSubmit }) {
                   <FaBox className="text-white text-xl" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold text-gray-800">Información Básica</h3>
-                  <p className="text-sm text-gray-500">Identificación del material</p>
+                  <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Información Básica</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Identificación del material</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 gap-6">
                 <div className="group">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                     <FaBox className="text-[#8f5cff]" />
                     Nombre del material *
                   </label>
@@ -298,14 +298,14 @@ function NuevoMaterialModal({ isOpen, onClose, onSubmit }) {
                   <FaBoxes className="text-white text-xl" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold text-gray-800">Clasificación</h3>
-                  <p className="text-sm text-gray-500">Tipo y características</p>
+                  <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Clasificación</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Tipo y características</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                     <FaBoxes className="text-[#8f5cff]" />
                     Categoría *
                   </label>
@@ -334,7 +334,7 @@ function NuevoMaterialModal({ isOpen, onClose, onSubmit }) {
                   />
                 </div>
                 <div className="group md:col-span-2">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                     <FaPalette className="text-[#8f5cff]" />
                     Color
                   </label>
@@ -343,7 +343,7 @@ function NuevoMaterialModal({ isOpen, onClose, onSubmit }) {
                     value={formData.color}
                     onChange={(e) => handleChange('color', e.target.value)}
                     placeholder="Ej: Blanco, Azul marino, Rojo"
-                    className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 group-hover:border-gray-300"
+                    className="w-full px-5 py-4 border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 group-hover:border-gray-300 dark:group-hover:border-gray-600"
                     disabled={loading}
                   />
                 </div>
@@ -361,8 +361,8 @@ function NuevoMaterialModal({ isOpen, onClose, onSubmit }) {
                   <FaBoxes className="text-white text-xl" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold text-gray-800">Cantidades y Precios</h3>
-                  <p className="text-sm text-gray-500">Stock y valoración</p>
+                  <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Cantidades y Precios</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Stock y valoración</p>
                 </div>
               </div>
 
@@ -384,7 +384,7 @@ function NuevoMaterialModal({ isOpen, onClose, onSubmit }) {
                   />
                 </div>
                 <div>
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                     Unidad de medida *
                   </label>
                   <Select
@@ -397,7 +397,7 @@ function NuevoMaterialModal({ isOpen, onClose, onSubmit }) {
                   />
                 </div>
                 <div className="group">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                     <FaDollarSign className="text-[#8f5cff]" />
                     Precio unitario (S/)
                   </label>
@@ -408,12 +408,12 @@ function NuevoMaterialModal({ isOpen, onClose, onSubmit }) {
                     placeholder="0.00"
                     min="0"
                     step="0.01"
-                    className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 group-hover:border-gray-300"
+                    className="w-full px-5 py-4 border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 group-hover:border-gray-300 dark:group-hover:border-gray-600"
                     disabled={loading}
                   />
                 </div>
                 <div className="group">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                     Stock mínimo
                   </label>
                   <input
@@ -423,7 +423,7 @@ function NuevoMaterialModal({ isOpen, onClose, onSubmit }) {
                     placeholder="10"
                     min="0"
                     step="0.01"
-                    className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 group-hover:border-gray-300"
+                    className="w-full px-5 py-4 border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 group-hover:border-gray-300 dark:group-hover:border-gray-600"
                     disabled={loading}
                   />
                 </div>
@@ -441,14 +441,14 @@ function NuevoMaterialModal({ isOpen, onClose, onSubmit }) {
                   <FaWarehouse className="text-white text-xl" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold text-gray-800">Almacenamiento</h3>
-                  <p className="text-sm text-gray-500">Proveedor y ubicación</p>
+                  <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Almacenamiento</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Proveedor y ubicación</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="group">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                     <FaIndustry className="text-[#8f5cff]" />
                     Proveedor
                   </label>
@@ -457,12 +457,12 @@ function NuevoMaterialModal({ isOpen, onClose, onSubmit }) {
                     value={formData.proveedor}
                     onChange={(e) => handleChange('proveedor', e.target.value)}
                     placeholder="Nombre del proveedor"
-                    className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 group-hover:border-gray-300"
+                    className="w-full px-5 py-4 border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 group-hover:border-gray-300 dark:group-hover:border-gray-600"
                     disabled={loading}
                   />
                 </div>
                 <div className="group">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                     <FaWarehouse className="text-[#8f5cff]" />
                     Ubicación en almacén
                   </label>
@@ -471,7 +471,7 @@ function NuevoMaterialModal({ isOpen, onClose, onSubmit }) {
                     value={formData.ubicacion}
                     onChange={(e) => handleChange('ubicacion', e.target.value)}
                     placeholder="Ej: Estante A3"
-                    className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 group-hover:border-gray-300"
+                    className="w-full px-5 py-4 border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 group-hover:border-gray-300 dark:group-hover:border-gray-600"
                     disabled={loading}
                   />
                 </div>
@@ -493,13 +493,13 @@ function NuevoMaterialModal({ isOpen, onClose, onSubmit }) {
             </motion.div>
 
             {/* Buttons */}
-            <div className="flex gap-4 pt-6 border-t-2 border-gray-100">
+            <div className="flex gap-4 pt-6 border-t-2 border-gray-100 dark:border-gray-700">
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 type="button"
                 onClick={handleClose}
-                className="flex-1 px-6 py-4 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-all duration-200 shadow-sm"
+                className="flex-1 px-6 py-4 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 shadow-sm"
                 disabled={loading}
               >
                 Cancelar
