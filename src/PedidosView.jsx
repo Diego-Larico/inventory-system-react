@@ -230,6 +230,41 @@ function PedidosView({ onNavigate }) {
     { value: 'Baja', label: 'Baja' }
   ];
 
+  // Estilos personalizados para react-select con modo oscuro
+  const customSelectStyles = {
+    control: (base, state) => ({
+      ...base,
+      borderRadius: '12px',
+      borderColor: state.isFocused ? '#8f5cff' : '#e5e7eb',
+      backgroundColor: document.documentElement.classList.contains('dark') ? '#1f2937' : 'white',
+      boxShadow: state.isFocused ? '0 0 0 3px rgba(143, 92, 255, 0.1)' : 'none',
+      '&:hover': { borderColor: '#8f5cff' },
+    }),
+    menu: (base) => ({
+      ...base,
+      backgroundColor: document.documentElement.classList.contains('dark') ? '#1f2937' : 'white',
+      borderRadius: '12px',
+    }),
+    option: (base, state) => ({
+      ...base,
+      backgroundColor: state.isFocused 
+        ? (document.documentElement.classList.contains('dark') ? '#374151' : '#f3f4f6')
+        : 'transparent',
+      color: document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#1f2937',
+      '&:hover': {
+        backgroundColor: document.documentElement.classList.contains('dark') ? '#374151' : '#f3f4f6',
+      },
+    }),
+    singleValue: (base) => ({
+      ...base,
+      color: document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#1f2937',
+    }),
+    input: (base) => ({
+      ...base,
+      color: document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#1f2937',
+    }),
+  };
+
   // Filtrado
   const pedidosFiltrados = pedidos.filter(p => {
     const matchEstado = estadoFiltro ? p.estado === estadoFiltro.value : true;
@@ -539,6 +574,7 @@ function PedidosView({ onNavigate }) {
                 isClearable
                 placeholder="Estado"
                 className="w-full"
+                styles={customSelectStyles}
               />
               <Select
                 options={prioridadOptions}
@@ -547,6 +583,7 @@ function PedidosView({ onNavigate }) {
                 isClearable
                 placeholder="Prioridad"
                 className="w-full"
+                styles={customSelectStyles}
               />
               <input
                 type="date"

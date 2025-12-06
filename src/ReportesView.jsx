@@ -292,6 +292,41 @@ function ReportesView({ onNavigate }) {
     { value: 'Accesorio', label: 'Accesorio' },
   ];
 
+  // Estilos personalizados para react-select con modo oscuro
+  const customSelectStyles = {
+    control: (base, state) => ({
+      ...base,
+      borderRadius: '8px',
+      borderColor: state.isFocused ? '#8f5cff' : '#e5e7eb',
+      backgroundColor: document.documentElement.classList.contains('dark') ? '#1f2937' : 'white',
+      boxShadow: state.isFocused ? '0 0 0 3px rgba(143, 92, 255, 0.1)' : 'none',
+      '&:hover': { borderColor: '#8f5cff' },
+    }),
+    menu: (base) => ({
+      ...base,
+      backgroundColor: document.documentElement.classList.contains('dark') ? '#1f2937' : 'white',
+      borderRadius: '8px',
+    }),
+    option: (base, state) => ({
+      ...base,
+      backgroundColor: state.isFocused 
+        ? (document.documentElement.classList.contains('dark') ? '#374151' : '#f3f4f6')
+        : 'transparent',
+      color: document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#1f2937',
+      '&:hover': {
+        backgroundColor: document.documentElement.classList.contains('dark') ? '#374151' : '#f3f4f6',
+      },
+    }),
+    singleValue: (base) => ({
+      ...base,
+      color: document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#1f2937',
+    }),
+    input: (base) => ({
+      ...base,
+      color: document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#1f2937',
+    }),
+  };
+
   // Funciones de exportación
   const exportarExcel = () => {
     if (loading) {
@@ -816,13 +851,7 @@ function ReportesView({ onNavigate }) {
                 onChange={(selected) => setTipoReporte(selected.value)}
                 placeholder="Tipo de reporte"
                 className="text-sm"
-                styles={{
-                  control: (base) => ({
-                    ...base,
-                    borderColor: '#e5e7eb',
-                    '&:hover': { borderColor: '#8f5cff' },
-                  }),
-                }}
+                styles={customSelectStyles}
               />
             </div>
             <div className="flex-1 min-w-[200px]">
@@ -832,13 +861,7 @@ function ReportesView({ onNavigate }) {
                 onChange={(selected) => setRangoFecha(selected.value)}
                 placeholder="Rango de fecha"
                 className="text-sm"
-                styles={{
-                  control: (base) => ({
-                    ...base,
-                    borderColor: '#e5e7eb',
-                    '&:hover': { borderColor: '#8f5cff' },
-                  }),
-                }}
+                styles={customSelectStyles}
               />
             </div>
             {rangoFecha === 'personalizado' && (
@@ -948,32 +971,32 @@ function ReportesView({ onNavigate }) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100"
+            className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700"
           >
             <div className="flex items-center justify-between mb-3">
               <FaChartLine className="text-4xl text-[#6e7ff3]" />
-              <span className="text-sm font-semibold text-blue-600 bg-blue-100 px-3 py-1 rounded-full">
+              <span className="text-sm font-semibold text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30 px-3 py-1 rounded-full">
                 S/ {metricas.ticketPromedio.toFixed(0)}
               </span>
             </div>
-            <div className="text-3xl font-bold text-gray-800 mb-1">S/ {metricas.ticketPromedio.toFixed(2)}</div>
-            <div className="text-sm text-gray-500">Ticket Promedio</div>
+            <div className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-1">S/ {metricas.ticketPromedio.toFixed(2)}</div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">Ticket Promedio</div>
           </motion.div>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100"
+            className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700"
           >
             <div className="flex items-center justify-between mb-3">
               <FaBox className="text-4xl text-[#f59e42]" />
-              <span className="text-sm font-semibold text-purple-600 bg-purple-100 px-3 py-1 rounded-full">
+              <span className="text-sm font-semibold text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-900/30 px-3 py-1 rounded-full">
                 {metricas.margenGanancia}%
               </span>
             </div>
-            <div className="text-3xl font-bold text-gray-800 mb-1">{metricas.margenGanancia}%</div>
-            <div className="text-sm text-gray-500">Margen de Ganancia</div>
+            <div className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-1">{metricas.margenGanancia}%</div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">Margen de Ganancia</div>
           </motion.div>
         </section>
         )}
@@ -986,10 +1009,10 @@ function ReportesView({ onNavigate }) {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.5 }}
-            className="lg:col-span-2 bg-white rounded-2xl p-6 shadow-lg"
+            className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg"
           >
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-gray-800">Evolución de Ventas</h2>
+              <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">Evolución de Ventas</h2>
               <div className="flex gap-2">
                 <button
                   onClick={() => setVistaGrafico('lineas')}
@@ -1063,9 +1086,9 @@ function ReportesView({ onNavigate }) {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.6 }}
-            className="bg-white rounded-2xl p-6 shadow-lg"
+            className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg"
           >
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Ventas por Categoría {categoriaFiltro && `- ${categoriaFiltro.label}`}</h2>
+            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Ventas por Categoría {categoriaFiltro && `- ${categoriaFiltro.label}`}</h2>
             {datosFiltrados.ventasPorCategoria.length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
@@ -1087,7 +1110,7 @@ function ReportesView({ onNavigate }) {
               </PieChart>
             </ResponsiveContainer>
             ) : (
-              <div className="flex items-center justify-center h-[300px] text-gray-500">
+              <div className="flex items-center justify-center h-[300px] text-gray-500 dark:text-gray-400">
                 <div className="text-center">
                   <FaChartPie className="text-5xl mx-auto mb-3 opacity-50" />
                   <p>No hay datos de ventas para esta categoría</p>
@@ -1101,7 +1124,7 @@ function ReportesView({ onNavigate }) {
                     <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[index] }}></div>
                     <span className="text-gray-700">{cat.categoria}</span>
                   </div>
-                  <span className="font-semibold text-gray-800">S/ {cat.ventas.toLocaleString()}</span>
+                  <span className="font-semibold text-gray-800 dark:text-gray-100">S/ {cat.ventas.toLocaleString()}</span>
                 </div>
               ))}
             </div>
@@ -1120,7 +1143,7 @@ function ReportesView({ onNavigate }) {
             transition={{ delay: 0.7 }}
             className="bg-white rounded-2xl p-6 shadow-lg"
           >
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Comparativo 2024 vs 2025</h2>
+            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Comparativo 2024 vs 2025</h2>
             <ResponsiveContainer width="100%" height={300}>
               <ComposedChart data={comparativoAnual}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -1160,7 +1183,7 @@ function ReportesView({ onNavigate }) {
             transition={{ delay: 0.8 }}
             className="bg-white rounded-2xl p-6 shadow-lg"
           >
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Top Productos {categoriaFiltro && `- ${categoriaFiltro.label}`}</h2>
+            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Top Productos {categoriaFiltro && `- ${categoriaFiltro.label}`}</h2>
             <div className="space-y-4">
               {datosFiltrados.productosMasVendidos.length > 0 ? datosFiltrados.productosMasVendidos.map((producto, index) => (
                 <div key={index} className="flex items-center gap-4">
@@ -1168,16 +1191,16 @@ function ReportesView({ onNavigate }) {
                     {index + 1}
                   </div>
                   <div className="flex-1">
-                    <div className="font-semibold text-gray-800">{producto.nombre}</div>
-                    <div className="text-sm text-gray-500">{producto.categoria}</div>
+                    <div className="font-semibold text-gray-800 dark:text-gray-100">{producto.nombre}</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">{producto.categoria}</div>
                   </div>
                   <div className="text-right">
-                    <div className="font-bold text-gray-800">S/ {producto.ingresos.toLocaleString()}</div>
-                    <div className="text-sm text-gray-500">{producto.cantidad} unidades</div>
+                    <div className="font-bold text-gray-800 dark:text-gray-100">S/ {producto.ingresos.toLocaleString()}</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">{producto.cantidad} unidades</div>
                   </div>
                 </div>
               )) : (
-                <div className="text-center py-8 text-gray-500">
+                <div className="text-center py-8 text-gray-500 dark:text-gray-400">
                   <FaBox className="text-4xl mx-auto mb-2 opacity-50" />
                   <p>No hay productos en esta categoría</p>
                 </div>
@@ -1207,9 +1230,9 @@ function ReportesView({ onNavigate }) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.9 }}
-            className="bg-white rounded-2xl p-6 shadow-lg"
+            className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg"
           >
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Rendimiento por Canal</h2>
+            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Rendimiento por Canal</h2>
             <ResponsiveContainer width="100%" height={300}>
               <RadarChart data={rendimientoPorCanal}>
                 <PolarGrid stroke="#e5e7eb" />
@@ -1226,7 +1249,7 @@ function ReportesView({ onNavigate }) {
                 <div key={index} className="bg-gray-50 rounded-lg p-3">
                   <div className="text-sm text-gray-600 mb-1">{canal.canal}</div>
                   <div className="font-bold text-[#8f5cff]">S/ {canal.ventas.toLocaleString()}</div>
-                  <div className="text-xs text-gray-500">{canal.pedidos} pedidos</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">{canal.pedidos} pedidos</div>
                 </div>
               ))}
             </div>
@@ -1239,9 +1262,9 @@ function ReportesView({ onNavigate }) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.0 }}
-            className="bg-white rounded-2xl p-6 shadow-lg"
+            className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg"
           >
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Estado del Inventario</h2>
+            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Estado del Inventario</h2>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
@@ -1269,7 +1292,7 @@ function ReportesView({ onNavigate }) {
                     <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></div>
                     <span className="text-sm text-gray-700">{item.categoria}</span>
                   </div>
-                  <span className="font-semibold text-gray-800">{item.valor} items</span>
+                  <span className="font-semibold text-gray-800 dark:text-gray-100">{item.valor} items</span>
                 </div>
               ))}
             </div>
@@ -1294,9 +1317,9 @@ function ReportesView({ onNavigate }) {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
-            className="bg-white rounded-2xl p-6 shadow-lg"
+            className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg"
           >
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Productos por Estado</h2>
+            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Productos por Estado</h2>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
@@ -1324,7 +1347,7 @@ function ReportesView({ onNavigate }) {
                     <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></div>
                     <span className="text-sm font-medium">{item.estado}</span>
                   </div>
-                  <span className="font-bold text-gray-800">{item.cantidad}</span>
+                  <span className="font-bold text-gray-800 dark:text-gray-100">{item.cantidad}</span>
                 </div>
               ))}
             </div>
@@ -1336,7 +1359,7 @@ function ReportesView({ onNavigate }) {
             transition={{ delay: 0.4 }}
             className="bg-white rounded-2xl p-6 shadow-lg"
           >
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Distribución por Estado</h2>
+            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Distribución por Estado</h2>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={productosPorEstado} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -1377,9 +1400,9 @@ function ReportesView({ onNavigate }) {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.5 }}
-            className="bg-white rounded-2xl p-6 shadow-lg"
+            className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg"
           >
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Rotación de Inventario</h2>
+            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Rotación de Inventario</h2>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={rotacionInventario}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -1469,11 +1492,11 @@ function ReportesView({ onNavigate }) {
                   <div className="flex justify-between items-center">
                     <div>
                       <div className="font-medium text-gray-800">{prod.producto}</div>
-                      <div className="text-xs text-gray-500">Precio: S/ {prod.precio} | Costo: S/ {prod.costo}</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">Precio: S/ {prod.precio} | Costo: S/ {prod.costo}</div>
                     </div>
                     <div className="text-right">
                       <div className="text-lg font-bold text-green-600">{prod.margen}%</div>
-                      <div className="text-xs text-gray-500">S/ {prod.precio - prod.costo}</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">S/ {prod.precio - prod.costo}</div>
                     </div>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
@@ -1530,13 +1553,13 @@ function ReportesView({ onNavigate }) {
                   <div className="flex items-center gap-3">
                     <div className="w-4 h-4 rounded-full" style={{ backgroundColor: tipo.color }}></div>
                     <div>
-                      <div className="font-semibold text-gray-800">{tipo.tipo}</div>
-                      <div className="text-xs text-gray-500">{tipo.cantidad} clientes</div>
+                      <div className="font-semibold text-gray-800 dark:text-gray-100">{tipo.tipo}</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">{tipo.cantidad} clientes</div>
                     </div>
                   </div>
                   <div className="text-right">
                     <div className="font-bold text-gray-800">S/ {tipo.ventas.toLocaleString()}</div>
-                    <div className="text-xs text-gray-500">Total ventas</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">Total ventas</div>
                   </div>
                 </div>
               ))}
@@ -1595,12 +1618,12 @@ function ReportesView({ onNavigate }) {
                       {index + 1}
                     </div>
                     <div className="flex-1">
-                      <div className="font-semibold text-gray-800">{cliente.nombre}</div>
-                      <div className="text-sm text-gray-500">{cliente.pedidos} pedidos realizados</div>
+                      <div className="font-semibold text-gray-800 dark:text-gray-100">{cliente.nombre}</div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">{cliente.pedidos} pedidos realizados</div>
                     </div>
                     <div className="text-right">
                       <div className="font-bold text-[#8f5cff]">S/ {cliente.total.toLocaleString()}</div>
-                      <div className="text-xs text-gray-500">Total gastado</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">Total gastado</div>
                     </div>
                   </div>
                 ))}
