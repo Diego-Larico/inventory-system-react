@@ -3,7 +3,6 @@
 
 import { useState } from 'react';
 import { supabase } from './supabaseClient';
-import Tilt from 'react-parallax-tilt';
 
 
 function Login({ onLoginSuccess }) {
@@ -33,7 +32,7 @@ function Login({ onLoginSuccess }) {
 
   return (
     <div className="flex items-center justify-center min-h-screen w-full dark:bg-gray-900">
-      <Tilt glareEnable={true} glareMaxOpacity={0.45} scale={1.05} className="w-full flex flex-col md:flex-row max-w-4xl bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden animate-fade-in">
+      <div className="w-full flex flex-col md:flex-row max-w-4xl bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden animate-fade-in">
         {/* Left: Form */}
         <div className="flex-1 flex flex-col justify-center px-8 py-12 md:py-16">
           <div className="flex flex-col items-center mb-10">
@@ -103,7 +102,7 @@ function Login({ onLoginSuccess }) {
             </svg>
           </div>
         </div>
-      </Tilt>
+      </div>
     </div>
   );
 }

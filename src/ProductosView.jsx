@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FaPlus, FaEdit, FaSearch, FaShoppingBag, FaTshirt, FaBox, 
   FaFilter, FaDownload, FaTh, FaList, FaImage, FaStar, FaTag,
-  FaHeart, FaEye, FaChartLine, FaLayerGroup, FaCubes, FaBoxes
+  FaHeart, FaEye, FaChartLine, FaLayerGroup, FaCubes, FaBoxes, FaTrash
 } from 'react-icons/fa';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
@@ -12,7 +12,8 @@ import * as XLSX from 'xlsx';
 import NuevoProductoModal from './components/NuevoProductoModal';
 import EditarProductoModal from './components/EditarProductoModal';
 import toast, { Toaster } from 'react-hot-toast';
-import { obtenerProductos } from './services/productosService';
+import { obtenerProductos, eliminarProducto } from './services/productosService';
+import { confirmarEliminar, mostrarExito } from './utils/confirmationModals';
 
 function ProductosView({ onNavigate }) {
   const [showNuevoProductoModal, setShowNuevoProductoModal] = useState(false);
@@ -68,6 +69,21 @@ function ProductosView({ onNavigate }) {
   const handleProductoCreado = (nuevoProducto) => {
     toast.success('Producto creado correctamente');
     cargarProductos(); // Recargar lista
+  };
+
+  const handleEliminarProducto = async (producto) => {
+    const confirmado = await confirmarEliminar(producto.nombre, 'Producto');
+    if (!confirmado) return;
+    
+    const resultado = await eliminarProducto(producto.id);
+    if (resultado.success) {
+      await mostrarExito('Producto eliminado', `El producto "${producto.nombre}" ha sido eliminado correctamente`);
+      await cargarProductos();
+      // Notificar al Sidebar para actualizar el badge
+      window.dispatchEvent(new Event('productosActualizados'));
+    } else {
+      toast.error('Error al eliminar: ' + resultado.error);
+    }
   };
 
   // Opciones para filtros
@@ -502,6 +518,15 @@ function ProductosView({ onNavigate }) {
                         >
                           <FaEdit /> Editar
                         </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEliminarProducto(producto);
+                          }}
+                          className="px-4 bg-gradient-to-r from-red-500 to-red-600 text-white py-2.5 rounded-xl font-semibold flex items-center justify-center gap-2 hover:shadow-lg transition"
+                        >
+                          <FaTrash />
+                        </button>
                       </div>
                     </div>
                   </motion.div>
@@ -630,6 +655,12 @@ function ProductosView({ onNavigate }) {
                                 className="p-2 bg-gradient-to-r from-[#f59e42] to-[#ff7a42] text-white rounded-lg hover:shadow-lg transition"
                               >
                                 <FaEdit />
+                              </button>
+                              <button
+                                onClick={() => handleEliminarProducto(producto)}
+                                className="p-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:shadow-lg transition"
+                              >
+                                <FaTrash />
                               </button>
                             </div>
                           </td>
