@@ -49,7 +49,7 @@ function ProductosView({ onNavigate }) {
         stock: p.stock,
         stockMinimo: p.stock_minimo,
         estado: p.estado,
-        imagen: p.imagen_url || 'https://via.placeholder.com/400?text=Sin+Imagen',
+        imagen: p.imagen_url || 'https://placehold.co/400x400/8f5cff/ffffff?text=Producto',
         descripcion: p.descripcion,
         costo: p.costo,
       }));

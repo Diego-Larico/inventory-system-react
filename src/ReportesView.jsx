@@ -896,13 +896,7 @@ function ReportesView({ onNavigate }) {
                 placeholder="Todas las categorías"
                 isClearable
                 className="text-sm"
-                styles={{
-                  control: (base) => ({
-                    ...base,
-                    borderColor: '#e5e7eb',
-                    '&:hover': { borderColor: '#8f5cff' },
-                  }),
-                }}
+                styles={customSelectStyles}
               />
             </div>
             {(categoriaFiltro || rangoFecha === 'personalizado') && (
@@ -1141,16 +1135,21 @@ function ReportesView({ onNavigate }) {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.7 }}
-            className="bg-white rounded-2xl p-6 shadow-lg"
+            className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg"
           >
             <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Comparativo 2024 vs 2025</h2>
             <ResponsiveContainer width="100%" height={300}>
               <ComposedChart data={comparativoAnual}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="mes" stroke="#666" />
-                <YAxis stroke="#666" />
+                <CartesianGrid strokeDasharray="3 3" className="dark:opacity-20" />
+                <XAxis dataKey="mes" className="dark:stroke-gray-400" />
+                <YAxis className="dark:stroke-gray-400" />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: '#fff', border: '1px solid #ddd', borderRadius: '8px' }}
+                  contentStyle={{ 
+                    backgroundColor: document.documentElement.classList.contains('dark') ? '#1f2937' : '#fff', 
+                    border: '1px solid #ddd', 
+                    borderRadius: '8px',
+                    color: document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#000'
+                  }}
                   formatter={(value) => `S/ ${value.toLocaleString()}`}
                 />
                 <Legend />
@@ -1159,14 +1158,14 @@ function ReportesView({ onNavigate }) {
               </ComposedChart>
             </ResponsiveContainer>
             <div className="mt-4 grid grid-cols-2 gap-4">
-              <div className="bg-purple-50 rounded-lg p-3">
-                <div className="text-sm text-gray-600 mb-1">Total {añoAnterior}</div>
+              <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-3">
+                <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total {añoAnterior}</div>
                 <div className="text-xl font-bold text-[#8f5cff]">
                   S/ {comparativoAnual.reduce((sum, m) => sum + (m[añoAnterior.toString()] || 0), 0).toLocaleString()}
                 </div>
               </div>
-              <div className="bg-purple-50 rounded-lg p-3">
-                <div className="text-sm text-gray-600 mb-1">Total {añoActual}</div>
+              <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-3">
+                <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total {añoActual}</div>
                 <div className="text-xl font-bold text-[#8f5cff]">
                   S/ {comparativoAnual.reduce((sum, m) => sum + (m[añoActual.toString()] || 0), 0).toLocaleString()}
                 </div>
@@ -1181,7 +1180,7 @@ function ReportesView({ onNavigate }) {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.8 }}
-            className="bg-white rounded-2xl p-6 shadow-lg"
+            className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg"
           >
             <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Top Productos {categoriaFiltro && `- ${categoriaFiltro.label}`}</h2>
             <div className="space-y-4">
@@ -1207,7 +1206,7 @@ function ReportesView({ onNavigate }) {
               )}
             </div>
             {datosFiltrados.productosMasVendidos.length > 0 && (
-            <div className="mt-6 pt-4 border-t border-gray-200">
+            <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
               <ResponsiveContainer width="100%" height={150}>
                 <BarChart data={datosFiltrados.productosMasVendidos} layout="vertical">
                   <XAxis type="number" hide />
@@ -1246,8 +1245,8 @@ function ReportesView({ onNavigate }) {
             </ResponsiveContainer>
             <div className="mt-4 grid grid-cols-2 gap-3">
               {rendimientoPorCanal.map((canal, index) => (
-                <div key={index} className="bg-gray-50 rounded-lg p-3">
-                  <div className="text-sm text-gray-600 mb-1">{canal.canal}</div>
+                <div key={index} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                  <div className="text-sm text-gray-600 dark:text-gray-300 mb-1">{canal.canal}</div>
                   <div className="font-bold text-[#8f5cff]">S/ {canal.ventas.toLocaleString()}</div>
                   <div className="text-xs text-gray-500 dark:text-gray-400">{canal.pedidos} pedidos</div>
                 </div>
@@ -1290,20 +1289,20 @@ function ReportesView({ onNavigate }) {
                 <div key={index} className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></div>
-                    <span className="text-sm text-gray-700">{item.categoria}</span>
+                    <span className="text-sm text-gray-700 dark:text-gray-300">{item.categoria}</span>
                   </div>
                   <span className="font-semibold text-gray-800 dark:text-gray-100">{item.valor} items</span>
                 </div>
               ))}
             </div>
-            <div className="mt-6 pt-4 border-t border-gray-200 grid grid-cols-2 gap-3">
+            <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700 grid grid-cols-2 gap-3">
               <div className="text-center">
                 <div className="text-2xl font-bold text-[#8f5cff]">{estadoInventario.reduce((acc, curr) => acc + curr.valor, 0)}</div>
-                <div className="text-sm text-gray-600">Total Items</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Total Items</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-green-600">72%</div>
-                <div className="text-sm text-gray-600">Disponibilidad</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Disponibilidad</div>
               </div>
             </div>
           </motion.div>
@@ -1312,8 +1311,9 @@ function ReportesView({ onNavigate }) {
 
         {/* NUEVOS GRÁFICOS - Productos por Estado */}
         {seccionActual.mostrarProductosPorEstado && (
-        <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <section key={`productos-estado-${tipoReporte}`} className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           <motion.div
+            key={`productos-pie-${tipoReporte}`}
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
@@ -1345,7 +1345,7 @@ function ReportesView({ onNavigate }) {
                 <div key={index} className="flex items-center justify-between p-2 rounded-lg" style={{ backgroundColor: `${item.color}15` }}>
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></div>
-                    <span className="text-sm font-medium">{item.estado}</span>
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{item.estado}</span>
                   </div>
                   <span className="font-bold text-gray-800 dark:text-gray-100">{item.cantidad}</span>
                 </div>
@@ -1354,15 +1354,16 @@ function ReportesView({ onNavigate }) {
           </motion.div>
 
           <motion.div
+            key={`productos-bar-${tipoReporte}`}
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.4 }}
-            className="bg-white rounded-2xl p-6 shadow-lg"
+            className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg"
           >
             <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Distribución por Estado</h2>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={productosPorEstado} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <CartesianGrid strokeDasharray="3 3" className="dark:opacity-20" />
                 <XAxis type="number" />
                 <YAxis type="category" dataKey="estado" width={100} />
                 <Tooltip />
@@ -1373,19 +1374,19 @@ function ReportesView({ onNavigate }) {
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
-            <div className="mt-4 pt-4 border-t border-gray-200">
+            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
               <div className="grid grid-cols-3 gap-4 text-center">
                 <div>
                   <div className="text-2xl font-bold text-green-600">{productosPorEstado[0].cantidad}</div>
-                  <div className="text-xs text-gray-600">Disponibles</div>
+                  <div className="text-xs text-gray-600 dark:text-gray-400">Disponibles</div>
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-orange-600">{productosPorEstado[1].cantidad}</div>
-                  <div className="text-xs text-gray-600">Bajo Stock</div>
+                  <div className="text-xs text-gray-600 dark:text-gray-400">Bajo Stock</div>
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-red-600">{productosPorEstado[2].cantidad}</div>
-                  <div className="text-xs text-gray-600">Agotados</div>
+                  <div className="text-xs text-gray-600 dark:text-gray-400">Agotados</div>
                 </div>
               </div>
             </div>
@@ -1405,7 +1406,7 @@ function ReportesView({ onNavigate }) {
             <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Rotación de Inventario</h2>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={rotacionInventario}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <CartesianGrid strokeDasharray="3 3" className="dark:opacity-20" />
                 <XAxis dataKey="producto" angle={-20} textAnchor="end" height={80} />
                 <YAxis />
                 <Tooltip />
@@ -1414,7 +1415,7 @@ function ReportesView({ onNavigate }) {
             </ResponsiveContainer>
             <div className="mt-4 text-center">
               <div className="text-3xl font-bold text-[#8f5cff]">{(rotacionInventario.reduce((sum, p) => sum + p.rotacion, 0) / rotacionInventario.length).toFixed(1)}</div>
-              <div className="text-sm text-gray-600">Rotación Promedio Mensual</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Rotación Promedio Mensual</div>
             </div>
           </motion.div>
 
@@ -1422,14 +1423,14 @@ function ReportesView({ onNavigate }) {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.6 }}
-            className="bg-white rounded-2xl p-6 shadow-lg"
+            className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg"
           >
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Días de Inventario</h2>
+            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Días de Inventario</h2>
             <div className="space-y-4">
               {rotacionInventario.map((item, index) => (
                 <div key={index} className="space-y-2">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium text-gray-700">{item.producto}</span>
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{item.producto}</span>
                     <span className="text-sm font-bold text-[#8f5cff]">{item.dias} días</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
@@ -1441,14 +1442,14 @@ function ReportesView({ onNavigate }) {
                 </div>
               ))}
             </div>
-            <div className="mt-6 pt-4 border-t border-gray-200 grid grid-cols-2 gap-4">
+            <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700 grid grid-cols-2 gap-4">
               <div className="text-center">
                 <div className="text-2xl font-bold text-green-600">{Math.min(...rotacionInventario.map(p => p.dias))}</div>
-                <div className="text-xs text-gray-600">Rotación Más Rápida</div>
+                <div className="text-xs text-gray-600 dark:text-gray-400">Rotación Más Rápida</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-orange-600">{Math.max(...rotacionInventario.map(p => p.dias))}</div>
-                <div className="text-xs text-gray-600">Rotación Más Lenta</div>
+                <div className="text-xs text-gray-600 dark:text-gray-400">Rotación Más Lenta</div>
               </div>
             </div>
           </motion.div>
@@ -1462,12 +1463,12 @@ function ReportesView({ onNavigate }) {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.5 }}
-            className="bg-white rounded-2xl p-6 shadow-lg"
+            className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg"
           >
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Precio vs Costo</h2>
+            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Precio vs Costo</h2>
             <ResponsiveContainer width="100%" height={300}>
               <ComposedChart data={margenGananciaPorProducto}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <CartesianGrid strokeDasharray="3 3" className="dark:opacity-20" />
                 <XAxis dataKey="producto" angle={-20} textAnchor="end" height={80} />
                 <YAxis />
                 <Tooltip formatter={(value) => `S/ ${value}`} />
@@ -1483,15 +1484,15 @@ function ReportesView({ onNavigate }) {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.6 }}
-            className="bg-white rounded-2xl p-6 shadow-lg"
+            className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg"
           >
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Margen de Ganancia</h2>
+            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Margen de Ganancia</h2>
             <div className="space-y-4">
               {margenGananciaPorProducto.map((prod, index) => (
                 <div key={index} className="space-y-2">
                   <div className="flex justify-between items-center">
                     <div>
-                      <div className="font-medium text-gray-800">{prod.producto}</div>
+                      <div className="font-medium text-gray-800 dark:text-gray-100">{prod.producto}</div>
                       <div className="text-xs text-gray-500 dark:text-gray-400">Precio: S/ {prod.precio} | Costo: S/ {prod.costo}</div>
                     </div>
                     <div className="text-right">
@@ -1508,11 +1509,11 @@ function ReportesView({ onNavigate }) {
                 </div>
               ))}
             </div>
-            <div className="mt-6 pt-4 border-t border-gray-200 text-center">
+            <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700 text-center">
               <div className="text-3xl font-bold text-green-600">
                 {(margenGananciaPorProducto.reduce((sum, p) => sum + p.margen, 0) / margenGananciaPorProducto.length).toFixed(1)}%
               </div>
-              <div className="text-sm text-gray-600">Margen Promedio</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Margen Promedio</div>
             </div>
           </motion.div>
         </section>
@@ -1525,9 +1526,9 @@ function ReportesView({ onNavigate }) {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
-            className="bg-white rounded-2xl p-6 shadow-lg"
+            className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg"
           >
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Segmentación de Clientes</h2>
+            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Segmentación de Clientes</h2>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
@@ -1570,12 +1571,12 @@ function ReportesView({ onNavigate }) {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.4 }}
-            className="bg-white rounded-2xl p-6 shadow-lg"
+            className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg"
           >
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Valor por Tipo de Cliente</h2>
+            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Valor por Tipo de Cliente</h2>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={tiposCliente}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <CartesianGrid strokeDasharray="3 3" className="dark:opacity-20" />
                 <XAxis dataKey="tipo" />
                 <YAxis />
                 <Tooltip formatter={(value) => `S/ ${value.toLocaleString()}`} />
@@ -1588,11 +1589,11 @@ function ReportesView({ onNavigate }) {
             </ResponsiveContainer>
             <div className="mt-4 grid grid-cols-3 gap-3">
               {tiposCliente.map((tipo, index) => (
-                <div key={index} className="text-center p-3 rounded-lg bg-gray-50">
+                <div key={index} className="text-center p-3 rounded-lg bg-gray-50 dark:bg-gray-700">
                   <div className="text-2xl font-bold" style={{ color: tipo.color }}>
                     S/ {Math.round(tipo.ventas / tipo.cantidad).toLocaleString()}
                   </div>
-                  <div className="text-xs text-gray-600 mt-1">Ticket Prom. {tipo.tipo}</div>
+                  <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">Ticket Prom. {tipo.tipo}</div>
                 </div>
               ))}
             </div>
@@ -1607,13 +1608,13 @@ function ReportesView({ onNavigate }) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
-            className="bg-white rounded-2xl p-6 shadow-lg"
+            className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg"
           >
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Top Clientes Frecuentes</h2>
+            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Top Clientes Frecuentes</h2>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="space-y-4">
                 {clientesFrecuentes.map((cliente, index) => (
-                  <div key={index} className="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-purple-50 to-white hover:shadow-md transition">
+                  <div key={index} className="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-purple-50 to-white dark:from-purple-900/20 dark:to-gray-700 hover:shadow-md transition">
                     <div className="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-[#8f5cff] to-[#6e7ff3] text-white font-bold text-lg">
                       {index + 1}
                     </div>
@@ -1631,25 +1632,25 @@ function ReportesView({ onNavigate }) {
               <div>
                 <ResponsiveContainer width="100%" height={300}>
                   <BarChart data={clientesFrecuentes} layout="vertical">
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                    <CartesianGrid strokeDasharray="3 3" className="dark:opacity-20" />
                     <XAxis type="number" />
                     <YAxis type="category" dataKey="nombre" width={100} />
                     <Tooltip formatter={(value) => `S/ ${value.toLocaleString()}`} />
                     <Bar dataKey="total" fill="#8f5cff" radius={[0, 8, 8, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
-                <div className="mt-4 pt-4 border-t border-gray-200 grid grid-cols-2 gap-4 text-center">
+                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 grid grid-cols-2 gap-4 text-center">
                   <div>
                     <div className="text-2xl font-bold text-[#8f5cff]">
                       {clientesFrecuentes.reduce((sum, c) => sum + c.pedidos, 0)}
                     </div>
-                    <div className="text-xs text-gray-600">Total Pedidos</div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400">Total Pedidos</div>
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-[#8f5cff]">
                       S/ {clientesFrecuentes.reduce((sum, c) => sum + c.total, 0).toLocaleString()}
                     </div>
-                    <div className="text-xs text-gray-600">Valor Acumulado</div>
+                    <div className="text-xs text-gray-400 dark:text-gray-400">Valor Acumulado</div>
                   </div>
                 </div>
               </div>
@@ -1665,12 +1666,12 @@ function ReportesView({ onNavigate }) {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
-            className="bg-white rounded-2xl p-6 shadow-lg"
+            className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg"
           >
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Desglose de Costos</h2>
+            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Desglose de Costos</h2>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={costosMensuales}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <CartesianGrid strokeDasharray="3 3" className="dark:opacity-20" />
                 <XAxis dataKey="mes" />
                 <YAxis />
                 <Tooltip formatter={(value) => `S/ ${value.toLocaleString()}`} />
@@ -1681,23 +1682,23 @@ function ReportesView({ onNavigate }) {
               </BarChart>
             </ResponsiveContainer>
             <div className="mt-4 grid grid-cols-3 gap-3">
-              <div className="text-center p-3 rounded-lg bg-purple-50">
+              <div className="text-center p-3 rounded-lg bg-purple-50 dark:bg-purple-900/20">
                 <div className="text-lg font-bold text-[#8f5cff]">
                   S/ {costosMensuales.reduce((sum, m) => sum + m.materiales, 0).toLocaleString()}
                 </div>
-                <div className="text-xs text-gray-600 mt-1">Materiales</div>
+                <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">Materiales</div>
               </div>
-              <div className="text-center p-3 rounded-lg bg-orange-50">
+              <div className="text-center p-3 rounded-lg bg-orange-50 dark:bg-orange-900/20">
                 <div className="text-lg font-bold text-[#f59e42]">
                   S/ {costosMensuales.reduce((sum, m) => sum + m.operativos, 0).toLocaleString()}
                 </div>
-                <div className="text-xs text-gray-600 mt-1">Operativos</div>
+                <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">Operativos</div>
               </div>
-              <div className="text-center p-3 rounded-lg bg-green-50">
+              <div className="text-center p-3 rounded-lg bg-green-50 dark:bg-green-900/20">
                 <div className="text-lg font-bold text-[#10b981]">
                   S/ {costosMensuales.reduce((sum, m) => sum + m.personal, 0).toLocaleString()}
                 </div>
-                <div className="text-xs text-gray-600 mt-1">Personal</div>
+                <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">Personal</div>
               </div>
             </div>
           </motion.div>
@@ -1706,34 +1707,34 @@ function ReportesView({ onNavigate }) {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.4 }}
-            className="bg-white rounded-2xl p-6 shadow-lg"
+            className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg"
           >
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Evolución de Costos Totales</h2>
+            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Evolución de Costos Totales</h2>
             <ResponsiveContainer width="100%" height={300}>
               <AreaChart data={costosMensuales.map(m => ({
                 mes: m.mes,
                 total: m.materiales + m.operativos + m.personal
               }))}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <CartesianGrid strokeDasharray="3 3" className="dark:opacity-20" />
                 <XAxis dataKey="mes" />
                 <YAxis />
                 <Tooltip formatter={(value) => `S/ ${value.toLocaleString()}`} />
                 <Area type="monotone" dataKey="total" stroke="#ef4444" fill="#ef4444" fillOpacity={0.6} name="Costos Totales" />
               </AreaChart>
             </ResponsiveContainer>
-            <div className="mt-4 pt-4 border-t border-gray-200">
+            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
               <div className="grid grid-cols-2 gap-4 text-center">
                 <div>
                   <div className="text-2xl font-bold text-red-600">
                     S/ {costosMensuales.reduce((sum, m) => sum + m.materiales + m.operativos + m.personal, 0).toLocaleString()}
                   </div>
-                  <div className="text-sm text-gray-600">Costos Totales del Período</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Costos Totales del Período</div>
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-red-600">
                     S/ {Math.round((costosMensuales.reduce((sum, m) => sum + m.materiales + m.operativos + m.personal, 0)) / costosMensuales.length).toLocaleString()}
                   </div>
-                  <div className="text-sm text-gray-600">Promedio Mensual</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Promedio Mensual</div>
                 </div>
               </div>
             </div>
@@ -1748,12 +1749,12 @@ function ReportesView({ onNavigate }) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
-            className="bg-white rounded-2xl p-6 shadow-lg"
+            className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg"
           >
-            <h2 className="text-xl font-bold text-gray-800 mb-6">Análisis de Rentabilidad</h2>
+            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-6">Análisis de Rentabilidad</h2>
             <ResponsiveContainer width="100%" height={350}>
               <ComposedChart data={rentabilidadMensual}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <CartesianGrid strokeDasharray="3 3" className="dark:opacity-20" />
                 <XAxis dataKey="mes" />
                 <YAxis yAxisId="left" />
                 <YAxis yAxisId="right" orientation="right" />
@@ -1766,26 +1767,26 @@ function ReportesView({ onNavigate }) {
               </ComposedChart>
             </ResponsiveContainer>
             <div className="mt-6 grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="text-center p-4 rounded-xl bg-gradient-to-br from-green-50 to-green-100">
-                <div className="text-sm text-gray-600 mb-1">Ingresos Totales</div>
+              <div className="text-center p-4 rounded-xl bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20">
+                <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Ingresos Totales</div>
                 <div className="text-2xl font-bold text-green-600">
                   S/ {rentabilidadMensual.reduce((sum, m) => sum + m.ingresos, 0).toLocaleString()}
                 </div>
               </div>
-              <div className="text-center p-4 rounded-xl bg-gradient-to-br from-red-50 to-red-100">
-                <div className="text-sm text-gray-600 mb-1">Costos Totales</div>
+              <div className="text-center p-4 rounded-xl bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20">
+                <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Costos Totales</div>
                 <div className="text-2xl font-bold text-red-600">
                   S/ {rentabilidadMensual.reduce((sum, m) => sum + m.costos, 0).toLocaleString()}
                 </div>
               </div>
-              <div className="text-center p-4 rounded-xl bg-gradient-to-br from-purple-50 to-purple-100">
-                <div className="text-sm text-gray-600 mb-1">Utilidad Total</div>
+              <div className="text-center p-4 rounded-xl bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20">
+                <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Utilidad Total</div>
                 <div className="text-2xl font-bold text-[#8f5cff]">
                   S/ {rentabilidadMensual.reduce((sum, m) => sum + m.utilidad, 0).toLocaleString()}
                 </div>
               </div>
-              <div className="text-center p-4 rounded-xl bg-gradient-to-br from-orange-50 to-orange-100">
-                <div className="text-sm text-gray-600 mb-1">Margen Promedio</div>
+              <div className="text-center p-4 rounded-xl bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20">
+                <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Margen Promedio</div>
                 <div className="text-2xl font-bold text-[#f59e42]">
                   {(rentabilidadMensual.reduce((sum, m) => sum + m.margen, 0) / rentabilidadMensual.length).toFixed(1)}%
                 </div>
