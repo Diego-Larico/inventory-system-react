@@ -190,18 +190,6 @@ function ProductosView({ onNavigate }) {
     }),
   };
 
-  if (loading) {
-    return (
-      <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
-        <Toaster position="top-right" />
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-[#8f5cff] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600 font-semibold">Cargando productos...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <>
       <div className="flex-1 flex flex-col min-h-0 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
@@ -342,7 +330,7 @@ function ProductosView({ onNavigate }) {
           {/* Filtros y Búsqueda */}
           <div className="px-8 pb-6">
             <div className="flex flex-wrap items-center gap-4">
-              <div className="flex items-center gap-2">
+              <div className="relative flex-1 min-w-[300px]">
                 <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500" />
                 <input
                   type="text"
@@ -482,23 +470,23 @@ function ProductosView({ onNavigate }) {
                       </div>
 
                       <div className="grid grid-cols-2 gap-3 mb-4">
-                        <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-3 text-center">
-                          <p className="text-xs text-green-700 mb-1">Precio</p>
-                          <p className="text-xl font-bold text-green-600">S/ {producto.precio}</p>
+                        <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl p-3 text-center">
+                          <p className="text-xs text-green-700 dark:text-green-400 mb-1">Precio</p>
+                          <p className="text-xl font-bold text-green-600 dark:text-green-500">S/ {producto.precio}</p>
                         </div>
-                        <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-3 text-center">
-                          <p className="text-xs text-blue-700 mb-1">Stock</p>
-                          <p className="text-xl font-bold text-blue-600">{producto.stock}</p>
+                        <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl p-3 text-center">
+                          <p className="text-xs text-blue-700 dark:text-blue-400 mb-1">Stock</p>
+                          <p className="text-xl font-bold text-blue-600 dark:text-blue-500">{producto.stock}</p>
                         </div>
                       </div>
 
                       {/* Barra de progreso */}
                       <div className="mb-4">
-                        <div className="flex justify-between text-xs text-gray-500 mb-2">
+                        <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-2">
                           <span>Nivel de stock</span>
                           <span>{Math.round((producto.stock / producto.stockMinimo) * 100)}%</span>
                         </div>
-                        <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                           <motion.div
                             initial={{ width: 0 }}
                             animate={{ width: `${Math.min((producto.stock / producto.stockMinimo) * 100, 100)}%` }}
