@@ -68,10 +68,7 @@ function ReportesView({ onNavigate }) {
 
   // Reaccionar al cambio de tipo de reporte
   useEffect(() => {
-    if (tipoReporte) {
-      const label = tipoReporteOptions.find(t => t.value === tipoReporte)?.label;
-      notificaciones.informacion(`Vista: ${label}`);
-    }
+    // Vista cambiada sin notificación
   }, [tipoReporte]);
 
   // Recargar cuando cambien los filtros de fecha
@@ -137,7 +134,6 @@ function ReportesView({ onNavigate }) {
       if (resRentabilidad.success) setRentabilidadMensual(resRentabilidad.data);
 
       setUltimaActualizacion(new Date());
-      notificaciones.operacionExitosa('Reporte cargado exitosamente');
     } catch (error) {
       notificaciones.error('Error al cargar reporte: ' + error.message);
     }
@@ -146,12 +142,10 @@ function ReportesView({ onNavigate }) {
   };
 
   const aplicarFiltros = () => {
-    notificaciones.operacionExitosa('Filtros aplicados correctamente');
     // Los datos ya están cargados, solo aplicamos filtros visuales
   };
 
   const refrescarDatos = async () => {
-    notificaciones.informacion('Actualizando datos...');
     await cargarReporte();
   };
 
@@ -910,7 +904,6 @@ function ReportesView({ onNavigate }) {
                   setRangoFecha('mes');
                   setFechaInicio('');
                   setFechaFin('');
-                  notificaciones.operacionExitosa('Filtros limpiados');
                 }}
                 className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm font-semibold"
               >
@@ -1221,10 +1214,9 @@ function ReportesView({ onNavigate }) {
           )}
         </section>
 
-        {/* Rendimiento por canal e inventario */}
-        <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* Rendimiento por canal */}
-          {seccionActual.mostrarCanales && (
+        {/* Rendimiento por canal */}
+        {seccionActual.mostrarCanales && (
+        <section className="mb-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -1253,10 +1245,12 @@ function ReportesView({ onNavigate }) {
               ))}
             </div>
           </motion.div>
-          )}
+        </section>
+        )}
 
-          {/* Estado de inventario */}
-          {seccionActual.mostrarInventario && (
+        {/* Estado de inventario */}
+        {seccionActual.mostrarInventario && (
+        <section className="mb-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -1306,8 +1300,8 @@ function ReportesView({ onNavigate }) {
               </div>
             </div>
           </motion.div>
-          )}
         </section>
+        )}
 
         {/* NUEVOS GRÁFICOS - Productos por Estado */}
         {seccionActual.mostrarProductosPorEstado && (
@@ -1914,15 +1908,6 @@ function ReportesView({ onNavigate }) {
         </section>
         )}
 
-        {/* Loading State */}
-        {loading && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-2xl p-8 flex flex-col items-center gap-4">
-              <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-[#8f5cff]"></div>
-              <p className="text-gray-700 font-semibold">Cargando reportes...</p>
-            </div>
-          </div>
-        )}
       </main>
     </div>
   );
