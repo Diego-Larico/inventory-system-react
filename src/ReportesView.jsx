@@ -1120,12 +1120,13 @@ function ReportesView({ onNavigate }) {
         </section>
         )}
 
-        {/* Rendimiento por canal */}
-        {seccionActual.mostrarCanales && (
-        <section className="mb-8">
+        {/* Rendimiento por Canal y Top Productos en grid 50-50 */}
+        <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {/* Rendimiento por canal */}
+          {seccionActual.mostrarCanales && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.7 }}
             className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg"
           >
@@ -1151,54 +1152,6 @@ function ReportesView({ onNavigate }) {
               ))}
             </div>
           </motion.div>
-        </section>
-        )}
-
-        {/* Análisis comparativo y productos */}
-        <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* Comparativo anual */}
-          {seccionActual.mostrarComparativo && (
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.8 }}
-            className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg"
-          >
-            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Comparativo 2024 vs 2025</h2>
-            <ResponsiveContainer width="100%" height={300}>
-              <ComposedChart data={comparativoAnual}>
-                <CartesianGrid strokeDasharray="3 3" className="dark:opacity-20" />
-                <XAxis dataKey="mes" className="dark:stroke-gray-400" />
-                <YAxis className="dark:stroke-gray-400" />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: document.documentElement.classList.contains('dark') ? '#1f2937' : '#fff', 
-                    border: '1px solid #ddd', 
-                    borderRadius: '8px',
-                    color: document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#000'
-                  }}
-                  formatter={(value) => `S/ ${value.toLocaleString()}`}
-                />
-                <Legend />
-                <Bar dataKey={añoAnterior.toString()} fill="#b6aaff" radius={[8, 8, 0, 0]} name={añoAnterior.toString()} />
-                <Line type="monotone" dataKey={añoActual.toString()} stroke="#8f5cff" strokeWidth={3} dot={{ r: 5 }} name={añoActual.toString()} />
-              </ComposedChart>
-            </ResponsiveContainer>
-            <div className="mt-4 grid grid-cols-2 gap-4">
-              <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-3">
-                <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total {añoAnterior}</div>
-                <div className="text-xl font-bold text-[#8f5cff]">
-                  S/ {comparativoAnual.reduce((sum, m) => sum + (m[añoAnterior.toString()] || 0), 0).toLocaleString()}
-                </div>
-              </div>
-              <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-3">
-                <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total {añoActual}</div>
-                <div className="text-xl font-bold text-[#8f5cff]">
-                  S/ {comparativoAnual.reduce((sum, m) => sum + (m[añoActual.toString()] || 0), 0).toLocaleString()}
-                </div>
-              </div>
-            </div>
-          </motion.div>
           )}
 
           {/* Productos más vendidos */}
@@ -1206,7 +1159,7 @@ function ReportesView({ onNavigate }) {
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.9 }}
+            transition={{ delay: 0.8 }}
             className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg"
           >
             <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Top Productos {categoriaFiltro && `- ${categoriaFiltro.label}`}</h2>
@@ -1247,6 +1200,53 @@ function ReportesView({ onNavigate }) {
           </motion.div>
           )}
         </section>
+
+        {/* Comparativo anual - Ancho completo */}
+        {seccionActual.mostrarComparativo && (
+        <section className="mb-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.9 }}
+            className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg"
+          >
+            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Comparativo 2024 vs 2025</h2>
+            <ResponsiveContainer width="100%" height={300}>
+              <ComposedChart data={comparativoAnual}>
+                <CartesianGrid strokeDasharray="3 3" className="dark:opacity-20" />
+                <XAxis dataKey="mes" className="dark:stroke-gray-400" />
+                <YAxis className="dark:stroke-gray-400" />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: document.documentElement.classList.contains('dark') ? '#1f2937' : '#fff', 
+                    border: '1px solid #ddd', 
+                    borderRadius: '8px',
+                    color: document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#000'
+                  }}
+                  formatter={(value) => `S/ ${value.toLocaleString()}`}
+                />
+                <Legend />
+                <Bar dataKey={añoAnterior.toString()} fill="#b6aaff" radius={[8, 8, 0, 0]} name={añoAnterior.toString()} />
+                <Line type="monotone" dataKey={añoActual.toString()} stroke="#8f5cff" strokeWidth={3} dot={{ r: 5 }} name={añoActual.toString()} />
+              </ComposedChart>
+            </ResponsiveContainer>
+            <div className="mt-4 grid grid-cols-2 gap-4">
+              <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-3">
+                <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total {añoAnterior}</div>
+                <div className="text-xl font-bold text-[#8f5cff]">
+                  S/ {comparativoAnual.reduce((sum, m) => sum + (m[añoAnterior.toString()] || 0), 0).toLocaleString()}
+                </div>
+              </div>
+              <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-3">
+                <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total {añoActual}</div>
+                <div className="text-xl font-bold text-[#8f5cff]">
+                  S/ {comparativoAnual.reduce((sum, m) => sum + (m[añoActual.toString()] || 0), 0).toLocaleString()}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </section>
+        )}
 
         {/* Estado de inventario */}
         {seccionActual.mostrarInventario && (
