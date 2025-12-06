@@ -14,6 +14,7 @@ import EditarProductoModal from './components/EditarProductoModal';
 import toast, { Toaster } from 'react-hot-toast';
 import { obtenerProductos, eliminarProducto } from './services/productosService';
 import { confirmarEliminar, mostrarExito } from './utils/confirmationModals';
+import { supabase } from './supabaseClient';
 
 function ProductosView({ onNavigate }) {
   const [showNuevoProductoModal, setShowNuevoProductoModal] = useState(false);
@@ -37,6 +38,22 @@ function ProductosView({ onNavigate }) {
     setLoading(true);
     try {
       const productosDB = await obtenerProductos();
+      
+      // Obtener ventas totales por producto desde detalles_pedido
+      const { data: ventasData } = await supabase
+        .from('detalles_pedido')
+        .select('producto_id, cantidad')
+        .not('producto_id', 'is', null);
+      
+      // Calcular ventas totales por producto
+      const ventasPorProducto = {};
+      if (ventasData) {
+        ventasData.forEach(detalle => {
+          const productoId = detalle.producto_id;
+          ventasPorProducto[productoId] = (ventasPorProducto[productoId] || 0) + detalle.cantidad;
+        });
+      }
+      
       // Transformar datos de Supabase al formato esperado
       const productosFormateados = productosDB.map(p => ({
         id: p.id,
@@ -52,6 +69,7 @@ function ProductosView({ onNavigate }) {
         imagen: p.imagen_url || 'https://placehold.co/400x400/8f5cff/ffffff?text=Producto',
         descripcion: p.descripcion,
         costo: p.costo,
+        ventas: ventasPorProducto[p.id] || 0,
       }));
       setProductos(productosFormateados);
     } catch (error) {
@@ -135,7 +153,7 @@ function ProductosView({ onNavigate }) {
     bajoStock: productos.filter(p => p.estado === 'bajo_stock').length,
     valorTotal: productos.reduce((acc, p) => acc + (p.stock * p.precio), 0),
     categorias: [...new Set(productos.map(p => p.categoria).filter(Boolean))].length,
-    ventasTotales: 0, // TODO: Implementar cuando tengamos tabla de ventas
+    ventasTotales: productos.reduce((acc, p) => acc + (p.ventas || 0), 0),
   }), [productos]);
 
   const exportarExcel = () => {
@@ -608,13 +626,21 @@ function ProductosView({ onNavigate }) {
                           </td>
                           <td className="px-6 py-4 text-center text-gray-600 dark:text-gray-400">{producto.ventas || 0}</td>
                           <td className="px-6 py-4 text-center">
-                            {producto.estado === 'Disponible' ? (
-                              <span className="px-3 py-1 bg-green-100 text-green-700 rounded-lg text-sm font-semibold">
+                            {producto.estado === 'disponible' ? (
+                              <span className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg text-sm font-semibold">
                                 ✅ Disponible
                               </span>
-                            ) : (
-                              <span className="px-3 py-1 bg-red-100 text-red-700 rounded-lg text-sm font-semibold">
+                            ) : producto.estado === 'bajo_stock' ? (
+                              <span className="px-3 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 rounded-lg text-sm font-semibold">
                                 ⚠️ Bajo Stock
+                              </span>
+                            ) : producto.estado === 'agotado' ? (
+                              <span className="px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-lg text-sm font-semibold">
+                                ❌ Agotado
+                              </span>
+                            ) : (
+                              <span className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-400 rounded-lg text-sm font-semibold">
+                                🚫 Descontinuado
                               </span>
                             )}
                           </td>

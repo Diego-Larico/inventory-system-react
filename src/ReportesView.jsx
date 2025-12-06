@@ -1120,6 +1120,40 @@ function ReportesView({ onNavigate }) {
         </section>
         )}
 
+        {/* Rendimiento por canal */}
+        {seccionActual.mostrarCanales && (
+        <section className="mb-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7 }}
+            className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg"
+          >
+            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Rendimiento por Canal</h2>
+            <ResponsiveContainer width="100%" height={300}>
+              <RadarChart data={rendimientoPorCanal}>
+                <PolarGrid stroke="#e5e7eb" />
+                <PolarAngleAxis dataKey="canal" stroke="#666" />
+                <PolarRadiusAxis stroke="#666" />
+                <Radar name="Ventas" dataKey="ventas" stroke="#8f5cff" fill="#8f5cff" fillOpacity={0.6} />
+                <Radar name="Pedidos" dataKey="pedidos" stroke="#6e7ff3" fill="#6e7ff3" fillOpacity={0.6} />
+                <Tooltip formatter={(value, name) => name === 'ventas' ? `S/ ${value.toLocaleString()}` : value} />
+                <Legend />
+              </RadarChart>
+            </ResponsiveContainer>
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              {rendimientoPorCanal.map((canal, index) => (
+                <div key={index} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                  <div className="text-sm text-gray-600 dark:text-gray-300 mb-1">{canal.canal}</div>
+                  <div className="font-bold text-[#8f5cff]">S/ {canal.ventas.toLocaleString()}</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">{canal.pedidos} pedidos</div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        </section>
+        )}
+
         {/* Análisis comparativo y productos */}
         <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Comparativo anual */}
@@ -1127,7 +1161,7 @@ function ReportesView({ onNavigate }) {
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.7 }}
+            transition={{ delay: 0.8 }}
             className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg"
           >
             <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Comparativo 2024 vs 2025</h2>
@@ -1172,7 +1206,7 @@ function ReportesView({ onNavigate }) {
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.8 }}
+            transition={{ delay: 0.9 }}
             className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg"
           >
             <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Top Productos {categoriaFiltro && `- ${categoriaFiltro.label}`}</h2>
@@ -1214,47 +1248,13 @@ function ReportesView({ onNavigate }) {
           )}
         </section>
 
-        {/* Rendimiento por canal */}
-        {seccionActual.mostrarCanales && (
-        <section className="mb-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.9 }}
-            className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg"
-          >
-            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Rendimiento por Canal</h2>
-            <ResponsiveContainer width="100%" height={300}>
-              <RadarChart data={rendimientoPorCanal}>
-                <PolarGrid stroke="#e5e7eb" />
-                <PolarAngleAxis dataKey="canal" stroke="#666" />
-                <PolarRadiusAxis stroke="#666" />
-                <Radar name="Ventas" dataKey="ventas" stroke="#8f5cff" fill="#8f5cff" fillOpacity={0.6} />
-                <Radar name="Pedidos" dataKey="pedidos" stroke="#6e7ff3" fill="#6e7ff3" fillOpacity={0.6} />
-                <Tooltip formatter={(value, name) => name === 'ventas' ? `S/ ${value.toLocaleString()}` : value} />
-                <Legend />
-              </RadarChart>
-            </ResponsiveContainer>
-            <div className="mt-4 grid grid-cols-2 gap-3">
-              {rendimientoPorCanal.map((canal, index) => (
-                <div key={index} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
-                  <div className="text-sm text-gray-600 dark:text-gray-300 mb-1">{canal.canal}</div>
-                  <div className="font-bold text-[#8f5cff]">S/ {canal.ventas.toLocaleString()}</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">{canal.pedidos} pedidos</div>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        </section>
-        )}
-
         {/* Estado de inventario */}
         {seccionActual.mostrarInventario && (
         <section className="mb-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.0 }}
+            transition={{ delay: 0.95 }}
             className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg"
           >
             <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Estado del Inventario</h2>
