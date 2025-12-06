@@ -73,10 +73,7 @@ export function mostrarNotificacion(type, message, duration = 3000) {
     },
   };
   
-  // Agregar icono al mensaje
-  const messageWithIcon = `📌 ${message}`;
-  
-  return toast(messageWithIcon, options);
+  return toast(message, options);
 }
 
 /**

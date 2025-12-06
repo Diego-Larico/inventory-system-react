@@ -172,7 +172,7 @@ function ReportesView({ onNavigate }) {
       mostrarClientesFrecuentes: false,
       mostrarCostos: false,
       mostrarRentabilidad: false,
-      titulo: '📊 Análisis de Ventas',
+      titulo: 'Análisis de Ventas',
       descripcion: 'Métricas y tendencias de ventas por canal'
     },
     inventario: {
@@ -190,7 +190,7 @@ function ReportesView({ onNavigate }) {
       mostrarClientesFrecuentes: false,
       mostrarCostos: false,
       mostrarRentabilidad: false,
-      titulo: '📦 Estado del Inventario',
+      titulo: 'Estado del Inventario',
       descripcion: 'Rotación, stock y valorización de inventario'
     },
     productos: {
@@ -208,7 +208,7 @@ function ReportesView({ onNavigate }) {
       mostrarClientesFrecuentes: false,
       mostrarCostos: false,
       mostrarRentabilidad: false,
-      titulo: '🏷️ Análisis de Productos',
+      titulo: 'Análisis de Productos',
       descripcion: 'Rentabilidad, precios y estado de productos'
     },
     clientes: {
@@ -226,7 +226,7 @@ function ReportesView({ onNavigate }) {
       mostrarClientesFrecuentes: true,
       mostrarCostos: false,
       mostrarRentabilidad: false,
-      titulo: '👥 Análisis de Clientes',
+      titulo: 'Análisis de Clientes',
       descripcion: 'Segmentación y comportamiento de clientes'
     },
     financiero: {
@@ -244,7 +244,7 @@ function ReportesView({ onNavigate }) {
       mostrarClientesFrecuentes: false,
       mostrarCostos: true,
       mostrarRentabilidad: true,
-      titulo: '💰 Reporte Financiero',
+      titulo: 'Reporte Financiero',
       descripcion: 'Ingresos, costos, gastos y rentabilidad global'
     }
   };
@@ -265,11 +265,11 @@ function ReportesView({ onNavigate }) {
 
   // Opciones de filtros
   const tipoReporteOptions = [
-    { value: 'ventas', label: '📊 Reporte de Ventas' },
-    { value: 'inventario', label: '📦 Reporte de Inventario' },
-    { value: 'productos', label: '🏷️ Reporte de Productos' },
-    { value: 'clientes', label: '👥 Reporte de Clientes' },
-    { value: 'financiero', label: '💰 Reporte Financiero' },
+    { value: 'ventas', label: 'Reporte de Ventas' },
+    { value: 'inventario', label: 'Reporte de Inventario' },
+    { value: 'productos', label: 'Reporte de Productos' },
+    { value: 'clientes', label: 'Reporte de Clientes' },
+    { value: 'financiero', label: 'Reporte Financiero' },
   ];
 
   const rangoFechaOptions = [
@@ -282,14 +282,14 @@ function ReportesView({ onNavigate }) {
   ];
 
   const categoriaOptions = [
-    { value: 'Polo', label: '👕 Polo' },
-    { value: 'Pantalón', label: '👖 Pantalón' },
-    { value: 'Chaqueta', label: '🧥 Chaqueta' },
-    { value: 'Vestido', label: '👗 Vestido' },
-    { value: 'Camisa', label: '👔 Camisa' },
-    { value: 'Short', label: '🩳 Short' },
-    { value: 'Falda', label: '👗 Falda' },
-    { value: 'Accesorio', label: '👜 Accesorio' },
+    { value: 'Polo', label: 'Polo' },
+    { value: 'Pantalón', label: 'Pantalón' },
+    { value: 'Chaqueta', label: 'Chaqueta' },
+    { value: 'Vestido', label: 'Vestido' },
+    { value: 'Camisa', label: 'Camisa' },
+    { value: 'Short', label: 'Short' },
+    { value: 'Falda', label: 'Falda' },
+    { value: 'Accesorio', label: 'Accesorio' },
   ];
 
   // Funciones de exportación

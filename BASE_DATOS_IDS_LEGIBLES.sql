@@ -82,14 +82,16 @@ CREATE TRIGGER trigger_generar_id_categoria_material
     EXECUTE FUNCTION generar_id_categoria_material();
 
 -- Insertar categorías por defecto
+-- NOTA: Los emojis en 'icono' son solo para referencia en backend.
+-- El frontend usa React Icons (ver src/utils/iconMapping.js) para consistencia visual.
 INSERT INTO public.categorias_materiales (nombre, descripcion, icono, color) VALUES
-    ('Hilo', 'Hilos de diferentes materiales y colores', '🧵', '#8f5cff'),
-    ('Tela', 'Telas para confección', '🧶', '#6e7ff3'),
-    ('Botón', 'Botones diversos', '⚪', '#f59e42'),
-    ('Cremallera', 'Cremalleras y cierres', '🔒', '#10b981'),
-    ('Accesorio', 'Accesorios varios', '📎', '#ef4444'),
-    ('Etiqueta', 'Etiquetas y marquillas', '🏷️', '#f59e0b'),
-    ('Otro', 'Otros materiales', '📦', '#6b7280')
+    ('Hilo', 'Hilos de diferentes materiales y colores', 'needle', '#8f5cff'),
+    ('Tela', 'Telas para confección', 'fabric', '#6e7ff3'),
+    ('Botón', 'Botones diversos', 'circle', '#f59e42'),
+    ('Cremallera', 'Cremalleras y cierres', 'lock', '#10b981'),
+    ('Accesorio', 'Accesorios varios', 'paperclip', '#ef4444'),
+    ('Etiqueta', 'Etiquetas y marquillas', 'tag', '#f59e0b'),
+    ('Otro', 'Otros materiales', 'box', '#6b7280')
 ON CONFLICT (nombre) DO NOTHING;
 
 -- ============================================
@@ -196,15 +198,17 @@ CREATE TRIGGER trigger_generar_id_categoria_producto
     EXECUTE FUNCTION generar_id_categoria_producto();
 
 -- Insertar categorías de productos por defecto
+-- NOTA: Los valores en 'icono' son nombres de iconos (no emojis).
+-- El frontend mapea estos nombres a React Icons (ver src/utils/iconMapping.js).
 INSERT INTO public.categorias_productos (nombre, descripcion, icono, color) VALUES
-    ('Polo', 'Polos y camisetas', '👕', '#8f5cff'),
-    ('Pantalón', 'Pantalones diversos', '👖', '#6e7ff3'),
-    ('Vestido', 'Vestidos', '👗', '#f59e42'),
-    ('Chaqueta', 'Chaquetas y abrigos', '🧥', '#10b981'),
-    ('Falda', 'Faldas', '👗', '#ef4444'),
-    ('Camisa', 'Camisas formales', '👔', '#f59e0b'),
-    ('Short', 'Shorts y bermudas', '🩳', '#6b7280'),
-    ('Accesorio', 'Accesorios de moda', '👜', '#ec4899')
+    ('Polo', 'Polos y camisetas', 'tshirt', '#8f5cff'),
+    ('Pantalón', 'Pantalones diversos', 'jeans', '#6e7ff3'),
+    ('Vestido', 'Vestidos', 'dress', '#f59e42'),
+    ('Chaqueta', 'Chaquetas y abrigos', 'coat', '#10b981'),
+    ('Falda', 'Faldas', 'skirt', '#ef4444'),
+    ('Camisa', 'Camisas formales', 'shirt', '#f59e0b'),
+    ('Short', 'Shorts y bermudas', 'shorts', '#6b7280'),
+    ('Accesorio', 'Accesorios de moda', 'bag', '#ec4899')
 ON CONFLICT (nombre) DO NOTHING;
 
 -- ============================================

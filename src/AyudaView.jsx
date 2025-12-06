@@ -14,8 +14,17 @@ import {
   FaSearch,
   FaExternalLinkAlt,
   FaPhone,
-  FaGlobe
+  FaGlobe,
+  FaBox,
+  FaShoppingCart,
+  FaChartBar,
+  FaExclamationTriangle,
+  FaCog,
+  FaChartLine,
+  FaHashtag,
+  FaPlusCircle
 } from 'react-icons/fa';
+import { GiSewingNeedle } from 'react-icons/gi';
 import toast from 'react-hot-toast';
 
 function AyudaView() {
@@ -26,58 +35,58 @@ function AyudaView() {
     {
       id: 1,
       pregunta: '¿Cómo agregar un nuevo producto?',
-      respuesta: 'Ve a la sección de Productos y haz clic en el botón "➕ Nuevo Producto". Completa el formulario con la información requerida como nombre, categoría, precio, stock, tallas y colores. El código se genera automáticamente.',
+      respuesta: 'Ve a la sección de Productos y haz clic en el botón "Nuevo Producto". Completa el formulario con la información requerida como nombre, categoría, precio, stock, tallas y colores. El código se genera automáticamente.',
       categoria: 'Productos',
-      icon: '📦'
+      IconComponent: FaBox
     },
     {
       id: 2,
       pregunta: '¿Cómo crear un pedido?',
-      respuesta: 'Accede a Pedidos y presiona "➕ Nuevo Pedido". Sigue los 3 pasos: 1) Información del cliente, 2) Selección de productos y detalles, 3) Método de pago y confirmación. El sistema calculará automáticamente los totales.',
+      respuesta: 'Accede a Pedidos y presiona "Nuevo Pedido". Sigue los 3 pasos: 1) Información del cliente, 2) Selección de productos y detalles, 3) Método de pago y confirmación. El sistema calculará automáticamente los totales.',
       categoria: 'Pedidos',
-      icon: '🛒'
+      IconComponent: FaShoppingCart
     },
     {
       id: 3,
       pregunta: '¿Qué significan los estados de pedidos?',
       respuesta: 'Pendiente: Nuevo pedido registrado. En Proceso: Pedido en producción. Completado: Pedido terminado y listo. Entregado: Pedido entregado al cliente. Cancelado: Pedido cancelado por cualquier motivo.',
       categoria: 'Pedidos',
-      icon: '📊'
+      IconComponent: FaChartBar
     },
     {
       id: 4,
       pregunta: '¿Cómo gestionar el inventario de materiales?',
       respuesta: 'En la sección Materiales puedes agregar, editar y eliminar materiales. Cada material tiene stock mínimo configurable. El sistema te alertará cuando el stock sea bajo con notificaciones visuales.',
       categoria: 'Materiales',
-      icon: '🧵'
+      IconComponent: GiSewingNeedle
     },
     {
       id: 5,
       pregunta: '¿Cómo funcionan las notificaciones de stock bajo?',
       respuesta: 'El sistema compara automáticamente el stock actual con el stock mínimo configurado. Si el stock es igual o menor, verás alertas en el dashboard y en las vistas de materiales/productos con colores de advertencia.',
       categoria: 'Inventario',
-      icon: '⚠️'
+      IconComponent: FaExclamationTriangle
     },
     {
       id: 6,
       pregunta: '¿Puedo personalizar la configuración del sistema?',
       respuesta: 'Sí, accede a la sección Configuración donde puedes modificar el nombre de la empresa, símbolo de moneda, porcentaje de impuestos, días de alerta de stock, email de notificaciones y más opciones.',
       categoria: 'Configuración',
-      icon: '⚙️'
+      IconComponent: FaCog
     },
     {
       id: 7,
       pregunta: '¿Cómo generar reportes?',
       respuesta: 'Ve a la sección Reportes donde encontrarás estadísticas de ventas, productos más vendidos, inventario bajo stock, clientes frecuentes y gráficos de rendimiento del negocio.',
       categoria: 'Reportes',
-      icon: '📈'
+      IconComponent: FaChartLine
     },
     {
       id: 8,
       pregunta: '¿Qué son los códigos automáticos?',
       respuesta: 'El sistema genera códigos únicos automáticamente para productos (PROD001), materiales (MAT001), pedidos (PED001), etc. Esto garantiza organización y trazabilidad en todos los registros.',
       categoria: 'Sistema',
-      icon: '🔢'
+      IconComponent: FaHashtag
     }
   ];
 
@@ -88,7 +97,7 @@ function AyudaView() {
       descripcion: 'Configuración inicial y tour por la interfaz',
       duracion: '8 min',
       color: 'from-blue-500 to-blue-600',
-      icon: '🚀'
+      IconComponent: FaRocket
     },
     {
       id: 2,
@@ -96,7 +105,7 @@ function AyudaView() {
       descripcion: 'Cómo crear y administrar productos',
       duracion: '12 min',
       color: 'from-purple-500 to-purple-600',
-      icon: '📦'
+      IconComponent: FaBox
     },
     {
       id: 3,
@@ -104,7 +113,7 @@ function AyudaView() {
       descripcion: 'Proceso completo de creación de pedidos',
       duracion: '15 min',
       color: 'from-green-500 to-green-600',
-      icon: '🛒'
+      IconComponent: FaShoppingCart
     },
     {
       id: 4,
@@ -112,7 +121,7 @@ function AyudaView() {
       descripcion: 'Control de stock y alertas',
       duracion: '10 min',
       color: 'from-orange-500 to-orange-600',
-      icon: '🧵'
+      IconComponent: GiSewingNeedle
     }
   ];
 
@@ -162,8 +171,7 @@ function AyudaView() {
   );
 
   function handleContactClick(contacto) {
-    toast.success(`📞 Contactando vía ${contacto.titulo}`, {
-      icon: '📞',
+    toast.success(`Contactando vía ${contacto.titulo}`, {
       style: { 
         borderRadius: '12px', 
         background: '#10b981', 
@@ -174,8 +182,7 @@ function AyudaView() {
   }
 
   function handleTutorialClick(tutorial) {
-    toast.info(`▶️ Cargando tutorial: ${tutorial.titulo}`, {
-      icon: '🎥',
+    toast.info(`Cargando tutorial: ${tutorial.titulo}`, {
       style: { 
         borderRadius: '12px',
         fontWeight: 'bold'
@@ -275,7 +282,7 @@ function AyudaView() {
                 className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden cursor-pointer border-2 border-gray-100 dark:border-gray-700 hover:border-purple-500 transition-all"
               >
                 <div className={`bg-gradient-to-br ${tutorial.color} p-6 flex items-center justify-center`}>
-                  <span className="text-6xl">{tutorial.icon}</span>
+                  {React.createElement(tutorial.IconComponent, { className: "text-6xl text-white" })}
                 </div>
                 <div className="p-6">
                   <h3 className="font-bold text-xl text-gray-800 dark:text-gray-100 mb-2">
@@ -323,7 +330,9 @@ function AyudaView() {
                   className="w-full p-6 flex items-center justify-between hover:bg-purple-50 dark:hover:bg-gray-700 transition-all"
                 >
                   <div className="flex items-center gap-4 flex-1 text-left">
-                    <span className="text-3xl">{faq.icon}</span>
+                    <div className="text-3xl text-purple-600 dark:text-purple-400">
+                      {React.createElement(faq.IconComponent)}
+                    </div>
                     <div className="flex-1">
                       <h3 className="font-bold text-lg text-gray-900 dark:text-white">
                         {faq.pregunta}

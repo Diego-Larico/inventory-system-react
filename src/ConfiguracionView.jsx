@@ -63,8 +63,7 @@ function ConfiguracionView() {
     }
 
     if (errores === 0) {
-      toast.success('✅ Configuraciones guardadas exitosamente', {
-        icon: '💾',
+      toast.success('Configuraciones guardadas exitosamente', {
         style: { 
           borderRadius: '12px', 
           background: '#10b981', 
@@ -75,8 +74,7 @@ function ConfiguracionView() {
       setEditedValues({});
       await cargarConfiguraciones();
     } else {
-      toast.error(`❌ Error al guardar ${errores} configuración(es)`, {
-        icon: '⚠️',
+      toast.error(`Error al guardar ${errores} configuración(es)`, {
         style: { 
           borderRadius: '12px', 
           background: '#ef4444', 
@@ -92,7 +90,6 @@ function ConfiguracionView() {
   function handleReset() {
     setEditedValues({});
     toast.info('Cambios descartados', {
-      icon: '↩️',
       style: { borderRadius: '12px' },
     });
   }
