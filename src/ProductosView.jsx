@@ -463,11 +463,11 @@ function ProductosView({ onNavigate }) {
                     <div className="p-5">
                       <div className="flex items-center justify-between mb-2">
                         <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">{producto.nombre}</h3>
-                        <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded-lg text-xs font-semibold">
+                        <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 rounded-lg text-xs font-semibold">
                           {producto.categoria}
                         </span>
                       </div>
-                      <p className="text-sm text-gray-500 mb-4">{producto.codigo}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">{producto.codigo}</p>
 
                       <div className="flex items-center gap-2 mb-4">
                         <div className="flex gap-1">
@@ -614,12 +614,12 @@ function ProductosView({ onNavigate }) {
                             </div>
                           </td>
                           <td className="px-6 py-4">
-                            <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-lg text-sm font-semibold">
+                            <span className="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 rounded-lg text-sm font-semibold">
                               {producto.categoria}
                             </span>
                           </td>
                           <td className="px-6 py-4 text-center">
-                            <span className="font-bold text-green-600">S/ {producto.precio}</span>
+                            <span className="font-bold text-green-600 dark:text-green-400">S/ {producto.precio}</span>
                           </td>
                           <td className="px-6 py-4 text-center">
                             <span className="text-lg font-bold text-[#8f5cff]">{producto.stock}</span>
@@ -702,11 +702,14 @@ function ProductosView({ onNavigate }) {
           setShowEditarProductoModal(false);
           setProductoSeleccionado(null);
         }}
-        onSubmit={(data) => {
+        onSubmit={async (data) => {
           console.log('Producto editado:', data);
           toast.success('Producto actualizado exitosamente');
           setShowEditarProductoModal(false);
           setProductoSeleccionado(null);
+          await cargarProductos();
+          // Notificar al Sidebar para actualizar el badge
+          window.dispatchEvent(new Event('productosActualizados'));
         }}
         producto={productoSeleccionado}
       />
@@ -738,7 +741,7 @@ function ProductosView({ onNavigate }) {
                   />
                   <button
                     onClick={() => setShowQuickView(false)}
-                    className="absolute top-4 right-4 bg-white rounded-full p-3 shadow-lg hover:bg-gray-100 transition"
+                    className="absolute top-4 right-4 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-full p-3 shadow-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition"
                   >
                     ✕
                   </button>
@@ -757,7 +760,7 @@ function ProductosView({ onNavigate }) {
 
                   <div className="mb-6">
                     <p className="text-4xl font-bold text-[#8f5cff]">S/ {productoSeleccionado.precio}</p>
-                    <p className="text-sm text-gray-500 mt-1">{productoSeleccionado.ventas || 0} ventas realizadas</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{productoSeleccionado.ventas || 0} ventas realizadas</p>
                   </div>
 
                   <div className="space-y-4 mb-6">
@@ -796,14 +799,14 @@ function ProductosView({ onNavigate }) {
                   </div>
 
                   <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4">
-                      <p className="text-sm text-blue-700 mb-1">Stock actual</p>
-                      <p className="text-2xl font-bold text-blue-600">{productoSeleccionado.stock} unidades</p>
+                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl p-4">
+                      <p className="text-sm text-blue-700 dark:text-blue-400 mb-1">Stock actual</p>
+                      <p className="text-2xl font-bold text-blue-600 dark:text-blue-500">{productoSeleccionado.stock} unidades</p>
                     </div>
-                    <div className={`rounded-xl p-4 ${productoSeleccionado.estado === 'Disponible' ? 'bg-gradient-to-br from-green-50 to-green-100' : 'bg-gradient-to-br from-red-50 to-red-100'}`}>
-                      <p className={`text-sm mb-1 ${productoSeleccionado.estado === 'Disponible' ? 'text-green-700' : 'text-red-700'}`}>Estado</p>
-                      <p className={`text-2xl font-bold ${productoSeleccionado.estado === 'Disponible' ? 'text-green-600' : 'text-red-600'}`}>
-                        {productoSeleccionado.estado}
+                    <div className={`rounded-xl p-4 ${productoSeleccionado.estado === 'disponible' ? 'bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20' : 'bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20'}`}>
+                      <p className={`text-sm mb-1 ${productoSeleccionado.estado === 'disponible' ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>Estado</p>
+                      <p className={`text-2xl font-bold ${productoSeleccionado.estado === 'disponible' ? 'text-green-600 dark:text-green-500' : 'text-red-600 dark:text-red-500'}`}>
+                        {productoSeleccionado.estado === 'disponible' ? '✅ Disponible' : productoSeleccionado.estado === 'bajo_stock' ? '⚠️ Bajo Stock' : productoSeleccionado.estado === 'agotado' ? '❌ Agotado' : '🚫 Descontinuado'}
                       </p>
                     </div>
                   </div>

@@ -472,7 +472,7 @@ function MaterialesView({ onNavigate }) {
                         </div>
                         <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-3 text-center">
                           <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Precio</p>
-                          <p className="text-xl font-bold text-green-600">S/ {parseFloat(material.precio_unitario || 0).toFixed(2)}</p>
+                          <p className="text-xl font-bold text-green-600 dark:text-green-400">S/ {parseFloat(material.precio_unitario || 0).toFixed(2)}</p>
                         </div>
                       </div>
 
@@ -564,14 +564,14 @@ function MaterialesView({ onNavigate }) {
                             </div>
                           </td>
                           <td className="px-6 py-4">
-                            <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-sm font-semibold">
+                            <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-lg text-sm font-semibold">
                               {material.categoria?.nombre || 'Sin categoría'}
                             </span>
                           </td>
                           <td className="px-6 py-4 text-center">
                             <div>
                               <span className="text-lg font-bold text-[#8f5cff]">{parseFloat(material.cantidad || 0).toFixed(2)}</span>
-                              <p className="text-xs text-gray-400">{material.unidad || 'unidades'}</p>
+                              <p className="text-xs text-gray-400 dark:text-gray-500">{material.unidad || 'unidades'}</p>
                             </div>
                           </td>
                           <td className="px-6 py-4 text-center text-gray-600 dark:text-gray-400">{parseFloat(material.stock_minimo || 0).toFixed(2)}</td>
@@ -586,15 +586,15 @@ function MaterialesView({ onNavigate }) {
                           </td>
                           <td className="px-6 py-4 text-center">
                             {material.estado === 'disponible' ? (
-                              <span className="px-3 py-1 bg-green-100 text-green-700 rounded-lg text-sm font-semibold">
+                              <span className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg text-sm font-semibold">
                                 ✅ Disponible
                               </span>
                             ) : material.estado === 'bajo_stock' ? (
-                              <span className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-lg text-sm font-semibold flex items-center gap-1 justify-center">
+                              <span className="px-3 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 rounded-lg text-sm font-semibold flex items-center gap-1 justify-center">
                                 <FaExclamationTriangle /> Bajo Stock
                               </span>
                             ) : (
-                              <span className="px-3 py-1 bg-red-100 text-red-700 rounded-lg text-sm font-semibold">
+                              <span className="px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-lg text-sm font-semibold">
                                 ❌ Agotado
                               </span>
                             )}

@@ -1022,10 +1022,13 @@ function PedidosView({ onNavigate }) {
         onClose={() => {
           setShowEditarPedidoModal(false);
         }}
-        onSubmit={(data) => {
+        onSubmit={async (data) => {
           console.log('Pedido editado:', data);
+          toast.success('Pedido actualizado exitosamente');
           setShowEditarPedidoModal(false);
           setSelectedPedido(null);
+          await cargarPedidos();
+          await cargarEstadisticas();
         }}
         pedido={selectedPedido}
       />

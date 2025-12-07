@@ -4,10 +4,13 @@ import { FaTimes, FaShoppingCart, FaUser, FaPhone, FaMapMarkerAlt, FaCalendarAlt
 import Select from 'react-select';
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
+import { actualizarPedido } from '../services/pedidosService';
+import { confirmarGuardar, mostrarExito, mostrarError } from '../utils/confirmationModals';
 
 Modal.setAppElement('#root');
 
 function EditarPedidoModal({ isOpen, onClose, onSubmit, pedido }) {
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     cliente: '',
     telefono: '',
@@ -64,7 +67,7 @@ function EditarPedidoModal({ isOpen, onClose, onSubmit, pedido }) {
     setFormData({ ...formData, [field]: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!formData.cliente.trim()) {
@@ -89,14 +92,37 @@ function EditarPedidoModal({ isOpen, onClose, onSubmit, pedido }) {
       return;
     }
 
-    toast.success('¡Pedido actualizado exitosamente!', {
-      icon: '🎉',
-      style: { borderRadius: '12px', background: '#8f5cff', color: '#fff' },
-      duration: 3000,
-    });
+    // Confirmar guardado
+    const confirmado = await confirmarGuardar(`Pedido "${pedido.numero_pedido}"`);
+    if (!confirmado) return;
+
+    setLoading(true);
+
+    // Preparar datos para Supabase
+    const pedidoData = {
+      cliente_nombre: formData.cliente,
+      cliente_telefono: formData.telefono,
+      cliente_direccion: formData.direccion,
+      cliente_email: formData.email,
+      estado: formData.estado.value,
+      prioridad: formData.prioridad?.value || 'Media',
+      fecha_entrega: formData.fechaEntrega,
+      metodo_pago: formData.metodoPago?.value || null,
+      anticipo: parseFloat(formData.adelanto) || 0,
+      notas: formData.notas,
+    };
+
+    const resultado = await actualizarPedido(pedido.id, pedidoData);
     
-    onSubmit({ ...formData, id: pedido.id });
-    handleClose();
+    setLoading(false);
+
+    if (resultado.success) {
+      await mostrarExito('Pedido actualizado exitosamente', 'Los cambios se han guardado correctamente');
+      onSubmit({ ...formData, id: pedido.id });
+      handleClose();
+    } else {
+      await mostrarError('Error al actualizar el pedido', resultado.error);
+    }
   };
 
   const handleClose = () => {
@@ -399,13 +425,14 @@ function EditarPedidoModal({ isOpen, onClose, onSubmit, pedido }) {
                 Cancelar
               </motion.button>
               <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={{ scale: loading ? 1 : 1.02 }}
+                whileTap={{ scale: loading ? 1 : 0.98 }}
                 type="submit"
-                className="flex-1 px-6 py-4 bg-gradient-to-r from-[#f59e42] to-[#ff7a42] text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-200 shadow-md flex items-center justify-center gap-2"
+                disabled={loading}
+                className={`flex-1 px-6 py-4 bg-gradient-to-r from-[#f59e42] to-[#ff7a42] text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-200 shadow-md flex items-center justify-center gap-2 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 <FaShoppingCart />
-                Guardar Cambios
+                {loading ? 'Guardando...' : 'Guardar Cambios'}
               </motion.button>
             </div>
           </form>
