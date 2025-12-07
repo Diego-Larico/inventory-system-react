@@ -3,6 +3,11 @@
   color: #8f5cff;
   font-weight: 700;
 }
+
+.dark .fc .fc-toolbar-title {
+  color: #a78bfa;
+}
+
 .fc .fc-button {
   background: linear-gradient(90deg, #8f5cff 0%, #6e7ff3 100%);
   color: #fff;
@@ -20,6 +25,12 @@
   background: #f3f0ff;
   color: #8f5cff;
 }
+
+.dark .fc .fc-daygrid-day.fc-day-today {
+  background: rgba(143, 92, 255, 0.15);
+  color: #a78bfa;
+}
+
 .fc .fc-daygrid-day.fc-day-selected {
   background: linear-gradient(90deg, #8f5cff 0%, #6e7ff3 100%);
   color: #fff;
@@ -28,7 +39,30 @@
   color: #8f5cff;
   font-weight: 500;
 }
+
+.dark .fc .fc-col-header-cell {
+  color: #a78bfa;
+}
+
 .fc .fc-daygrid-day-number {
   color: #8f5cff;
   font-weight: 600;
+}
+
+.dark .fc .fc-daygrid-day-number {
+  color: #9ca3af;
+}
+
+/* Adaptación general de colores de texto en modo oscuro */
+.dark .fc-theme-standard td, 
+.dark .fc-theme-standard th {
+  border-color: #374151;
+}
+
+.dark .fc .fc-daygrid-day-frame {
+  background: transparent;
+}
+
+.dark .fc .fc-scrollgrid {
+  border-color: #374151;
 }

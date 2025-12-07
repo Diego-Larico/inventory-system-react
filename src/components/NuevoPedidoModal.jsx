@@ -510,7 +510,7 @@ function NuevoPedidoModal({ isOpen, onClose, onSubmit }) {
                     isLoading={loading}
                   />
                   <div className="mt-2">
-                    <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+                    <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 cursor-pointer">
                       <input
                         type="checkbox"
                         checked={crearNuevoCliente}
@@ -536,7 +536,7 @@ function NuevoPedidoModal({ isOpen, onClose, onSubmit }) {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="group">
-                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                       <FaUser className="text-[#8f5cff]" />
                       Nombre completo *
                     </label>
@@ -545,12 +545,12 @@ function NuevoPedidoModal({ isOpen, onClose, onSubmit }) {
                       value={formData.clienteNombre}
                       onChange={(e) => handleChange('clienteNombre', e.target.value)}
                       placeholder="Nombre completo del cliente"
-                      className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 group-hover:border-gray-300"
+                      className="w-full px-5 py-4 border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 group-hover:border-gray-300 dark:group-hover:border-gray-500"
                       disabled={!crearNuevoCliente && formData.clienteSeleccionado}
                     />
                   </div>
                   <div className="group">
-                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                       <FaPhone className="text-[#8f5cff]" />
                       Teléfono *
                     </label>
@@ -559,14 +559,14 @@ function NuevoPedidoModal({ isOpen, onClose, onSubmit }) {
                       value={formData.clienteTelefono}
                       onChange={(e) => handleChange('clienteTelefono', e.target.value)}
                       placeholder="+51 999 999 999"
-                      className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 group-hover:border-gray-300"
+                      className="w-full px-5 py-4 border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 group-hover:border-gray-300 dark:group-hover:border-gray-500"
                       disabled={!crearNuevoCliente && formData.clienteSeleccionado}
                     />
                   </div>
                 </div>
 
                 <div className="group">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                     <FaMapMarkerAlt className="text-[#8f5cff]" />
                     Dirección de entrega
                   </label>
@@ -575,13 +575,13 @@ function NuevoPedidoModal({ isOpen, onClose, onSubmit }) {
                     value={formData.clienteDireccion}
                     onChange={(e) => handleChange('clienteDireccion', e.target.value)}
                     placeholder="Calle, número, distrito, ciudad"
-                    className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 group-hover:border-gray-300"
+                    className="w-full px-5 py-4 border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 group-hover:border-gray-300 dark:group-hover:border-gray-500"
                     disabled={!crearNuevoCliente && formData.clienteSeleccionado}
                   />
                 </div>
 
                 <div className="group">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                     Email (opcional)
                   </label>
                   <input
@@ -589,7 +589,7 @@ function NuevoPedidoModal({ isOpen, onClose, onSubmit }) {
                     value={formData.clienteEmail}
                     onChange={(e) => handleChange('clienteEmail', e.target.value)}
                     placeholder="cliente@ejemplo.com"
-                    className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 group-hover:border-gray-300"
+                    className="w-full px-5 py-4 border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 group-hover:border-gray-300 dark:group-hover:border-gray-500"
                     disabled={!crearNuevoCliente && formData.clienteSeleccionado}
                   />
                 </div>
@@ -609,13 +609,13 @@ function NuevoPedidoModal({ isOpen, onClose, onSubmit }) {
                     <FaBox className="text-white text-xl" />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-gray-800">Detalles del Pedido</h3>
-                    <p className="text-sm text-gray-500">Productos, prioridad y fecha de entrega</p>
+                    <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Detalles del Pedido</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Productos, prioridad y fecha de entrega</p>
                   </div>
                 </div>
 
                 <div>
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                     <FaBox className="text-[#8f5cff]" />
                     Agregar productos *
                   </label>
@@ -632,16 +632,16 @@ function NuevoPedidoModal({ isOpen, onClose, onSubmit }) {
                 {/* Lista de productos agregados */}
                 {formData.productosSeleccionados.length > 0 && (
                   <div className="space-y-3">
-                    <h4 className="font-semibold text-gray-700">Productos agregados:</h4>
+                    <h4 className="font-semibold text-gray-700 dark:text-gray-300">Productos agregados:</h4>
                     {formData.productosSeleccionados.map((producto, index) => (
                       <div
                         key={index}
-                        className="bg-gray-50 p-4 rounded-xl border-2 border-gray-200 space-y-3"
+                        className="bg-gray-50 dark:bg-gray-700 p-4 rounded-xl border-2 border-gray-200 dark:border-gray-600 space-y-3"
                       >
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="font-semibold text-gray-800">{producto.producto_nombre}</p>
-                            <p className="text-sm text-gray-500">Stock disponible: {producto.stock_disponible}</p>
+                            <p className="font-semibold text-gray-800 dark:text-gray-100">{producto.producto_nombre}</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">Stock disponible: {producto.stock_disponible}</p>
                           </div>
                           <button
                             type="button"
@@ -653,7 +653,7 @@ function NuevoPedidoModal({ isOpen, onClose, onSubmit }) {
                         </div>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                           <div>
-                            <label className="text-xs text-gray-600">Cantidad</label>
+                            <label className="text-xs text-gray-600 dark:text-gray-400">Cantidad</label>
                             <input
                               type="number"
                               min="1"
@@ -662,11 +662,11 @@ function NuevoPedidoModal({ isOpen, onClose, onSubmit }) {
                               onChange={(e) =>
                                 handleActualizarProducto(index, 'cantidad', parseInt(e.target.value) || 1)
                               }
-                              className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-[#8f5cff]"
+                              className="w-full px-3 py-2 border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-600 dark:text-gray-100 rounded-lg focus:outline-none focus:border-[#8f5cff]"
                             />
                           </div>
                           <div>
-                            <label className="text-xs text-gray-600">Precio Unit.</label>
+                            <label className="text-xs text-gray-600 dark:text-gray-400">Precio Unit.</label>
                             <input
                               type="number"
                               step="0.01"
@@ -674,11 +674,11 @@ function NuevoPedidoModal({ isOpen, onClose, onSubmit }) {
                               onChange={(e) =>
                                 handleActualizarProducto(index, 'precio_unitario', parseFloat(e.target.value) || 0)
                               }
-                              className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-[#8f5cff]"
+                              className="w-full px-3 py-2 border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-600 dark:text-gray-100 rounded-lg focus:outline-none focus:border-[#8f5cff]"
                             />
                           </div>
                           <div>
-                            <label className="text-xs text-gray-600">Talla</label>
+                            <label className="text-xs text-gray-600 dark:text-gray-400">Talla</label>
                             <input
                               type="text"
                               value={producto.talla}
@@ -686,11 +686,11 @@ function NuevoPedidoModal({ isOpen, onClose, onSubmit }) {
                                 handleActualizarProducto(index, 'talla', e.target.value)
                               }
                               placeholder="S, M, L..."
-                              className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-[#8f5cff]"
+                              className="w-full px-3 py-2 border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-600 dark:text-gray-100 rounded-lg focus:outline-none focus:border-[#8f5cff]"
                             />
                           </div>
                           <div>
-                            <label className="text-xs text-gray-600">Color</label>
+                            <label className="text-xs text-gray-600 dark:text-gray-400">Color</label>
                             <input
                               type="text"
                               value={producto.color}
@@ -698,7 +698,7 @@ function NuevoPedidoModal({ isOpen, onClose, onSubmit }) {
                                 handleActualizarProducto(index, 'color', e.target.value)
                               }
                               placeholder="Rojo, Azul..."
-                              className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-[#8f5cff]"
+                              className="w-full px-3 py-2 border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-600 dark:text-gray-100 rounded-lg focus:outline-none focus:border-[#8f5cff]"
                             />
                           </div>
                         </div>
@@ -714,7 +714,7 @@ function NuevoPedidoModal({ isOpen, onClose, onSubmit }) {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                       Prioridad *
                     </label>
                     <Select
@@ -726,7 +726,7 @@ function NuevoPedidoModal({ isOpen, onClose, onSubmit }) {
                     />
                   </div>
                   <div className="group">
-                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                       <FaCalendar className="text-[#8f5cff]" />
                       Fecha de entrega *
                     </label>
@@ -735,7 +735,7 @@ function NuevoPedidoModal({ isOpen, onClose, onSubmit }) {
                       value={formData.fechaEntrega}
                       onChange={(e) => handleChange('fechaEntrega', e.target.value)}
                       min={new Date().toISOString().split('T')[0]}
-                      className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 group-hover:border-gray-300"
+                      className="w-full px-5 py-4 border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 group-hover:border-gray-300 dark:group-hover:border-gray-500"
                     />
                   </div>
                 </div>
@@ -755,8 +755,8 @@ function NuevoPedidoModal({ isOpen, onClose, onSubmit }) {
                     <FaDollarSign className="text-white text-xl" />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-gray-800">Pago y Notas</h3>
-                    <p className="text-sm text-gray-500">Información de pago y detalles adicionales</p>
+                    <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Pago y Notas</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Información de pago y detalles adicionales</p>
                   </div>
                 </div>
 
@@ -789,7 +789,7 @@ function NuevoPedidoModal({ isOpen, onClose, onSubmit }) {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                       <FaDollarSign className="text-[#8f5cff]" />
                       Método de pago
                     </label>
@@ -803,7 +803,7 @@ function NuevoPedidoModal({ isOpen, onClose, onSubmit }) {
                     />
                   </div>
                   <div className="group">
-                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                       <FaDollarSign className="text-[#8f5cff]" />
                       Descuento (S/)
                     </label>
@@ -814,13 +814,13 @@ function NuevoPedidoModal({ isOpen, onClose, onSubmit }) {
                       placeholder="0.00"
                       min="0"
                       step="0.01"
-                      className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 group-hover:border-gray-300"
+                      className="w-full px-5 py-4 border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 group-hover:border-gray-300 dark:group-hover:border-gray-500"
                     />
                   </div>
                 </div>
 
                 <div className="group">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                     <FaDollarSign className="text-[#8f5cff]" />
                     Anticipo (S/)
                   </label>
@@ -832,12 +832,12 @@ function NuevoPedidoModal({ isOpen, onClose, onSubmit }) {
                     min="0"
                     max={calcularTotales().total}
                     step="0.01"
-                    className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 group-hover:border-gray-300"
+                    className="w-full px-5 py-4 border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 group-hover:border-gray-300 dark:group-hover:border-gray-500"
                   />
                 </div>
 
                 <div className="group">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                     <FaClipboardList className="text-[#8f5cff]" />
                     Notas adicionales
                   </label>
@@ -846,14 +846,14 @@ function NuevoPedidoModal({ isOpen, onClose, onSubmit }) {
                     onChange={(e) => handleChange('notas', e.target.value)}
                     placeholder="Detalles especiales, preferencias del cliente, etc."
                     rows={4}
-                    className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 resize-none group-hover:border-gray-300"
+                    className="w-full px-5 py-4 border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#8f5cff] focus:ring-opacity-20 focus:border-[#8f5cff] transition-all duration-200 resize-none group-hover:border-gray-300 dark:group-hover:border-gray-500"
                   />
                 </div>
               </motion.div>
             )}
 
             {/* Buttons */}
-            <div className="flex gap-4 pt-6 border-t-2 border-gray-100">
+            <div className="flex gap-4 pt-6 border-t-2 border-gray-100 dark:border-gray-700">
               {step > 1 && (
                 <motion.button
                   whileHover={{ scale: 1.02 }}
@@ -861,7 +861,7 @@ function NuevoPedidoModal({ isOpen, onClose, onSubmit }) {
                   type="button"
                   onClick={() => setStep(step - 1)}
                   disabled={loading}
-                  className="flex-1 px-6 py-4 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-all duration-200 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-6 py-4 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   ← Anterior
                 </motion.button>
@@ -885,7 +885,7 @@ function NuevoPedidoModal({ isOpen, onClose, onSubmit }) {
                     type="button"
                     onClick={handleClose}
                     disabled={loading}
-                    className="flex-1 px-6 py-4 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-all duration-200 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 px-6 py-4 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Cancelar
                   </motion.button>
