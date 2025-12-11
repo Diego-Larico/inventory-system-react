@@ -60,6 +60,7 @@ function ProductosView({ onNavigate }) {
         nombre: p.nombre,
         codigo: p.codigo,
         categoria: p.categoria?.nombre || 'Sin categoría',
+        categoria_id: p.categoria_id, // ← IMPORTANTE: Incluir categoria_id para el modal de editar
         tallas: p.tallas || [],
         colores: p.colores || [],
         precio: parseFloat(p.precio),

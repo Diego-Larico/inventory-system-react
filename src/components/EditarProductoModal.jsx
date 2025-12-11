@@ -50,7 +50,7 @@ function EditarProductoModal({ isOpen, onClose, onSubmit, producto }) {
 
   // Cargar datos del producto
   useEffect(() => {
-    if (producto && isOpen) {
+    if (producto && isOpen && categorias.length > 0) {
       // Convertir arrays de tallas y colores a formato react-select
       const tallasFormateadas = Array.isArray(producto.tallas) 
         ? producto.tallas.map(t => ({ value: t, label: t }))
@@ -93,7 +93,7 @@ function EditarProductoModal({ isOpen, onClose, onSubmit, producto }) {
       });
       setHasChanges(false);
     }
-  }, [producto, isOpen]);
+  }, [producto, isOpen, categorias]);
 
   // Convertir categorías de base de datos a opciones de react-select
   const categoriaOptions = categorias.map(cat => ({
@@ -537,21 +537,6 @@ function EditarProductoModal({ isOpen, onClose, onSubmit, producto }) {
                     styles={customSelectStyles}
                   />
                 </div>
-              </div>
-
-              <div className="mt-6">
-                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
-                  <FaTshirt className="text-[#f59e42]" />
-                  Materiales utilizados
-                </label>
-                <Select
-                  isMulti
-                  options={materialesOptions}
-                  value={formData.materiales}
-                  onChange={(value) => handleChange('materiales', value)}
-                  placeholder="Selecciona los materiales"
-                  styles={customSelectStyles}
-                />
               </div>
 
               <div className="group mt-6">
