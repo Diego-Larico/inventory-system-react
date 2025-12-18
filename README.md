@@ -96,30 +96,6 @@
 
 ---
 
-## 📸 Capturas de Pantalla
-
-### Dashboard Principal
-![Dashboard](https://via.placeholder.com/800x450?text=Dashboard+Principal)
-> Vista general con estadísticas, gráficos y alertas en tiempo real
-
-### Gestión de Productos
-![Productos](https://via.placeholder.com/800x450?text=Gesti%C3%B3n+de+Productos)
-> Vista de productos con opciones de grid, lista y filtros avanzados
-
-### Gestión de Pedidos
-![Pedidos](https://via.placeholder.com/800x450?text=Gesti%C3%B3n+de+Pedidos)
-> Sistema de pedidos con estados visuales y vistas Kanban
-
-### Reportes y Analíticas
-![Reportes](https://via.placeholder.com/800x450?text=Reportes+y+Anal%C3%ADticas)
-> Dashboard de reportes con múltiples gráficos interactivos
-
-### Modo Oscuro
-![Dark Mode](https://via.placeholder.com/800x450?text=Modo+Oscuro)
-> Interfaz completa con soporte para tema oscuro
-
----
-
 ## 🚀 Inicio Rápido
 
 ### Prerrequisitos
@@ -400,17 +376,6 @@ Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) par
 - [Tailwind CSS](https://tailwindcss.com/) - Framework CSS
 - [Recharts](https://recharts.org/) - Librería de gráficos
 - [Framer Motion](https://www.framer.com/motion/) - Animaciones
-
----
-
-## 📞 Soporte
-
-¿Necesitas ayuda? Tienes varias opciones:
-
-- 📧 **Email:** soporte@inventariosystem.com
-- 💬 **Discord:** [Únete a nuestra comunidad](#)
-- 📖 **Documentación:** [Wiki del proyecto](../../wiki)
-- 🐛 **Issues:** [GitHub Issues](../../issues)
 
 ---
 
