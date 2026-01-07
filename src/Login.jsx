@@ -108,13 +108,13 @@ function Login({ onLoginSuccess }) {
             transition={{ delay: 0.4, type: "spring", stiffness: 260, damping: 20 }}
             className="flex flex-col items-center mb-10"
           >
-            <motion.img
-              src="/vite.svg"
-              alt="Logo"
-              className="w-16 h-16 mb-2"
+            <motion.div
+              className="w-16 h-16 mb-2 flex items-center justify-center"
               animate={{ rotate: 360 }}
               transition={{ duration: 1, delay: 0.5 }}
-            />
+            >
+              <i className="fas fa-box-open text-5xl text-indigo-600 dark:text-indigo-400"></i>
+            </motion.div>
             <motion.span
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -230,10 +230,8 @@ function Login({ onLoginSuccess }) {
             transition={{ delay: 0.8, type: "spring", stiffness: 200, damping: 15 }}
             className="w-full flex justify-center relative z-10"
           >
-            <motion.img
-              src="/vite.svg"
-              alt="Ilustración"
-              className="w-32 h-32"
+            <motion.div
+              className="w-32 h-32 flex items-center justify-center"
               animate={{
                 y: [0, -10, 0],
               }}
@@ -242,7 +240,9 @@ function Login({ onLoginSuccess }) {
                 repeat: Infinity,
                 ease: "easeInOut"
               }}
-            />
+            >
+              <i className="fas fa-warehouse text-9xl text-white opacity-90"></i>
+            </motion.div>
           </motion.div>
           {/* Fondo decorativo */}
           <div className="absolute inset-0 pointer-events-none">
