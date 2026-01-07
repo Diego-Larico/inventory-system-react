@@ -28,7 +28,7 @@ export async function obtenerEstadisticasDashboard() {
     const totalClientes = clientes?.length || 0;
 
     // Calcular crecimiento (simulado - en producción vendría de histórico)
-    const crecimiento = '+23%';
+    const crecimiento = 23;
 
     // Calcular rendimiento basado en productos disponibles
     const productosDisponibles = productos.filter(p => p.estado === 'disponible').length;
@@ -42,7 +42,7 @@ export async function obtenerEstadisticasDashboard() {
         clientes: totalClientes,
         productos: totalProductos,
         crecimiento: crecimiento,
-        rendimiento: `${rendimiento}%`
+        rendimiento: rendimiento
       }
     };
   } catch (error) {
@@ -53,8 +53,8 @@ export async function obtenerEstadisticasDashboard() {
       data: {
         clientes: 0,
         productos: 0,
-        crecimiento: '0%',
-        rendimiento: '0%'
+        crecimiento: 0,
+        rendimiento: 0
       }
     };
   }

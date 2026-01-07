@@ -20,13 +20,14 @@ function TodoListWidget() {
   useEffect(() => {
     cargarTareas();
     
-    // Escuchar evento de actualización
-    window.addEventListener('tareasActualizadas', cargarTareas);
-    return () => window.removeEventListener('tareasActualizadas', cargarTareas);
+    // Escuchar evento de actualización desde otros componentes (sin mostrar carga)
+    const handleTareasActualizadas = () => cargarTareas(false);
+    window.addEventListener('tareasActualizadas', handleTareasActualizadas);
+    return () => window.removeEventListener('tareasActualizadas', handleTareasActualizadas);
   }, []);
 
-  async function cargarTareas() {
-    setLoading(true);
+  async function cargarTareas(mostrarCarga = true) {
+    if (mostrarCarga) setLoading(true);
     const resultado = await obtenerTareas();
     if (resultado.success) {
       setTasks(resultado.data.map(t => ({
@@ -38,12 +39,28 @@ function TodoListWidget() {
         orden: t.orden
       })));
     }
-    setLoading(false);
+    if (mostrarCarga) setLoading(false);
   }
 
   async function handleAddTask(e) {
     e.preventDefault();
     if (input.trim()) {
+      // Crear ID temporal para actualización optimista
+      const tempId = 'temp-' + Date.now();
+      const nuevaTarea = {
+        id: tempId,
+        text: input,
+        completed: false,
+        descripcion: '',
+        prioridad: 'media',
+        orden: tasks.length
+      };
+
+      // Actualización optimista en la UI
+      setTasks(prev => [...prev, nuevaTarea]);
+      setInput('');
+      
+      // Sincronizar con la base de datos en segundo plano
       const resultado = await crearTarea({
         titulo: input,
         descripcion: '',
@@ -51,23 +68,29 @@ function TodoListWidget() {
       });
 
       if (resultado.success) {
+        // Recargar tareas sin mostrar loading
+        await cargarTareas(false);
         toast.success('Tarea agregada');
-        await cargarTareas();
-        setInput('');
-        window.dispatchEvent(new Event('tareasActualizadas'));
       } else {
+        // Revertir si falla
+        setTasks(prev => prev.filter(t => t.id !== tempId));
         toast.error('Error al agregar tarea');
       }
     }
   }
 
   async function handleDeleteTask(id) {
+    // Actualización optimista en la UI
+    const tareasAnteriores = tasks;
+    setTasks(prev => prev.filter(t => t.id !== id));
+    toast.success('Tarea eliminada');
+    
+    // Sincronizar con la base de datos en segundo plano
     const resultado = await eliminarTarea(id);
-    if (resultado.success) {
-      toast.success('Tarea eliminada');
-      await cargarTareas();
-      window.dispatchEvent(new Event('tareasActualizadas'));
-    } else {
+    
+    if (!resultado.success) {
+      // Revertir si falla
+      setTasks(tareasAnteriores);
       toast.error('Error al eliminar tarea');
     }
   }
@@ -75,13 +98,22 @@ function TodoListWidget() {
   async function handleToggleComplete(id) {
     const task = tasks.find(t => t.id === id);
     if (task) {
+      // Actualización optimista en la UI
+      setTasks(prev => prev.map(t => 
+        t.id === id ? { ...t, completed: !t.completed } : t
+      ));
+      
+      // Sincronizar con la base de datos en segundo plano
       const resultado = await actualizarTarea(id, {
         completada: !task.completed
       });
 
-      if (resultado.success) {
-        await cargarTareas();
-        window.dispatchEvent(new Event('tareasActualizadas'));
+      if (!resultado.success) {
+        // Revertir si falla
+        setTasks(prev => prev.map(t => 
+          t.id === id ? { ...t, completed: task.completed } : t
+        ));
+        toast.error('Error al actualizar tarea');
       }
     }
   }

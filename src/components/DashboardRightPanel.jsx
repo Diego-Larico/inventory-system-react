@@ -26,29 +26,30 @@ function DashboardRightPanel() {
 
   // Cargar estadísticas al montar
   useEffect(() => {
-    cargarEstadisticas();
+    cargarEstadisticas(true);
     
-    // Actualizar estadísticas cuando cambian productos o clientes
-    window.addEventListener('productosActualizados', cargarEstadisticas);
-    window.addEventListener('clientesActualizados', cargarEstadisticas);
+    // Actualizar estadísticas cuando cambian productos o clientes (sin loading)
+    const handleActualizacion = () => cargarEstadisticas(false);
+    window.addEventListener('productosActualizados', handleActualizacion);
+    window.addEventListener('clientesActualizados', handleActualizacion);
     
-    // Actualizar cada 30 segundos
-    const interval = setInterval(cargarEstadisticas, 30000);
+    // Actualizar cada 30 segundos (sin loading)
+    const interval = setInterval(() => cargarEstadisticas(false), 30000);
     
     return () => {
-      window.removeEventListener('productosActualizados', cargarEstadisticas);
-      window.removeEventListener('clientesActualizados', cargarEstadisticas);
+      window.removeEventListener('productosActualizados', handleActualizacion);
+      window.removeEventListener('clientesActualizados', handleActualizacion);
       clearInterval(interval);
     };
   }, []);
 
-  async function cargarEstadisticas() {
-    setLoadingStats(true);
+  async function cargarEstadisticas(mostrarCarga = false) {
+    if (mostrarCarga) setLoadingStats(true);
     const resultado = await obtenerEstadisticasDashboard();
     if (resultado.success) {
       setStats(resultado.data);
     }
-    setLoadingStats(false);
+    if (mostrarCarga) setLoadingStats(false);
   }
 
   return (
@@ -128,25 +129,33 @@ function DashboardRightPanel() {
                 icon: FaUsers, 
                 value: stats.clientes, 
                 label: 'Clientes', 
-                color: 'from-blue-500 to-blue-600' 
+                color: 'from-blue-500 to-blue-600',
+                prefix: '',
+                suffix: ''
               },
               { 
                 icon: FaBox, 
                 value: stats.productos, 
                 label: 'Productos', 
-                color: 'from-green-500 to-green-600' 
+                color: 'from-green-500 to-green-600',
+                prefix: '',
+                suffix: ''
               },
               { 
                 icon: FaChartLine, 
-                value: `+${stats.crecimiento}%`, 
+                value: stats.crecimiento, 
                 label: 'Crecimiento', 
-                color: 'from-purple-500 to-purple-600' 
+                color: 'from-purple-500 to-purple-600',
+                prefix: '+',
+                suffix: '%'
               },
               { 
                 icon: FaRocket, 
-                value: `${stats.rendimiento}%`, 
+                value: stats.rendimiento, 
                 label: 'Rendimiento', 
-                color: 'from-orange-500 to-orange-600' 
+                color: 'from-orange-500 to-orange-600',
+                prefix: '',
+                suffix: '%'
               },
             ].map((stat, index) => (
               <motion.div
@@ -158,14 +167,9 @@ function DashboardRightPanel() {
                 className={`bg-gradient-to-br ${stat.color} rounded-xl p-4 text-white shadow-lg cursor-pointer`}
               >
                 <stat.icon className="text-2xl mb-2" />
-                <motion.p 
-                  key={stat.value}
-                  initial={{ scale: 1.2, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  className="text-2xl font-bold"
-                >
-                  {stat.value}
-                </motion.p>
+                <p className="text-2xl font-bold">
+                  {stat.prefix}{stat.value}{stat.suffix}
+                </p>
                 <p className="text-xs opacity-75">{stat.label}</p>
               </motion.div>
             ))
